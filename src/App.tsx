@@ -568,20 +568,13 @@ function VoicePhone({
             </div>
           ) : (
             <>
-              <div className="previous-caption">{state.previous}</div>
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={state.current || 'empty'}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                >
-                  {state.current ||
-                    (state.phase === 'responding' && !state.previous
-                      ? 'Alex is listening…'
-                      : '')}
-                </motion.p>
-              </AnimatePresence>
+              <div className="previous-caption" key={state.previous}>{state.previous}</div>
+              <p className="current-caption" key={state.current || 'empty'}>
+                {state.current ||
+                  (state.phase === 'responding' && !state.previous
+                    ? 'Alex is listening…'
+                    : '')}
+              </p>
             </>
           )}
         </div>

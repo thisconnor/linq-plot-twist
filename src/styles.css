@@ -1285,7 +1285,11 @@ details[open] > summary > svg:last-child {
   line-height: 1.45;
   margin-bottom: 9px;
   min-height: 33px;
+  animation: caption-trail .6s ease-out;
 }
+.current-caption { animation: caption-in .2s ease-out; }
+@keyframes caption-in { from { opacity: .6; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes caption-trail { from { opacity: .7; } to { opacity: .27; } }
 .persistent-captions {
   overflow-y: auto;
   justify-content: flex-start;
