@@ -1,41 +1,35 @@
-# Verification
+# Version 2 verification
 
-Verified October 15, 2026.
+Updated October 15, 2026. The agreed revision replaces the six constraint combinations with two complete flight decisions.
 
-## Automated
+## Automated checks
 
-`npm test`: 26 passing tests.
+`npm test` passes 15 tests covering:
 
-- All six selections have the expected route duration, arrival time, and boarding buffer.
-- All twelve full journeys (two follow-ups for each selection) reach the final itinerary.
-- Shared spoken and messaging text remains equivalent across the full conversation.
-- Empty, duplicate, and three-constraint inputs are rejected.
-- Cancellation prevents old playback from finishing after restart; stale state updates are ignored.
-- Audio success, an error callback, a missing callback, and a throwing audio implementation all permit completion.
-- Audio preference changes apply between phrases.
-- Caption chunks retain every word and have a minimum reading duration.
+- Both complete paths, with unique messages, retained flight/map attachments and selected itinerary.
+- Route duration, arrival and boarding-buffer arithmetic for B12 and B16.
+- Identical flight options and recommendation before the decision, regardless of later selection.
+- Delivered → read → reaction → typing → reply event ordering.
+- Invalid flights, duplicate begins and stale activity after reset.
+- Cancellation, audio success/error/absent completion/throw, and changing the audio preference.
+- Caption reading time and word preservation.
 
-`npm run build`: passing TypeScript check and production build.
+`npm run build` type-checks and builds the static Pages artifact. Motion’s ignored `use client` directives are build warnings from the dependency, not runtime errors.
 
-Dependency audit at installation: zero known vulnerabilities after updating Vitest.
+## Browser QA
 
-## Browser
+- Clicked all five funnel stages, opened the developer invitation, and entered the traveler setup.
+- Both flight paths completed in the actual UI with accelerated development playback; B12 and B16 map/itinerary facts matched their selections.
+- Funnel, developer, traveler, and comparison layouts checked at 320, 375, 768 and 1440 pixels with no document horizontal overflow.
+- Mobile Voice/iMessage switching preserved all 12 message groups and progression.
+- Enlarged map and CTA modal opened; keyboard focus stayed inside the modal, Escape closed it, and focus returned to the invoking button.
+- Keyboard-only path completed under emulated reduced motion; animation duration was reduced and emulation was then reset.
+- Persistent captions were enabled and retained multiple spoken phrases.
+- Reset during an in-flight response returned to setup with no remaining messages.
+- Production-build normal-speed journey: first turn muted, connection-plan turn with optional browser audio enabled, final turn muted. The audio-enabled turn reached confirmation.
 
-Tested with the Codex in-app Chromium browser:
-
-- All twelve complete journeys through the actual UI using development-only accelerated playback.
-- Intro and comparison layouts at 320, 375, 768, and 1440 pixels without document horizontal overflow.
-- Mobile channel switching preserves the current conversation and messages.
-- Empty selection keeps the start action disabled; choosing two disables the remaining third option.
-- Keyboard activation through setup and scenario selection.
-- Expanded diagram, dialog focus trapping, Escape, and return of focus to the opener.
-- Persistent captions preserve spoken content. The preference is session-only.
-- Reduced-motion emulation: waveform animation reduced and the journey still completes. Emulation was reset afterward.
-- CTA explanation opens and closes without claiming a meeting was booked.
-- Browser console error check: none observed during the complete local path sweep.
-
-GitHub Pages production was checked at normal playback speed through the dog/food route, including an audio-enabled follow-up and a return to muted captions. The live response uses the correct 19-minute route, 5:44 arrival, and six-minute boarding buffer. The published `version.json` identifies the source commit used to build the static site.
+Development-only `?qa=1` accelerates muted playback for path and reset testing. It has no effect in the production build. Audio success means the browser flow completed; voice quality on other devices is not established.
 
 ## Limits
 
-This is a scripted browser preview. No physical iPhone, native iMessage conversation, live Linq line, real call, or booking integration was tested. Browser audio voices and availability vary by device; the completion checks do not establish consistent sound quality across devices. The proposed customer usability and outreach experiments have not been run.
+This is a browser simulation with fictional travel facts. No physical iPhone, native Messages, Linq integration, live flight availability, tickets, human outreach, or usability experiment was tested. Browser speech synthesis depends on installed voices and device behavior; captions and the watchdog support completion when audio is unavailable. Local event logging is not a production analytics pipeline.

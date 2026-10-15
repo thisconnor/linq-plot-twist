@@ -11,43 +11,39 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  BatteryLow,
   Check,
   ChevronDown,
   ChevronLeft,
-  Dog,
   Grid2X2,
   Mail,
-  MapPin,
   MicOff,
   Phone,
   Plane,
   Plus,
   RotateCcw,
   Signal,
-  Utensils,
   Video,
   Volume2,
   VolumeX,
   Wifi,
   X,
 } from 'lucide-react';
+import { Funnel, DeveloperQuestions } from './Funnel';
 import { AirportMap } from './AirportMap';
 import { Playback } from './playback';
 import {
   BRAND,
-  CONSTRAINTS,
+  FLIGHTS,
   getScenario,
   getTurn,
   timeLabel,
   TRIP,
 } from './scenario';
-import type { Constraint, FollowupId, Scenario, Turn } from './scenario';
+import type { FlightId, Scenario, Turn } from './scenario';
 import { initialState, reducer } from './state';
 import type { DemoState, Stage } from './state';
 import { track } from './telemetry';
 
-const constraintIcons = { dog: Dog, battery: BatteryLow, food: Utensils };
 
 function Avatar({ small = false }: { small?: boolean }) {
   return (
@@ -55,7 +51,7 @@ function Avatar({ small = false }: { small?: boolean }) {
       className={`avatar ${small ? 'avatar-small' : ''}`}
       aria-hidden="true"
     >
-      <Plane strokeWidth={1.5} />
+      <img src={BRAND.avatar} alt="" />
     </span>
   );
 }
@@ -157,186 +153,22 @@ function Modal({
   );
 }
 
-function Intro({ onContinue }: { onContinue(): void }) {
-  return (
-    <div className="intro-layout">
-      <div className="intro-copy">
-        <div className="eyebrow">
-          <span className="status-dot" /> THE FIRST EXECUTION ARTIFACT
-        </div>
-        <h1 tabIndex={-1}>
-          A personalized preview before the <span>meeting ask.</span>
-        </h1>
-        <p className="intro-lead">
-          Let a qualified prospect experience what their product could feel like
-          in iMessage. Give them something useful to explore, then start the
-          conversation.
-        </p>
-        <p className="intro-context">
-          Plot Twist Travel is a fictional example. This take-home simulates the
-          product experience; the validation below is proposed.
-        </p>
-        <div className="intro-actions">
-          <button className="button button-primary" onClick={onContinue}>
-            Try the prospect experience <ArrowRight size={17} />
-          </button>
-          <button className="text-button" onClick={onContinue}>
-            Skip introduction <ArrowUpRight size={15} />
-          </button>
-        </div>
-      </div>
-      <div
-        className="intro-art"
-        aria-label="Preview of a fictional travel assistant retaining your gate details"
-      >
-        <div className="art-heading">
-          <span>THE PRODUCT, IN THEIR HANDS</span>
-          <ArrowUpRight size={17} />
-        </div>
-        <div className="travel-ticket">
-          <div className="ticket-brand">
-            <Plane size={21} />
-            <strong>
-              plot twist<span>TRAVEL</span>
-            </strong>
-            <span className="ticket-flight">PT204</span>
-          </div>
-          <div className="ticket-route">
-            <div>
-              <small>PLANS CHANGED</small>
-              <span>
-                4:55 <ArrowRight size={25} /> <strong>6:20</strong>
-              </span>
-            </div>
-            <Plane size={34} strokeWidth={1.1} />
-          </div>
-          <div className="ticket-bottom">
-            <div>
-              <small>NEW GATE</small>
-              <strong>B12</strong>
-            </div>
-            <div>
-              <small>BOARDING</small>
-              <strong>
-                5:50 <em>PM</em>
-              </strong>
-            </div>
-            <div className="ticket-stamp">
-              A little
-              <br />
-              plot twist.
-            </div>
-          </div>
-          <div className="ticket-perforation" />
-        </div>
-        <div className="art-message">
-          <div className="art-message-sender">
-            <Avatar small />
-            <div>
-              <strong>{BRAND.assistant}</strong>
-              <span>{BRAND.company} · AI assistant</span>
-            </div>
-            <span className="message-now">now</span>
-          </div>
-          <p>
-            Your gate is B12. Boarding starts at 5:50.
-            <br />
-            Your route is here when you need it.
-          </p>
-          <div className="mini-route">
-            <span className="mini-route-dot" /> You{' '}
-            <span className="mini-route-line" />
-            <span className="mini-route-gate">
-              B12 <ArrowUpRight size={13} />
-            </span>
-          </div>
-        </div>
-        <div className="art-caption">
-          <span className="tiny-cross">+</span> A useful first experience.
-          <br />
-          <span>Prepared before the first meeting.</span>
-        </div>
-      </div>
-      <div className="process-strip">
-        <div>
-          <span>01</span>
-          <section>
-            <h2>Learn the product.</h2>
-            <p>
-              Find a concrete workflow in public product information, and a
-              reason messaging might matter.
-            </p>
-          </section>
-        </div>
-        <div>
-          <span>02</span>
-          <section>
-            <h2>Prepare and check a preview.</h2>
-            <p>
-              Adapt a reusable scenario. Review its relevance, facts, and fit
-              before offering it.
-            </p>
-          </section>
-        </div>
-        <div>
-          <span>03</span>
-          <section>
-            <h2>Offer a useful first experience.</h2>
-            <p>
-              Let the prospect try the idea before asking them to spend time in
-              a meeting.
-            </p>
-          </section>
-        </div>
-      </div>
-      <details className="validation">
-        <summary>
-          Proposed validation process <Plus size={17} />
-        </summary>
-        <div className="validation-content">
-          <p>
-            <strong>First, find the friction.</strong> If Linq can recruit
-            willing customers, begin with about five usability testers. Aim for
-            four of five to finish unassisted and explain the benefit. This
-            feedback has not happened yet.
-          </p>
-          <p>
-            <strong>Then, test production effort.</strong> Compare 5-, 10-, and
-            15-minute adaptation and review budgets against the same quality
-            checklist. Initial template development is a separate cost.
-          </p>
-          <p>
-            <strong>Finally, test the invitation.</strong> Compare a
-            personalized-preview invitation with a standard meeting invitation
-            among comparable qualified accounts. Track qualified meetings and
-            costs, with booked and held meetings separate. Small samples are
-            directional.
-          </p>
-        </div>
-      </details>
-    </div>
-  );
-}
-
 function Outreach({ onContinue }: { onContinue(): void }) {
   return (
     <div className="outreach-layout">
       <div className="context-copy">
-        <div className="eyebrow">01 / THE INVITATION</div>
+        <div className="eyebrow">01 / YOU’RE THE DEVELOPER</div>
         <h1 tabIndex={-1}>
-          Your product.
-          <br />A new way to
-          <br />
-          <span>experience it.</span>
+          Your voice agent.<br /><span>Now in iMessage.</span>
         </h1>
         <p>
-          You’re a developer at <strong>Plot Twist Travel</strong>, building an
-          AI travel assistant.
+          You’re a developer at <strong>Plot Twist Travel</strong>, whose
+          AI travel assistant already helps customers by phone.
         </p>
         <p>
-          You received this preview without connecting your product or supplying
-          customer data. Next, step into the traveler’s shoes.
+          Linq sent a preview of how that same agent could help in iMessage. You can explore it without connecting your product or supplying customer data.
         </p>
+        <DeveloperQuestions />
         <div className="context-footnote">
           <Mail size={17} />
           <span>
@@ -361,16 +193,13 @@ function Outreach({ onContinue }: { onContinue(): void }) {
         </div>
         <div className="email-body">
           <h2>
-            A travel disruption,
-            <br />
-            handled in iMessage
+            Your travel assistant.<br />One more way to reach it.
           </h2>
           <p>
-            We put together a short preview of how a Plot Twist Travel assistant
-            could help when a traveler’s plans change.
+            Your voice assistant already helps when travel plans go sideways. We made a preview of what that experience could look like in iMessage.
           </p>
           <p>
-            Explore the example, then see whether this could fit your product.
+            A canceled flight. A dog named Pickles. Two ways home. Try it as your customer, then see whether this fits Plot Twist.
           </p>
           <button className="button button-dark" onClick={onContinue}>
             Explore the preview <ArrowUpRight size={17} />
@@ -386,119 +215,16 @@ function Outreach({ onContinue }: { onContinue(): void }) {
   );
 }
 
-function Choose({
-  selected,
-  onSelect,
-  onStart,
-}: {
-  selected: Constraint[];
-  onSelect(id: Constraint): void;
-  onStart(): void;
-}) {
-  return (
-    <div className="choose-layout">
-      <div className="choose-heading">
-        <div className="eyebrow">02 / YOU’RE THE TRAVELER NOW</div>
-        <h1 tabIndex={-1}>
-          Your flight changed.
-          <br />
-          <span>What else should your assistant know?</span>
-        </h1>
-        <p>
-          Your departure moved from 4:55 to 6:20 PM, and your gate changed too.
-          <br className="desktop-break" /> Add a little real life to the
-          situation.
-        </p>
-      </div>
-      <div className="selection-workbench">
-        <div className="constraint-picker">
-          <div className="picker-label">
-            <span>SELECT ONE OR TWO</span>
-            <span aria-live="polite">{selected.length} / 2 selected</span>
-          </div>
-          <div className="constraint-list">
-            {CONSTRAINTS.map(({ id, title, detail }) => {
-              const Icon = constraintIcons[id];
-              const checked = selected.includes(id);
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  className={`constraint ${checked ? 'selected' : ''}`}
-                  aria-pressed={checked}
-                  disabled={selected.length === 2 && !checked}
-                  onClick={() => onSelect(id)}
-                >
-                  <span className="constraint-icon">
-                    <Icon size={23} strokeWidth={1.5} />
-                  </span>
-                  <span className="constraint-copy">
-                    <strong>{title}</strong>
-                    <span>{detail}</span>
-                  </span>
-                  <span className="checkbox">
-                    {checked && <Check size={15} strokeWidth={2.5} />}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          <div className="picker-bottom">
-            <p>
-              {selected.length === 2
-                ? 'Two is plenty. Let’s make a plan.'
-                : 'Choose what matters to you.'}
-            </p>
-            <button
-              className="button button-primary"
-              disabled={selected.length === 0}
-              onClick={onStart}
-            >
-              Ask the assistant <ArrowRight size={17} />
-            </button>
-          </div>
-        </div>
-        <div className="flight-board">
-          <div className="flight-board-top">
-            <Plane size={22} />
-            <span>
-              {TRIP.airline} · {TRIP.flight}
-            </span>
-            <span className="delayed-label">Delayed</span>
-          </div>
-          <div className="board-airport">HARBOR CITY AIRPORT</div>
-          <div className="board-time">
-            <span>{TRIP.originalDeparture}</span>
-            <ArrowRight size={24} />
-            <strong>{timeLabel(TRIP.departureMinutes)}</strong>
-            <small>PM</small>
-          </div>
-          <div className="board-divider" />
-          <div className="board-details">
-            <div>
-              <small>GATE UPDATE</small>
-              <span>
-                <s>{TRIP.oldGate}</s> <ArrowRight size={15} />{' '}
-                <strong>{TRIP.gate}</strong>
-              </span>
-            </div>
-            <div>
-              <small>BOARDING</small>
-              <strong>{timeLabel(TRIP.boardingMinutes)} PM</strong>
-            </div>
-          </div>
-          <div className="board-location">
-            <MapPin size={14} />
-            <span>
-              You’re in the Terminal 2 central concourse.
-              <br />
-              It’s 5:25 PM. There’s time to make a plan.
-            </span>
-          </div>
-        </div>
-      </div>
+function Choose({ onStart }: { onStart(): void }) {
+  return <div className="story-layout">
+    <div className="story-copy"><div className="eyebrow">02 / YOU’RE THE TRAVELER NOW</div>
+      <h1 tabIndex={-1}>The flight is canceled.<br />The ex is in Lisbon.<br /><span>You have Pickles.</span></h1>
+      <p>You’ve seen the invitation. Now experience it as one of Plot Twist’s travelers.</p>
+      <div className="story-brief"><span>YOUR SITUATION</span><p>It’s 5:25 PM at Harbor City Airport. You’re trying to get home with the dog you share. Pickles is cleared to travel; your original flight has just been canceled.</p></div>
+      <button className="button button-primary" onClick={onStart}>Ask Alex for a way home <ArrowRight size={17}/></button>
     </div>
-  );
+    <div className="story-art"><div className="story-airline"><Plane size={23}/><strong>PLOT AIR</strong><span>PT204</span></div><div className="cancelled-ticket"><small>HARBOR CITY → HOME</small><strong>CANCELED</strong><span>Well. That’s a plot twist.</span></div><div className="pickles-tag"><span className="pickles-emoji" aria-hidden="true">🐶</span><div><small>EXTRA CARRY-ON ENERGY</small><strong>Pickles</strong><span>Very good dog. Very long day.</span></div></div><div className="story-handoff"><Phone size={17}/><span>Your existing voice assistant</span><ArrowRight size={18}/><span className="new-channel">+ iMessage</span></div><p className="story-art-note">Same Alex. Same options. Another way to make a plan.</p></div>
+  </div>;
 }
 
 function PhoneStatus({ low = false }: { low?: boolean }) {
@@ -525,7 +251,7 @@ function VoicePhone({
   const speaking = state.phase === 'responding' && !!state.current;
   return (
     <div className="phone voice-phone">
-      <PhoneStatus low={state.selected.includes('battery')} />
+      <PhoneStatus />
       <div className="call-person">
         <Avatar />
         <h3>{BRAND.assistant}</h3>
@@ -625,6 +351,10 @@ function VoicePhone({
   );
 }
 
+function FlightOptions() {
+  return <div className="flight-options" aria-label="Two sample flight options">{FLIGHTS.map(f => <div className="flight-option" key={f.id}><div className="flight-option-top"><Plane size={13}/><strong>{f.flight} · {f.stops}</strong>{f.id === 'direct' && <span>Alex’s pick</span>}</div><div className="flight-option-times"><span>{timeLabel(f.departureMinutes)} <small>PM</small></span><ArrowRight size={15}/><span>{timeLabel(f.arrivalMinutes)} <small>PM</small></span></div><p>{f.layover} · Home tonight</p></div>)}</div>;
+}
+
 function Itinerary({
   scenario,
   compact = false,
@@ -636,23 +366,24 @@ function Itinerary({
     <div className={`itinerary ${compact ? 'itinerary-compact' : ''}`}>
       <div className="itinerary-heading">
         <Plane size={16} />
-        <span>{TRIP.flight} · Your next step</span>
+        <span>{scenario.flight.flight} · Your way home</span>
         <Check size={15} />
       </div>
       <div className="itinerary-facts">
         <div>
           <small>GATE</small>
-          <strong>{TRIP.gate}</strong>
+          <strong>{scenario.flight.gate}</strong>
         </div>
         <div>
           <small>BOARDING</small>
-          <strong>{timeLabel(TRIP.boardingMinutes)}</strong>
+          <strong>{timeLabel(scenario.flight.boardingMinutes)}</strong>
         </div>
         <div>
           <small>DEPARTURE</small>
-          <strong>{timeLabel(TRIP.departureMinutes)}</strong>
+          <strong>{timeLabel(scenario.flight.departureMinutes)}</strong>
         </div>
       </div>
+      <div className="itinerary-arrival"><span>HOME TONIGHT</span><strong>{timeLabel(scenario.flight.arrivalMinutes)} PM</strong><small>{scenario.flight.layover}</small></div>
       <p>
         {scenario.routeLabel} · Arrive around {scenario.arrival}
       </p>
@@ -682,16 +413,13 @@ function MessagePhone({ state, onMap }: { state: DemoState; onMap(): void }) {
         top: scroll.current.scrollHeight,
         behavior: reduced ? 'auto' : 'smooth',
       });
-  }, [state.messages.length, state.showMap, state.phase, reduced]);
+  }, [state.messages, state.typing, state.showMap, state.phase, reduced]);
   const lastUser = state.messages
     .map((message) => message.role)
     .lastIndexOf('user');
-  const secondAssistant = state.messages
-    .map((message, index) => (message.role === 'assistant' ? index : -1))
-    .filter((index) => index >= 0)[1];
   return (
     <div className="phone message-phone">
-      <PhoneStatus low={state.selected.includes('battery')} />
+      <PhoneStatus />
       <div className="messages-person">
         <ChevronLeft className="messages-back" size={27} aria-hidden="true" />
         <Avatar small />
@@ -745,15 +473,15 @@ function MessagePhone({ state, onMap }: { state: DemoState; onMap(): void }) {
               {message.reaction && (
                 <span
                   className="tapback"
-                  aria-label="You acknowledged this plan with a thumbs-up"
+                  aria-label={`Alex reacted ${message.reaction} to your message`}
                 >
-                  👍
+                  {message.reaction}
                 </span>
               )}
             </motion.div>
             {message.role === 'user' && index === lastUser && (
               <div className="read-marker">
-                {state.read ? 'Read 5:25 PM' : 'Delivered'}
+                {state.read ? 'Read · 5:25 PM' : 'Delivered'}
               </div>
             )}
             {state.showContact && index === 1 && (
@@ -766,7 +494,8 @@ function MessagePhone({ state, onMap }: { state: DemoState; onMap(): void }) {
                 <Check size={13} />
               </div>
             )}
-            {state.showMap && index === secondAssistant && state.scenario && (
+            {message.attachment === 'flights' && <FlightOptions />}
+            {message.attachment === 'map' && state.scenario && (
               <AirportMap scenario={state.scenario} onOpen={onMap} />
             )}
           </div>
@@ -858,8 +587,15 @@ export default function App() {
     }
   }, [state.stage]);
 
+  useEffect(() => {
+    if (state.stage === 'demo' && state.phase !== 'responding') {
+      page.current?.querySelector<HTMLElement>('.followup-button, .confirmation-area button')?.focus({ preventScroll: true });
+    }
+  }, [state.phase, state.stage]);
+
   function go(stage: Stage) {
     locked.current = false;
+    setMode('messages');
     playback.current.cancel();
     clearTimeout(fadeTimer.current);
     dispatch({ type: 'reset', stage, run: ++run.current });
@@ -872,35 +608,36 @@ export default function App() {
     );
   }
 
-  function play(turn: Turn, followup: FollowupId = 'time') {
+  function play(turn: Turn, choice: FlightId = state.choice) {
     if (locked.current) return;
     if (turn > 1 && (state.phase === 'responding' || state.turn !== turn - 1))
       return;
-    const scenario = turn === 1 ? getScenario(state.selected) : state.scenario!;
+    const scenario = turn <= 2 ? getScenario(choice) : state.scenario!;
     locked.current = true;
     const user =
       turn === 1
         ? scenario.initialMessage
         : turn === 2
-          ? scenario.followups.find((item) => item.id === followup)!.label
-          : 'That works. I’ll head over now.';
+          ? scenario.flight.choice
+          : 'Thanks, Alex. Pickles and I are on our way.';
     const id = ++run.current;
     clearTimeout(fadeTimer.current);
-    dispatch({ type: 'begin', run: id, turn, scenario, user, followup });
+    dispatch({ type: 'begin', run: id, turn, scenario, user, choice });
     if (turn === 1) {
-      track('scenario_started', { constraints: scenario.constraints });
+      track('scenario_started', { story: 'pickles' });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    if (turn === 2) track('flight_chosen', { flight: choice });
     void playback.current.play(
-      getTurn(scenario, turn, followup),
+      getTurn(scenario, turn),
       {
         onRead: () => dispatch({ type: 'read', run: id }),
-        onBlock: (text, index) =>
-          dispatch({ type: 'block', run: id, text, index }),
+        onBlock: (text, index, attachment) =>
+          dispatch({ type: 'block', run: id, text, index, attachment }),
+        onTyping: (value) => dispatch({ type: 'typing', run: id, value }),
+        onReaction: () => dispatch({ type: 'reaction', run: id, emoji: turn === 1 ? '👀' : turn === 2 ? '👍' : '❤️' }),
         onPhrase: (text) => dispatch({ type: 'phrase', run: id, text }),
-        onBlockEnd: (index) => {
-          if (turn === 1 && index === 1) dispatch({ type: 'map', run: id });
-        },
+        onBlockEnd: () => {},
         onFinish: () => {
           locked.current = false;
           dispatch({ type: 'finish', run: id });
@@ -910,7 +647,7 @@ export default function App() {
             2600,
           );
           if (turn === 3)
-            track('scenario_completed', { constraints: scenario.constraints });
+            track('scenario_completed', { flight: scenario.key });
         },
       },
       () => audioRef.current,
@@ -967,7 +704,7 @@ export default function App() {
               }}
             >
               {state.stage === 'intro' && (
-                <Intro onContinue={() => go('outreach')} />
+                <Funnel onContinue={() => go('outreach')} onSkip={() => go('choose')} />
               )}
               {state.stage === 'outreach' && (
                 <Outreach
@@ -986,13 +723,7 @@ export default function App() {
                   <button className="back-link" onClick={() => go('outreach')}>
                     <ArrowLeft size={14} /> Back to the invitation
                   </button>
-                  <Choose
-                    selected={state.selected}
-                    onSelect={(id) => dispatch({ type: 'select', id })}
-                    onStart={() => {
-                      if (state.selected.length) play(1);
-                    }}
-                  />
+                  <Choose onStart={() => play(1)} />
                 </>
               )}
               {comparison && (
@@ -1009,12 +740,12 @@ export default function App() {
                       <h1 tabIndex={-1}>
                         {state.stage === 'complete'
                           ? 'Your next step, still in the conversation.'
-                          : 'Same assistant. Your choice of channel.'}
+                          : 'Your voice agent. Now in iMessage.'}
                       </h1>
                       <p>
                         {state.stage === 'complete'
                           ? 'Gate details, directions, and the plan you agreed on are ready when you need them.'
-                          : 'Choose what to ask. Follow the plan through voice and iMessage.'}
+                          : 'Alex already helps by phone. Try the same decision in a conversation you can return to.'}
                       </p>
                     </div>
                     <button
@@ -1053,6 +784,7 @@ export default function App() {
                       iMessage <span>{state.messages.length} messages</span>
                     </button>
                   </div>
+                  <p className="mobile-guidance">Both views follow your choice. {mode === 'messages' ? 'Try Voice to hear the same options.' : 'Switch to iMessage to compare the options and keep your plan.'}</p>
                   <div className={`phone-pair mode-${mode}`}>
                     <section
                       className="channel voice-channel"
@@ -1060,8 +792,8 @@ export default function App() {
                     >
                       <div className="channel-heading">
                         <span className="channel-number">A</span>
-                        <h2>Voice agent</h2>
-                        <span className="channel-note">{BRAND.company}</span>
+                        <h2>Existing voice agent</h2>
+                        <span className="channel-note">Speak your choice</span>
                       </div>
                       <VoicePhone state={state} keepCaptions={keepCaptions} />
                     </section>
@@ -1081,13 +813,12 @@ export default function App() {
                       <div className="channel-heading">
                         <span className="channel-number">B</span>
                         <h2>iMessage</h2>
-                        <span className="powered">
-                          Powered by <strong>linq</strong>
-                        </span>
+                        <span className="powered"><BrandMark /> Powered by <strong>linq</strong></span>
                       </div>
                       <MessagePhone state={state} onMap={openMap} />
                     </section>
                   </div>
+                  <div className="channel-insight"><span className="status-dot" />{state.turn === 1 ? 'Compare both options without asking again.' : 'Your plan stays in the conversation.'}<span>{state.turn === 1 ? 'Same options. Same recommendation.' : 'Read it when you need it. Reply when you can.'}</span></div>
                   <div className="interaction-area" aria-live="polite">
                     {state.phase === 'responding' && (
                       <div className="responding">
@@ -1096,7 +827,7 @@ export default function App() {
                           {state.turn === 1
                             ? 'Alex is putting your plan together.'
                             : state.turn === 2
-                              ? 'Alex is answering your question.'
+                              ? 'Alex is mapping your way to the gate.'
                               : 'Your plan is coming together.'}
                         </span>
                         <span className="turn-counter">
@@ -1107,16 +838,16 @@ export default function App() {
                     {state.phase === 'followup' && (
                       <div className="followup-area">
                         <span className="interaction-label">
-                          WHAT WOULD YOU LIKE TO ASK?
+                          SAY YOUR CHOICE ON THE CALL · SEND IT IN IMESSAGE
                         </span>
                         <div className="followup-buttons">
-                          {state.scenario!.followups.map((followup) => (
+                          {FLIGHTS.map((flight) => (
                             <button
-                              key={followup.id}
+                              key={flight.id}
                               className="followup-button"
-                              onClick={() => play(2, followup.id)}
+                              onClick={() => play(2, flight.id)}
                             >
-                              {followup.label} <ArrowUpRight size={16} />
+                              <span><small>{flight.label}</small>{flight.choice}</span> <ArrowUpRight size={16} />
                             </button>
                           ))}
                         </div>
@@ -1128,13 +859,13 @@ export default function App() {
                           <span className="interaction-label">
                             THE PLAN WORKS FOR YOU
                           </span>
-                          <p>Acknowledge the plan and head to your gate.</p>
+                          <p>A quick reply. Then you and Pickles can get moving.</p>
                         </div>
                         <button
                           className="button button-dark"
-                          onClick={() => play(3, state.followup)}
+                          onClick={() => play(3, state.choice)}
                         >
-                          That works. I’ll head over now. <Check size={17} />
+                          Thanks, Alex. We’re on our way. <Check size={17} />
                         </button>
                       </div>
                     )}
@@ -1173,12 +904,13 @@ export default function App() {
                             className="text-button"
                             onClick={() => go('choose')}
                           >
-                            Try another combination
+                            Try the other flight
                           </button>
                         </div>
                       </div>
                     )}
                   </div>
+                  {state.stage === 'complete' && <div className="funnel-return"><DeveloperQuestions answered /><div><span className="eyebrow">FROM EXPERIENCE TO CONVERSATION</span><p>You’ve tried the value. Now the meeting ask has context.</p><span className="return-flow">Qualified account <ArrowRight size={14}/> Personalized preview <ArrowRight size={14}/> Your experience <ArrowRight size={14}/><strong>Discuss the fit</strong></span></div></div>}
                 </div>
               )}
             </motion.div>
@@ -1254,7 +986,7 @@ export default function App() {
         <AnimatePresence>
           {dialog === 'map' && state.scenario && (
             <Modal
-              title="Your route to B12"
+              title={`Your route to ${state.scenario.flight.gate}`}
               onClose={() => setDialog(null)}
               wide
             >
@@ -1273,7 +1005,7 @@ export default function App() {
                 </div>
                 <div>
                   <small>BOARDING</small>
-                  <strong>5:50 PM</strong>
+                  <strong>{timeLabel(state.scenario.flight.boardingMinutes)} PM</strong>
                 </div>
               </div>
               <p className="modal-note">
@@ -1319,7 +1051,7 @@ export default function App() {
                     go('choose');
                   }}
                 >
-                  Try another combination <ArrowUpRight size={14} />
+                  Try the other flight <ArrowUpRight size={14} />
                 </button>
               </div>
             </Modal>

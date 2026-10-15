@@ -6,134 +6,92 @@ import {
   phraseDuration,
   TRIP,
 } from './scenario';
-import type { Constraint, FollowupId, Turn } from './scenario';
+import type { FlightId, Turn } from './scenario';
 import { Playback, delay } from './playback';
 import { initialState, reducer } from './state';
 
-const cases: [Constraint[], number, string, number][] = [
-  [['battery'], 6, '5:31', 19],
-  [['dog'], 12, '5:37', 13],
-  [['food'], 13, '5:38', 12],
-  [['dog', 'battery'], 12, '5:37', 13],
-  [['battery', 'food'], 13, '5:38', 12],
-  [['dog', 'food'], 19, '5:44', 6],
-];
+afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
-afterEach(() => {
-  vi.useRealTimers();
-  vi.unstubAllGlobals();
-});
-
-describe('Travel feasibility', () => {
-  it.each(cases)(
-    '%j arrives before boarding',
-    (constraints, minutes, arrival, buffer) => {
-      const scenario = getScenario(constraints);
-      expect(scenario.minutes).toBe(minutes);
-      expect(scenario.arrival).toBe(arrival);
-      expect(scenario.buffer).toBe(buffer);
-      expect(TRIP.startMinutes + minutes + buffer).toBe(TRIP.boardingMinutes);
-      expect(scenario.stops.at(-1)).toBe('Gate B12');
-      expect(getScenario([...constraints].reverse())).toEqual(scenario);
-    },
-  );
-
-  it('rejects empty, duplicate, or three-constraint inputs', () => {
-    for (const input of [
-      [],
-      ['dog', 'dog'],
-      ['dog', 'food', 'battery'],
-    ] as Constraint[][]) {
-      expect(() => getScenario(input)).toThrow();
-    }
-    let state = initialState('choose');
-    for (const id of ['dog', 'food', 'battery'] as Constraint[])
-      state = reducer(state, { type: 'select', id });
-    expect(state.selected).toEqual(['dog', 'food']);
+describe('Flight decisions and travel feasibility', () => {
+  it.each([
+    ['direct', 12, '5:37', 73, 'B12'],
+    ['connection', 14, '5:39', 6, 'B16'],
+  ] as const)('%s has a consistent gate route and boarding buffer', (id, minutes, arrival, buffer, gate) => {
+    const scenario = getScenario(id);
+    expect(scenario.minutes).toBe(minutes);
+    expect(scenario.arrival).toBe(arrival);
+    expect(scenario.buffer).toBe(buffer);
+    expect(scenario.stops.at(-1)).toBe(`Gate ${gate}`);
+    expect(TRIP.startMinutes + minutes + buffer).toBe(scenario.flight.boardingMinutes);
+    expect(scenario.flight.arrivalMinutes).toBeGreaterThan(scenario.flight.departureMinutes);
+  });
+  it('rejects a nonexistent sample flight', () => {
+    expect(() => getScenario('invalid' as FlightId)).toThrow();
+  });
+  it('offers the same two flights and recommendation before either decision', () => {
+    expect(getTurn(getScenario('direct'), 1)).toEqual(getTurn(getScenario('connection'), 1));
+    const script = getTurn(getScenario(), 1).flatMap(b => b.phrases).join(' ');
+    expect(script).toContain('7:20'); expect(script).toContain('9:40');
+    expect(script).toContain('6:15'); expect(script).toContain('8:55');
+    expect(script).toContain('forty minutes'); expect(script).toContain('nonstop');
   });
 });
 
-describe('Every complete visitor path', () => {
-  const paths = cases.flatMap(([constraints]) =>
-    (['time', 'route'] as FollowupId[]).map((choice) => ({
-      constraints,
-      choice,
-    })),
-  );
-  it.each(paths)(
-    '$constraints with the $choice follow-up reaches the final plan',
-    async ({ constraints, choice }) => {
-      vi.useFakeTimers();
-      const scenario = getScenario(constraints);
-      let state = initialState('choose');
-      const playback = new Playback();
-      for (const turn of [1, 2, 3] as Turn[]) {
-        state = reducer(state, {
-          type: 'begin',
-          run: turn,
-          turn,
-          scenario,
-          user:
-            turn === 1
-              ? scenario.initialMessage
-              : turn === 2
-                ? scenario.followups.find((f) => f.id === choice)!.label
-                : 'That works. I’ll head over now.',
-          followup: choice,
-        });
-        const task = playback.play(
-          getTurn(scenario, turn, choice),
-          {
-            onRead: () => {
-              state = reducer(state, { type: 'read', run: turn });
-            },
-            onBlock: (text, index) => {
-              state = reducer(state, { type: 'block', run: turn, text, index });
-            },
-            onPhrase: (text) => {
-              state = reducer(state, { type: 'phrase', run: turn, text });
-            },
-            onBlockEnd: (index) => {
-              if (turn === 1 && index === 1)
-                state = reducer(state, { type: 'map', run: turn });
-            },
-            onFinish: () => {
-              state = reducer(state, { type: 'finish', run: turn });
-            },
-          },
-          () => false,
-        );
-        await vi.runAllTimersAsync();
-        await task;
-        expect(state.phase).toBe(
-          turn === 1 ? 'followup' : turn === 2 ? 'confirm' : 'finished',
-        );
-      }
-      expect(state.stage).toBe('complete');
-      expect(state.showMap).toBe(true);
-      expect(state.identityShared).toBe(true);
-      expect(state.messages).toHaveLength(7);
-      expect(new Set(state.messages.map((m) => m.id)).size).toBe(7);
-      expect(state.messages.filter((m) => m.reaction)).toHaveLength(1);
-      const transcript = state.messages
-        .map((message) => message.text)
-        .join(' ');
-      expect(transcript).toContain('6:20');
-      expect(transcript).toContain('5:50');
-      expect(transcript).toContain('B12');
-      expect(transcript).not.toMatch(
-        /order (is|was) placed|booked|reserved a charger/i,
-      );
-      if (constraints.includes('battery'))
-        expect(transcript).toMatch(/aren’t guaranteed|availability is unknown/);
-      expect(state.spoken.join(' ')).toBe(
-        state.messages
-          .filter((message) => message.role === 'assistant')
-          .map((message) => message.text)
-          .join(' '),
-      );
-    },
-  );
+describe('Both complete visitor paths', () => {
+  it.each(['direct', 'connection'] as FlightId[])('%s reaches a retained plan with matching spoken facts', async (choice) => {
+    vi.useFakeTimers();
+    let state = initialState('choose');
+    const playback = new Playback();
+    for (const turn of [1, 2, 3] as Turn[]) {
+      const scenario = getScenario(turn === 1 ? 'direct' : choice);
+      state = reducer(state, { type: 'begin', run: turn, turn, scenario,
+        user: turn === 1 ? TRIP.initialMessage : turn === 2 ? scenario.flight.choice : 'Thanks, Alex.', choice });
+      const blocks = getTurn(scenario, turn);
+      const task = playback.play(blocks, {
+        onRead: () => { state = reducer(state, { type: 'read', run: turn }); },
+        onTyping: value => { state = reducer(state, { type: 'typing', run: turn, value }); },
+        onReaction: () => { state = reducer(state, { type: 'reaction', run: turn, emoji: turn === 3 ? '❤️' : '👀' }); },
+        onBlock: (text, index, attachment) => { state = reducer(state, { type: 'block', run: turn, text, index, attachment }); },
+        onPhrase: text => { state = reducer(state, { type: 'phrase', run: turn, text }); },
+        onBlockEnd() {},
+        onFinish: () => { state = reducer(state, { type: 'finish', run: turn }); },
+      }, () => false);
+      await vi.runAllTimersAsync(); await task;
+      expect(state.phase).toBe(turn === 1 ? 'followup' : turn === 2 ? 'confirm' : 'finished');
+      const spoken = getTurn(scenario, turn).flatMap(b => b.phrases).join(' ');
+      expect(state.spoken.join(' ')).toContain(spoken);
+    }
+    expect(state.stage).toBe('complete'); expect(state.showMap).toBe(true);
+    expect(state.identityShared).toBe(true); expect(state.typing).toBe(false);
+    expect(state.messages.filter(m => m.attachment === 'flights')).toHaveLength(1);
+    expect(state.messages.filter(m => m.attachment === 'map')).toHaveLength(1);
+    expect(state.messages.filter(m => m.reaction)).toHaveLength(3);
+    expect(new Set(state.messages.map(m => m.id)).size).toBe(state.messages.length);
+    const transcript = state.messages.map(m => m.text).join(' ');
+    const scenario = getScenario(choice);
+    for (const fact of [scenario.flight.gate, scenario.flight.flight, scenario.arrival]) expect(transcript).toContain(fact);
+    expect(transcript).not.toMatch(/booked|ticket issued|reserved/i);
+    expect(state.choice).toBe(choice);
+  });
+  it('shows delivered, then read, then reaction, then typing, then a reply', async () => {
+    vi.useFakeTimers();
+    const events: string[] = [];
+    const task = new Playback().play([{phrases:['A calm reply.']}], {
+      onRead: () => events.push('read'), onReaction: () => events.push('reaction'),
+      onTyping: value => {if(value) events.push('typing');},
+      onBlock: () => events.push('reply'), onPhrase() {}, onBlockEnd() {}, onFinish() {},
+    }, () => false);
+    expect(events).toEqual([]);
+    await vi.advanceTimersByTimeAsync(900); expect(events).toEqual(['read']);
+    await vi.runAllTimersAsync(); await task;
+    expect(events).toEqual(['read', 'reaction', 'typing', 'reply']);
+  });
+  it('ignores duplicate begins and stale activity across reset', () => {
+    const begun = reducer(initialState(), {type:'begin', run:2, turn:1, scenario:getScenario(), user:TRIP.initialMessage});
+    expect(reducer(begun, {type:'begin',run:2,turn:1,scenario:getScenario(),user:'duplicate'})).toBe(begun);
+    const reset = reducer(begun, {type:'reset',run:3,stage:'choose'});
+    for (const action of [{type:'read',run:2}, {type:'typing',run:2,value:true}, {type:'reaction',run:2,emoji:'❤️'}, {type:'finish',run:2}] as const) expect(reducer(reset,action)).toBe(reset);
+  });
 });
 
 describe('Playback resilience', () => {

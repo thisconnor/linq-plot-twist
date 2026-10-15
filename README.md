@@ -1,4 +1,4 @@
-# Plot Twist Travel
+# Plot Twist Travel — version 2
 
 A guided Linq product preview: the same fictional AI travel assistant through a voice call and iMessage. The opening explains a proposed growth tactic: offer a relevant product experience before asking a qualified prospect for a meeting.
 
@@ -28,9 +28,10 @@ Refreshing resets the walkthrough to its entry point. Only the optional caption 
 
 ## What works
 
-- All six one- or two-constraint combinations and both follow-ups for each.
-- Three synchronized turns, fading voice captions, persistent Messages history.
-- Simulated contact sharing, typing, read status, and a thumbs-up acknowledgement.
+- Interactive five-stage growth funnel, developer invitation and question map, then an explicit traveler handoff.
+- One canceled-flight story with Pickles and two complete flight-choice paths.
+- Three shared interaction stages, with natural voice wording, short message bursts, fading captions, and persistent Messages history.
+- Generated fictional contact portrait, simulated contact sharing, and distinct delivered/read/reaction/typing events.
 - Route-specific SVG diagram with an expanded view and retained itinerary.
 - Mobile channel switching without restarting the conversation.
 - Optional browser speech synthesis, with timed-caption fallback and a watchdog.
@@ -45,18 +46,20 @@ Everything is scripted and all travel data is fictional. No Linq API, phone numb
 - `src/scenario.ts`: shared facts, assistant identity, route calculations, scripts, and optional meeting URL.
 - `src/state.ts`: explicit walkthrough state and transitions.
 - `src/playback.ts`: cancellable phrase playback and browser audio fallback.
-- `src/App.tsx`: screens, simulated interfaces, and controls.
+- `src/App.tsx`: screens, simulated interfaces, flight cards, and controls.
+- `src/Funnel.tsx`: proposed growth funnel and developer question graphic.
+- `public/alex-avatar.jpg`: generated fictional contact portrait.
 - `src/AirportMap.tsx`: illustrative diagram.
 - `src/styles.css`: visual tokens and responsive behavior.
 - `src/telemetry.ts`: local-only demo events.
 
-Keep both channel renderers on the same scenario and script. Do not add alternative facts to one interface. The scenario clock is fixed at 5:25 PM; browser animation time does not advance travel time.
+Keep both channel renderers on the same canonical facts. Channel wording can differ; the options, recommendation, selected flight, and route must agree. The scenario clock is fixed at 5:25 PM; browser animation time does not advance travel time.
 
-The food route adds a two-minute walk to the kiosk, then five minutes for pickup and six to the gate. The combined food/pet route is 19 minutes. See [scenario decisions](docs/scenario-decisions.md).
+The nonstop reaches B12 at 5:37 PM; the connection reaches B16 at 5:39 PM after the shared pet stop. See [scenario decisions](docs/scenario-decisions.md).
 
 ## Testing and deployment
 
-The automated suite checks all twelve complete paths, arrival arithmetic, invalid selections, cancellation, caption pacing, and audio success/failure/missing-callback behavior. The deploy script runs the suite and production build before publishing.
+The automated suite checks both complete flight paths, route arithmetic, shared flight-option facts, message-event ordering, stale callbacks, cancellation, caption pacing, and audio success/failure/missing-callback behavior. The deploy script runs the suite and production build before publishing.
 
 For browser QA only, the development server accepts `?qa=1`, which accelerates captions without audio. This flag is gated by `import.meta.env.DEV` and has no effect in the production build. Use the normal URL for pacing and audio review.
 
