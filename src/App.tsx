@@ -28,7 +28,8 @@ import {
   Wifi,
   X,
 } from 'lucide-react';
-import { Funnel, DeveloperQuestions } from './Funnel';
+import { Landing, GuidedExplanation } from './Funnel';
+import { WhyMessage } from './WhyMessage';
 import { AirportMap } from './AirportMap';
 import { Playback } from './playback';
 import {
@@ -38,6 +39,8 @@ import {
   getTurn,
   timeLabel,
   TRIP,
+  NEXT_BEAT,
+  travelerMessage,
 } from './scenario';
 import type { FlightId, Scenario, Turn } from './scenario';
 import { initialState, reducer } from './state';
@@ -168,7 +171,7 @@ function Outreach({ onContinue }: { onContinue(): void }) {
         <p>
           Linq sent a preview of how that same agent could help in iMessage. You can explore it without connecting your product or supplying customer data.
         </p>
-        <DeveloperQuestions />
+<div className="developer-premise"><Phone size={16}/> Already in their product <ArrowRight size={15}/><strong>Preview: iMessage</strong></div>
         <div className="context-footnote">
           <Mail size={17} />
           <span>
@@ -207,7 +210,7 @@ function Outreach({ onContinue }: { onContinue(): void }) {
           <div className="email-signoff">The Linq team</div>
         </div>
         <div className="email-bottom">
-          <span className="status-dot" /> A BROWSER WALKTHROUGH · ABOUT 2
+          <span className="status-dot" /> A BROWSER WALKTHROUGH · ABOUT 3
           MINUTES
         </div>
       </div>
@@ -217,20 +220,21 @@ function Outreach({ onContinue }: { onContinue(): void }) {
 
 function Choose({ onStart }: { onStart(): void }) {
   return <div className="story-layout">
-    <div className="story-copy"><div className="eyebrow">02 / YOU’RE THE TRAVELER NOW</div>
-      <h1 tabIndex={-1}>The flight is canceled.<br />The ex is in Lisbon.<br /><span>You have Pickles.</span></h1>
-      <p>You’ve seen the invitation. Now experience it as one of Plot Twist’s travelers.</p>
-      <div className="story-brief"><span>YOUR SITUATION</span><p>It’s 5:25 PM at Harbor City Airport. You’re trying to get home with the dog you share. Pickles is cleared to travel; your original flight has just been canceled.</p></div>
-      <button className="button button-primary" onClick={onStart}>Ask Alex for a way home <ArrowRight size={17}/></button>
+    <div className="story-copy"><div className="eyebrow">NOW TRY IT AS A TRAVELER</div>
+      <h1 tabIndex={-1}>You’re heading home.<br /><span>Your flight isn’t.</span></h1>
+      <p>You’re at the airport with your dog, <strong>Pickles</strong>. Your flight has just been canceled. Pickles packed absolutely no patience.</p>
+      <div className="story-introductions"><div><span className="cast-dog" aria-hidden="true">🐶</span><span><strong>Pickles</strong><small>Your dog. Cleared to fly.</small></span></div><div><Avatar small/><span><strong>Alex</strong><small>Your AI assistant in Plot Twist Travel.<br />Already helps you over the phone.</small></span></div></div>
+      <p className="story-time">5:25 PM · Harbor City Airport · Terminal 2</p>
+      <button className="button button-primary" onClick={onStart}>Ask Alex for help <ArrowRight size={17}/></button>
     </div>
-    <div className="story-art"><div className="story-airline"><Plane size={23}/><strong>PLOT AIR</strong><span>PT204</span></div><div className="cancelled-ticket"><small>HARBOR CITY → HOME</small><strong>CANCELED</strong><span>Well. That’s a plot twist.</span></div><div className="pickles-tag"><span className="pickles-emoji" aria-hidden="true">🐶</span><div><small>EXTRA CARRY-ON ENERGY</small><strong>Pickles</strong><span>Very good dog. Very long day.</span></div></div><div className="story-handoff"><Phone size={17}/><span>Your existing voice assistant</span><ArrowRight size={18}/><span className="new-channel">+ iMessage</span></div><p className="story-art-note">Same Alex. Same options. Another way to make a plan.</p></div>
+    <div className="story-art"><div className="story-airline"><Plane size={23}/><strong>{TRIP.airline.toUpperCase()}</strong><span>{TRIP.cancelledFlight}</span></div><div className="cancelled-ticket"><small>HARBOR CITY → HOME</small><strong>CANCELED</strong><span>Well. That’s a plot twist.</span></div><div className="pickles-tag"><span className="pickles-emoji" aria-hidden="true">🐶</span><div><small>YOUR TRAVEL COMPANION</small><strong>Pickles</strong><span>Very good dog. Very long day.</span></div></div><div className="story-handoff"><Phone size={17}/><span>Alex by phone</span><ArrowRight size={18}/><span className="new-channel">Alex in iMessage</span></div><p className="story-art-note">Same assistant. Same trip. Try both ways of getting home.</p></div>
   </div>;
 }
 
-function PhoneStatus({ low = false }: { low?: boolean }) {
+function PhoneStatus({ low = false, updated = false }: { low?: boolean; updated?: boolean }) {
   return (
     <div className="phone-status" aria-hidden="true">
-      <span>5:25</span>
+      <span>{updated ? '5:33' : '5:25'}</span>
       <span className="island" />
       <span className="status-icons">
         <Signal size={13} fill="currentColor" />
@@ -251,7 +255,7 @@ function VoicePhone({
   const speaking = state.phase === 'responding' && !!state.current;
   return (
     <div className="phone voice-phone">
-      <PhoneStatus />
+      <PhoneStatus updated={state.turn >= 4} />
       <div className="call-person">
         <Avatar />
         <h3>{BRAND.assistant}</h3>
@@ -358,9 +362,11 @@ function FlightOptions() {
 function Itinerary({
   scenario,
   compact = false,
+  flightOnly = false,
 }: {
   scenario: Scenario;
   compact?: boolean;
+  flightOnly?: boolean;
 }) {
   return (
     <div className={`itinerary ${compact ? 'itinerary-compact' : ''}`}>
@@ -384,14 +390,14 @@ function Itinerary({
         </div>
       </div>
       <div className="itinerary-arrival"><span>HOME TONIGHT</span><strong>{timeLabel(scenario.flight.arrivalMinutes)} PM</strong><small>{scenario.flight.layover}</small></div>
-      <p>
+      {!flightOnly && <p>
         {scenario.routeLabel} · Arrive around {scenario.arrival}
-      </p>
+      </p>}
     </div>
   );
 }
 
-function MessagePhone({ state, onMap }: { state: DemoState; onMap(): void }) {
+function MessagePhone({ state, onMap }: { state: DemoState; onMap(scenario: Scenario): void }) {
   const scroll = useRef<HTMLDivElement>(null);
   const [scrolledUp, setScrolledUp] = useState(false);
   const follow = useRef(true);
@@ -419,7 +425,7 @@ function MessagePhone({ state, onMap }: { state: DemoState; onMap(): void }) {
     .lastIndexOf('user');
   return (
     <div className="phone message-phone">
-      <PhoneStatus />
+      <PhoneStatus updated={state.turn >= 4} />
       <div className="messages-person">
         <ChevronLeft className="messages-back" size={27} aria-hidden="true" />
         <Avatar small />
@@ -481,7 +487,7 @@ function MessagePhone({ state, onMap }: { state: DemoState; onMap(): void }) {
             </motion.div>
             {message.role === 'user' && index === lastUser && (
               <div className="read-marker">
-                {state.read ? 'Read · 5:25 PM' : 'Delivered'}
+                {state.read ? `Read · ${state.turn >= 4 ? '5:33' : '5:25'} PM` : 'Delivered'}
               </div>
             )}
             {state.showContact && index === 1 && (
@@ -495,8 +501,10 @@ function MessagePhone({ state, onMap }: { state: DemoState; onMap(): void }) {
               </div>
             )}
             {message.attachment === 'flights' && <FlightOptions />}
+            {message.attachment === 'update' && message.scenario && <div className="gate-update"><small>5:33 PM · GATE CHANGE</small><div><s>{message.scenario.originalGate}</s><ArrowRight size={20}/><strong>{message.scenario.flight.gate}</strong></div><p>Boarding still {timeLabel(message.scenario.flight.boardingMinutes)} PM</p></div>}
+            {message.attachment === 'plan' && message.scenario && <><Itinerary scenario={message.scenario} compact flightOnly={!message.scenario.updated}/>{state.messages.some(item => item.attachment === 'update') && !message.scenario.updated && <span className="earlier-plan-note">Earlier plan · Gate changed at 5:33 PM</span>}</>}
             {message.attachment === 'map' && state.scenario && (
-              <AirportMap scenario={state.scenario} onOpen={onMap} />
+              <AirportMap scenario={message.scenario!} onOpen={() => onMap(message.scenario!)} />
             )}
           </div>
         ))}
@@ -506,9 +514,6 @@ function MessagePhone({ state, onMap }: { state: DemoState; onMap(): void }) {
             <i />
             <i />
           </div>
-        )}
-        {state.stage === 'complete' && state.scenario && (
-          <Itinerary scenario={state.scenario} compact />
         )}
       </div>
       {scrolledUp && (
@@ -554,6 +559,7 @@ export default function App() {
       return false;
     }
   });
+  const [mapScenario, setMapScenario] = useState<Scenario>();
   const [dialog, setDialog] = useState<'map' | 'cta' | null>(null);
   const playback = useRef(new Playback());
   const run = useRef(0);
@@ -589,7 +595,7 @@ export default function App() {
 
   useEffect(() => {
     if (state.stage === 'demo' && state.phase !== 'responding') {
-      page.current?.querySelector<HTMLElement>('.followup-button, .confirmation-area button')?.focus({ preventScroll: true });
+      page.current?.querySelector<HTMLElement>('.followup-button, .next-beat button')?.focus({ preventScroll: true });
     }
   }, [state.phase, state.stage]);
 
@@ -612,14 +618,9 @@ export default function App() {
     if (locked.current) return;
     if (turn > 1 && (state.phase === 'responding' || state.turn !== turn - 1))
       return;
-    const scenario = turn <= 2 ? getScenario(choice) : state.scenario!;
+    const scenario = getScenario(choice, turn >= 4);
     locked.current = true;
-    const user =
-      turn === 1
-        ? scenario.initialMessage
-        : turn === 2
-          ? scenario.flight.choice
-          : 'Thanks, Alex. Pickles and I are on our way.';
+    const user = travelerMessage(turn, scenario);
     const id = ++run.current;
     clearTimeout(fadeTimer.current);
     dispatch({ type: 'begin', run: id, turn, scenario, user, choice });
@@ -635,7 +636,7 @@ export default function App() {
         onBlock: (text, index, attachment) =>
           dispatch({ type: 'block', run: id, text, index, attachment }),
         onTyping: (value) => dispatch({ type: 'typing', run: id, value }),
-        onReaction: () => dispatch({ type: 'reaction', run: id, emoji: turn === 1 ? '👀' : turn === 2 ? '👍' : '❤️' }),
+        onReaction: () => dispatch({ type: 'reaction', run: id, emoji: turn === 1 ? '👀' : turn === 6 ? '❤️' : '👍' }),
         onPhrase: (text) => dispatch({ type: 'phrase', run: id, text }),
         onBlockEnd: () => {},
         onFinish: () => {
@@ -646,7 +647,7 @@ export default function App() {
             () => dispatch({ type: 'fade', run: id }),
             2600,
           );
-          if (turn === 3)
+          if (turn === 6)
             track('scenario_completed', { flight: scenario.key });
         },
       },
@@ -659,7 +660,8 @@ export default function App() {
     if (audio && 'speechSynthesis' in window) window.speechSynthesis.cancel();
     setAudio(!audio);
   }
-  function openMap() {
+  function openMap(scenario: Scenario) {
+    setMapScenario(scenario);
     track('diagram_opened');
     setDialog('map');
   }
@@ -682,7 +684,7 @@ export default function App() {
           <div className="header-right">
             <span className="header-label">A GROWTH EXPERIMENT</span>
             {state.stage !== 'intro' && (
-              <button className="restart-button" onClick={() => go('choose')}>
+              <button className="restart-button" onClick={() => go(comparison ? 'choose' : 'intro')}>
                 <RotateCcw size={14} /> Start over
               </button>
             )}
@@ -704,8 +706,9 @@ export default function App() {
               }}
             >
               {state.stage === 'intro' && (
-                <Funnel onContinue={() => go('outreach')} onSkip={() => go('choose')} />
+                <Landing onContinue={() => go('explain')} onSkip={() => go('choose')} />
               )}
+              {state.stage === 'explain' && <GuidedExplanation onBack={() => go('intro')} onContinue={() => go('outreach')}/>}
               {state.stage === 'outreach' && (
                 <Outreach
                   onContinue={() => {
@@ -735,17 +738,17 @@ export default function App() {
                       <div className="eyebrow">
                         {state.stage === 'complete'
                           ? 'THE PLAN, READY WHEN YOU NEED IT'
-                          : '03 / A LITTLE HELP WHEN PLANS CHANGE'}
+                          : `YOU’RE THE TRAVELER · ${state.turn} OF 6`}
                       </div>
                       <h1 tabIndex={-1}>
                         {state.stage === 'complete'
                           ? 'Your next step, still in the conversation.'
-                          : 'Your voice agent. Now in iMessage.'}
+                          : 'Alex has your back. So does the thread.'}
                       </h1>
                       <p>
                         {state.stage === 'complete'
                           ? 'Gate details, directions, and the plan you agreed on are ready when you need them.'
-                          : 'Alex already helps by phone. Try the same decision in a conversation you can return to.'}
+                          : 'Your existing Plot Twist assistant, through voice and iMessage.'}
                       </p>
                     </div>
                     <button
@@ -817,21 +820,18 @@ export default function App() {
                       </div>
                       <MessagePhone state={state} onMap={openMap} />
                     </section>
+                    <WhyMessage key={state.turn} state={state}/>
                   </div>
-                  <div className="channel-insight"><span className="status-dot" />{state.turn === 1 ? 'Compare both options without asking again.' : 'Your plan stays in the conversation.'}<span>{state.turn === 1 ? 'Same options. Same recommendation.' : 'Read it when you need it. Reply when you can.'}</span></div>
                   <div className="interaction-area" aria-live="polite">
                     {state.phase === 'responding' && (
                       <div className="responding">
                         <span className="responding-dot" />
                         <span>
-                          {state.turn === 1
-                            ? 'Alex is putting your plan together.'
-                            : state.turn === 2
-                              ? 'Alex is mapping your way to the gate.'
-                              : 'Your plan is coming together.'}
+                          Alex is replying.
+
                         </span>
                         <span className="turn-counter">
-                          TURN {state.turn} OF 3
+                          STEP {state.turn} OF 6
                         </span>
                       </div>
                     )}
@@ -853,20 +853,10 @@ export default function App() {
                         </div>
                       </div>
                     )}
-                    {state.phase === 'confirm' && (
-                      <div className="confirmation-area">
-                        <div>
-                          <span className="interaction-label">
-                            THE PLAN WORKS FOR YOU
-                          </span>
-                          <p>A quick reply. Then you and Pickles can get moving.</p>
-                        </div>
-                        <button
-                          className="button button-dark"
-                          onClick={() => play(3, state.choice)}
-                        >
-                          Thanks, Alex. We’re on our way. <Check size={17} />
-                        </button>
+                    {state.phase === 'continue' && state.turn < 6 && (
+                      <div className="next-beat">
+                        <div><span className="interaction-label">WHAT HAPPENS NEXT</span><p>{NEXT_BEAT[(state.turn + 1) as 3 | 4 | 5 | 6].context}</p><blockquote>“{travelerMessage((state.turn + 1) as Turn, getScenario(state.choice, state.turn + 1 >= 4))}”</blockquote></div>
+                        <button className="button button-dark" onClick={() => play((state.turn + 1) as Turn, state.choice)}>{NEXT_BEAT[(state.turn + 1) as 3 | 4 | 5 | 6].label}<ArrowRight size={16}/></button>
                       </div>
                     )}
                     {state.stage === 'complete' && (
@@ -910,7 +900,7 @@ export default function App() {
                       </div>
                     )}
                   </div>
-                  {state.stage === 'complete' && <div className="funnel-return"><DeveloperQuestions answered /><div><span className="eyebrow">FROM EXPERIENCE TO CONVERSATION</span><p>You’ve tried the value. Now the meeting ask has context.</p><span className="return-flow">Qualified account <ArrowRight size={14}/> Personalized preview <ArrowRight size={14}/> Your experience <ArrowRight size={14}/><strong>Discuss the fit</strong></span></div></div>}
+                  {state.stage === 'complete' && <div className="return-to-developer"><span>BACK IN THE DEVELOPER’S SHOES</span><p>You’ve tried it as your customer. Could this fit your product?</p></div>}
                 </div>
               )}
             </motion.div>
@@ -984,33 +974,32 @@ export default function App() {
           <span className="qa-indicator">Local QA · accelerated playback</span>
         )}
         <AnimatePresence>
-          {dialog === 'map' && state.scenario && (
+          {dialog === 'map' && mapScenario && (
             <Modal
-              title={`Your route to ${state.scenario.flight.gate}`}
+              title={`Your route to ${mapScenario.flight.gate}`}
               onClose={() => setDialog(null)}
               wide
             >
               <p className="modal-intro">
                 {TRIP.airport} · {TRIP.terminal}
               </p>
-              <AirportMap scenario={state.scenario} large />
+              <AirportMap scenario={mapScenario} large />
               <div className="map-modal-facts">
                 <div>
                   <small>ALLOW</small>
-                  <strong>{state.scenario.minutes} minutes</strong>
+                  <strong>{mapScenario.minutes} minutes</strong>
                 </div>
                 <div>
                   <small>ARRIVE AROUND</small>
-                  <strong>{state.scenario.arrival} PM</strong>
+                  <strong>{mapScenario.arrival} PM</strong>
                 </div>
                 <div>
                   <small>BOARDING</small>
-                  <strong>{timeLabel(state.scenario.flight.boardingMinutes)} PM</strong>
+                  <strong>{timeLabel(mapScenario.flight.boardingMinutes)} PM</strong>
                 </div>
               </div>
               <p className="modal-note">
-                {state.scenario.stops.join(' → ')}. Times include the planned
-                stops. Keep an eye on airport updates.
+                {mapScenario.stops.join(' → ')}. {mapScenario.updated ? 'The pet stop is complete; this route starts at pet relief.' : 'Times include the planned pet stop.'} Keep an eye on airport updates.
               </p>
               <button
                 className="button button-dark"

@@ -5,8 +5,10 @@ import {
   getTurn,
   phraseDuration,
   TRIP,
+  TURNS,
+  travelerMessage,
 } from './scenario';
-import type { FlightId, Turn } from './scenario';
+import type { FlightId } from './scenario';
 import { Playback, delay } from './playback';
 import { initialState, reducer } from './state';
 
@@ -25,6 +27,20 @@ describe('Flight decisions and travel feasibility', () => {
     expect(TRIP.startMinutes + minutes + buffer).toBe(scenario.flight.boardingMinutes);
     expect(scenario.flight.arrivalMinutes).toBeGreaterThan(scenario.flight.departureMinutes);
   });
+  it.each([
+    ['direct', 6, '5:39', 71, 'B18'],
+    ['connection', 8, '5:41', 4, 'B20'],
+  ] as const)('%s gate change updates the route without moving boarding time', (id, minutes, arrival, buffer, gate) => {
+    const updated = getScenario(id, true);
+    const original = getScenario(id);
+    expect(updated.flight.gate).toBe(gate);
+    expect(updated.minutes).toBe(minutes);
+    expect(updated.arrival).toBe(arrival);
+    expect(updated.buffer).toBe(buffer);
+    expect(TRIP.updateMinutes + minutes + buffer).toBe(updated.flight.boardingMinutes);
+    expect(updated.flight.boardingMinutes).toBe(original.flight.boardingMinutes);
+    expect(original.flight.gate).not.toBe(gate);
+  });
   it('rejects a nonexistent sample flight', () => {
     expect(() => getScenario('invalid' as FlightId)).toThrow();
   });
@@ -42,10 +58,10 @@ describe('Both complete visitor paths', () => {
     vi.useFakeTimers();
     let state = initialState('choose');
     const playback = new Playback();
-    for (const turn of [1, 2, 3] as Turn[]) {
-      const scenario = getScenario(turn === 1 ? 'direct' : choice);
+    for (const turn of TURNS) {
+      const scenario = getScenario(turn === 1 ? 'direct' : choice, turn >= 4);
       state = reducer(state, { type: 'begin', run: turn, turn, scenario,
-        user: turn === 1 ? TRIP.initialMessage : turn === 2 ? scenario.flight.choice : 'Thanks, Alex.', choice });
+        user: travelerMessage(turn, scenario), choice });
       const blocks = getTurn(scenario, turn);
       const task = playback.play(blocks, {
         onRead: () => { state = reducer(state, { type: 'read', run: turn }); },
@@ -57,21 +73,28 @@ describe('Both complete visitor paths', () => {
         onFinish: () => { state = reducer(state, { type: 'finish', run: turn }); },
       }, () => false);
       await vi.runAllTimersAsync(); await task;
-      expect(state.phase).toBe(turn === 1 ? 'followup' : turn === 2 ? 'confirm' : 'finished');
+      expect(state.phase).toBe(turn === 1 ? 'followup' : turn === 6 ? 'finished' : 'continue');
       const spoken = getTurn(scenario, turn).flatMap(b => b.phrases).join(' ');
       expect(state.spoken.join(' ')).toContain(spoken);
     }
     expect(state.stage).toBe('complete'); expect(state.showMap).toBe(true);
     expect(state.identityShared).toBe(true); expect(state.typing).toBe(false);
     expect(state.messages.filter(m => m.attachment === 'flights')).toHaveLength(1);
-    expect(state.messages.filter(m => m.attachment === 'map')).toHaveLength(1);
-    expect(state.messages.filter(m => m.reaction)).toHaveLength(3);
+    expect(state.messages.filter(m => m.attachment === 'map')).toHaveLength(2);
+    expect(state.messages.filter(m => m.reaction)).toHaveLength(6);
     expect(new Set(state.messages.map(m => m.id)).size).toBe(state.messages.length);
     const transcript = state.messages.map(m => m.text).join(' ');
-    const scenario = getScenario(choice);
+    const scenario = getScenario(choice, true);
     for (const fact of [scenario.flight.gate, scenario.flight.flight, scenario.arrival]) expect(transcript).toContain(fact);
     expect(transcript).not.toMatch(/booked|ticket issued|reserved/i);
     expect(state.choice).toBe(choice);
+    const maps = state.messages.filter(m => m.attachment === 'map');
+    expect(maps[0].scenario?.updated).toBe(false);
+    expect(maps[0].scenario?.flight.gate).toBe(getScenario(choice).flight.gate);
+    expect(maps[1].scenario?.updated).toBe(true);
+    expect(maps[1].scenario?.flight.gate).toBe(scenario.flight.gate);
+    expect(state.messages.filter(m => m.attachment === 'update')).toHaveLength(1);
+    expect(state.messages.filter(m => m.attachment === 'plan')).toHaveLength(3);
   });
   it('shows delivered, then read, then reaction, then typing, then a reply', async () => {
     vi.useFakeTimers();

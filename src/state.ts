@@ -1,9 +1,9 @@
 import type { FlightId, Scenario, Turn } from './scenario';
-export type Stage = 'intro' | 'outreach' | 'choose' | 'demo' | 'complete';
-export type Phase = 'responding' | 'followup' | 'confirm' | 'finished';
+export type Stage = 'intro' | 'explain' | 'outreach' | 'choose' | 'demo' | 'complete';
+export type Phase = 'responding' | 'followup' | 'continue' | 'finished';
 export interface Message {
   id: string; role: 'user' | 'assistant'; text: string;
-  reaction?: string; attachment?: 'flights' | 'map';
+  reaction?: string; attachment?: 'flights' | 'map' | 'update' | 'plan'; scenario?: Scenario;
 }
 export interface DemoState {
   stage: Stage; scenario?: Scenario; run: number; turn: Turn; phase: Phase;
@@ -24,7 +24,7 @@ export type Action =
   | { type: 'typing'; run: number; value: boolean }
   | { type: 'reaction'; run: number; emoji: string }
   | { type: 'phrase'; run: number; text: string }
-  | { type: 'block'; run: number; text: string; index: number; attachment?: 'flights' | 'map' };
+  | { type: 'block'; run: number; text: string; index: number; attachment?: 'flights' | 'map' | 'update' | 'plan' };
 export function reducer(state: DemoState, action: Action): DemoState {
   if (action.type === 'reset') return { ...initialState(action.stage), run: action.run };
   if (action.type === 'stage') return { ...state, stage: action.stage };
@@ -47,11 +47,11 @@ export function reducer(state: DemoState, action: Action): DemoState {
   if (action.type === 'block') return { ...state, typing: false, identityShared: true,
     showContact: true, showMap: state.showMap || action.attachment === 'map',
     messages: [...state.messages, { id: `${action.run}-assistant-${action.index}`,
-      role: 'assistant', text: action.text, attachment: action.attachment }] };
+      role: 'assistant', text: action.text, attachment: action.attachment, scenario: state.scenario }] };
   if (action.type === 'fade') return { ...state, current: '', previous: '' };
   if (action.type === 'finish') return { ...state,
-    stage: state.turn === 3 ? 'complete' : 'demo',
-    phase: state.turn === 1 ? 'followup' : state.turn === 2 ? 'confirm' : 'finished',
+    stage: state.turn === 6 ? 'complete' : 'demo',
+    phase: state.turn === 1 ? 'followup' : state.turn === 6 ? 'finished' : 'continue',
     current: '', previous: state.current, typing: false };
   return state;
 }

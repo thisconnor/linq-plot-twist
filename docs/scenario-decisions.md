@@ -1,35 +1,42 @@
-# Version 2 scenario decisions
+# Version 3 scenario decisions
 
-Connor approved this revision after reviewing version 1. The newer direction supersedes the brief’s constraint picker and exact sentence parity: one memorable story, two flight decisions, equally capable channels, and channel-appropriate wording.
+The latest review replaces the dense, freely clickable funnel with a landing page and three sequential explanation screens. It removes the ex story, explicitly introduces Pickles as the traveler’s dog and Alex as Plot Twist Travel’s existing AI assistant, and extends the scenario from three to six beats.
+
+## Opening
+
+1. Landing: one premise, one primary “Walk me through it” action, and a demo shortcut.
+2. Explanation: one idea at a time, with Back/Next. Learn the product; prepare a relevant preview; invite a conversation after the developer experiences it.
+3. Developer: mock invitation to try an iMessage version of the voice assistant they already have.
+4. Traveler: canceled flight home, dog Pickles, AI assistant Alex. No ex or unexplained backstory.
 
 ## Canonical sample facts
 
-The traveler is at fictional Harbor City Airport, Terminal 2, at 5:25 PM. Plot Air PT204 has been canceled. Their ex is in Lisbon; they are getting home with their shared dog, Pickles. Pickles is already cleared to travel on both sample options.
+All names, flights, terminal geometry and times are fictional. The traveler starts in Harbor City Airport, Terminal 2, at 5:25 PM after Plot Air PT204 is canceled. Pickles is cleared to travel on either replacement option. Selecting a plan does not issue a ticket.
 
-| Choice | Flight | Departure | Boarding | Home tonight | Connection | Gate |
-|---|---|---|---|---|---|---|
-| Simpler trip | PT218 | 7:20 PM | 6:50 PM | 9:40 PM | Nonstop | B12 |
-| Earlier arrival | PT306 | 6:15 PM | 5:45 PM | 8:55 PM | 40 minutes in Meadow City | B16 |
+| Choice | Flight | Departs | Boards | Home tonight | Connection | Original gate | Updated gate |
+|---|---|---|---|---|---|---|---|
+| Simpler trip | PT218 | 7:20 PM | 6:50 PM | 9:40 PM | Nonstop | B12 | B18 |
+| Earlier arrival | PT306 | 6:15 PM | 5:45 PM | 8:55 PM | 40 min in Meadow City | B16 | B20 |
 
-All clocks use one fictional local time zone. The fixed scenario clock does not advance during browser animation. Flight options are illustrative; choosing a plan does not issue a ticket.
+Before the gate change: three-minute walk to pet relief beside B10, five-minute stop, then four minutes to B12 or six to B16. Total 12/14 minutes; arrival 5:37/5:39, with 73/6 minutes before boarding.
 
-Pet relief is beside B10: three minutes from the starting point, five minutes for the stop. B12 is four minutes from pet relief; B16 is six minutes away. Thus the nonstop route takes 12 minutes, arriving at 5:37 with 73 minutes before boarding. The connection route takes 14 minutes, arriving at 5:39 with six minutes before boarding. The connection reply asks the traveler to keep the stop short.
+The story explicitly advances eight minutes to 5:33 after the pet stop. The selected flight changes gate; boarding and departure remain unchanged. From pet relief, B18 takes six minutes and B20 takes eight. Arrival is 5:39/5:41, with 71/4 minutes before boarding. The connection branch tells the traveler to head straight there.
 
-The SVG route follows corridor centerlines and terminates at the selected gate marker. Geometry is illustrative, not a routing engine.
+## Six user-controlled beats
 
-## Walkthrough
+1. Ask Alex for replacement flights. Both options and Alex’s recommendation appear.
+2. Choose a flight. Receive its details; Alex asks what the traveler needs before walking over.
+3. Ask for a pet stop. Receive directions, a map and the time allowance.
+4. Check in after the stop. Receive a gate change and revised route.
+5. Ask for gate and boarding details again while juggling leash and suitcase. The updated card remains available in Messages.
+6. Thank Alex and finish. The latest itinerary stays with the conversation; the closing returns to the developer’s perspective.
 
-1. Reviewer: explore the five-stage proposed growth funnel. A visible shortcut skips to the traveler setup.
-2. Developer: see a mock Linq invitation offering an iMessage preview of their existing voice assistant. A branching question graphic sets up relevance, customer value, and meeting interest.
-3. Traveler: enter the Pickles story. The existing voice agent and proposed iMessage channel receive the same request.
-4. Turn one: Alex offers both flights and recommends the nonstop for fewer plane changes. Both channels share the same options and recommendation.
-5. Turn two: choose either flight. Alex provides its gate, boarding, departure, and pet route.
-6. Turn three: thank Alex. The selected itinerary remains in Messages. The closing returns to the developer’s perspective and growth funnel before the prototype meeting CTA.
+“Why iMessage?” callouts appear at the corresponding message event, stay until the next beat or dismissal, and can be reopened. They explain comparison, acknowledgment, visual directions, the gate update, finding details and retaining the conversation. Wide screens position them beside Messages; compact screens place them below the phone without covering the conversation.
 
-Voice speaks naturally; Messages uses short bursts and visual attachments. Facts come from `src/scenario.ts`. Read, reaction, typing, and reply are distinct timed events. Messages and voice advance independently within a turn; the next decision becomes available when both finish. No long timer forces the visitor to leave the plan screen.
+## History and accessibility
 
-## Assets and scope
+Each message stores its own scenario snapshot. Old maps retain their original gate; opening an old map shows the historical route. The first itinerary is marked as an earlier plan after the update. New map and plan attachments use the updated gate. All current details derive from `src/scenario.ts`.
 
-Alex’s portrait is a generated fictional person, labeled as an AI travel assistant in the call and contact-sharing card. The same configurable portrait appears in both channels. Plot Air branding and the airport diagram are original code-based graphics. No real airline or airport affiliation is suggested.
+Voice remains capable, polite and factually equivalent, using natural spoken wording. Messages uses short bursts, reactions and visual attachments. Voice captions fade by default; optional persistent captions, browser audio fallback, keyboard access and reduced motion remain supported. The clock advances only at the explicit story jump, not with playback duration.
 
-No microphone, messaging provider, live travel data, booking, analytics transport, or meeting router is connected. Existing-caption accessibility, optional browser audio fallback, reduced motion, and cancellation on reset are retained.
+The generated Alex portrait is fictional and labeled as an AI assistant. No messaging provider, microphone, live flight data, booking, meeting router or analytics transport is connected.
