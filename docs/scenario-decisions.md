@@ -1,11 +1,11 @@
-# Version 3 scenario decisions
+# Version 4 scenario decisions
 
-The latest review replaces the dense, freely clickable funnel with a landing page and three sequential explanation screens. It removes the ex story, explicitly introduces Pickles as the traveler’s dog and Alex as Plot Twist Travel’s existing AI assistant, and extends the scenario from three to six beats.
+The opening stays focused and sequential. The latest review adds clear brand ownership, a more explicit developer-to-customer transition, balanced channel annotations, a three-way dinner decision, and a Plot Twist × Linq partnership ending.
 
 ## Opening
 
 1. Landing: one premise, one primary “Walk me through it” action, and a demo shortcut.
-2. Explanation: one idea at a time, with Back/Next. Learn the product; prepare a relevant preview; invite a conversation after the developer experiences it.
+2. Explanation: one idea at a time, with Back/Next. Select a customer profile and relevant company signals; AI custom-builds a lightweight demo for each company before outreach; review it and send a cold email invitation; invite a conversation after the developer experiences it.
 3. Developer: mock invitation to try an iMessage version of the voice assistant they already have.
 4. Traveler: canceled flight home, dog Pickles, AI assistant Alex. No ex or unexplained backstory.
 
@@ -28,10 +28,20 @@ The story explicitly advances eight minutes to 5:33 after the pet stop. The sele
 2. Choose a flight. Receive its details; Alex asks what the traveler needs before walking over.
 3. Ask for a pet stop. Receive directions, a map and the time allowance.
 4. Check in after the stop. Receive a gate change and revised route.
-5. Ask for gate and boarding details again while juggling leash and suitcase. The updated card remains available in Messages.
+5. Two hungry travelers: choose “Feed both of us,” “Pickles first,” or “Straight to the gate.” Alex adapts to the boarding buffer; a dinner card retains the plan.
 6. Thank Alex and finish. The latest itinerary stays with the conversation; the closing returns to the developer’s perspective.
 
-“Why iMessage?” callouts appear at the corresponding message event, stay until the next beat or dismissal, and can be reopened. They explain comparison, acknowledgment, visual directions, the gate update, finding details and retaining the conversation. Wide screens position them beside Messages; compact screens place them below the phone without covering the conversation.
+Paired voice/iMessage notes appear at the corresponding message event. A shared hide/reopen control persists across beats until reset. At 1440 pixels and above, compact notes sit outside the phones; smaller screens keep a balanced pair below the interfaces. The call stays equally competent; the notes discuss spoken information and retained visuals.
+
+## Dinner feasibility
+
+At 5:33 the traveler is still at pet relief. The B14 deli is along the fictional route to B18. On the nonstop, allow 10 minutes for takeaway plus 5 minutes for Pickles’ usual food from the traveler’s bag. Ready at B18 at 5:54, with 56 minutes before boarding. Pickles-only adds 5 minutes: ready 5:44, buffer 66. Going straight preserves 5:39 and 71 minutes.
+
+For the connection, Alex declines the deli detour. Head directly to B20; if feeding Pickles, allow two minutes at the gate with his packed food, ready at 5:43 with two minutes before boarding. Going straight is ready at 5:41 with four minutes. The traveler’s dinner waits until after boarding. These are illustrative estimates, not live venue or queue claims. No food is ordered. `getDinnerPlan` supplies the same steps and timing to both channels and the final itinerary. Earlier maps remain estimates for the direct route, before the dinner decision.
+
+## Brand ownership
+
+Linq owns the growth explanation and invitation sender. The developer inbox introduces Plot Twist subtly. The traveler setup explicitly changes perspective and switches to Plot Twist’s cream, plum and coral identity; the voice interface carries that identity. Native iMessage styling stays familiar, with a restrained Powered by Linq lockup. The final modal pairs both logos with a customer-focused invitation and secondary prototype disclosure.
 
 ## History and accessibility
 

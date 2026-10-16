@@ -3,7 +3,7 @@ import type { ScriptBlock } from './scenario';
 
 export interface PlaybackCallbacks {
   onRead(): void;
-  onBlock(text: string, index: number, attachment?: 'flights' | 'map' | 'update' | 'plan'): void;
+  onBlock(text: string, index: number, attachment?: 'flights' | 'map' | 'update' | 'plan' | 'food'): void;
   onTyping?(value: boolean): void;
   onReaction?(): void;
   onPhrase(text: string): void;

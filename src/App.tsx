@@ -29,11 +29,14 @@ import {
   X,
 } from 'lucide-react';
 import { Landing, GuidedExplanation } from './Funnel';
+import { LinqLogo, PlotLogo } from './Brands';
 import { WhyMessage } from './WhyMessage';
 import { AirportMap } from './AirportMap';
 import { Playback } from './playback';
 import {
   BRAND,
+  FOOD_CHOICES,
+  getDinnerPlan,
   FLIGHTS,
   getScenario,
   getTurn,
@@ -42,7 +45,7 @@ import {
   NEXT_BEAT,
   travelerMessage,
 } from './scenario';
-import type { FlightId, Scenario, Turn } from './scenario';
+import type { FlightId, FoodChoice, Scenario, Turn } from './scenario';
 import { initialState, reducer } from './state';
 import type { DemoState, Stage } from './state';
 import { track } from './telemetry';
@@ -59,15 +62,7 @@ function Avatar({ small = false }: { small?: boolean }) {
   );
 }
 
-function BrandMark() {
-  return (
-    <span className="brand-mark" aria-hidden="true">
-      <svg viewBox="0 0 30 30">
-        <path d="m15 3 11 6v12l-11 6-11-6V9l11-6Z M4 9l11 6 11-6 M15 15v12 M9 6l11 6v12" />
-      </svg>
-    </span>
-  );
-}
+function BrandMark() { return <LinqLogo/>; }
 
 function Modal({
   title,
@@ -160,7 +155,7 @@ function Outreach({ onContinue }: { onContinue(): void }) {
   return (
     <div className="outreach-layout">
       <div className="context-copy">
-        <div className="eyebrow">01 / YOU’RE THE DEVELOPER</div>
+        <PlotLogo compact/><div className="eyebrow">01 / YOU’RE THE DEVELOPER</div>
         <h1 tabIndex={-1}>
           Your voice agent.<br /><span>Now in iMessage.</span>
         </h1>
@@ -220,14 +215,14 @@ function Outreach({ onContinue }: { onContinue(): void }) {
 
 function Choose({ onStart }: { onStart(): void }) {
   return <div className="story-layout">
-    <div className="story-copy"><div className="eyebrow">NOW TRY IT AS A TRAVELER</div>
+    <div className="story-copy"><div className="perspective-handoff"><span>THE DEVELOPER’S PREVIEW</span><ArrowRight size={14}/><strong>YOUR CUSTOMER’S WORLD</strong></div><div className="eyebrow">NOW YOU’RE A PLOT TWIST CUSTOMER</div>
       <h1 tabIndex={-1}>You’re heading home.<br /><span>Your flight isn’t.</span></h1>
-      <p>You’re at the airport with your dog, <strong>Pickles</strong>. Your flight has just been canceled. Pickles packed absolutely no patience.</p>
+      <p>You open Plot Twist Travel and ask Alex for help. You’re at the airport with your dog, <strong>Pickles</strong>. Your flight has just been canceled. Pickles packed absolutely no patience.</p>
       <div className="story-introductions"><div><span className="cast-dog" aria-hidden="true">🐶</span><span><strong>Pickles</strong><small>Your dog. Cleared to fly.</small></span></div><div><Avatar small/><span><strong>Alex</strong><small>Your AI assistant in Plot Twist Travel.<br />Already helps you over the phone.</small></span></div></div>
       <p className="story-time">5:25 PM · Harbor City Airport · Terminal 2</p>
       <button className="button button-primary" onClick={onStart}>Ask Alex for help <ArrowRight size={17}/></button>
     </div>
-    <div className="story-art"><div className="story-airline"><Plane size={23}/><strong>{TRIP.airline.toUpperCase()}</strong><span>{TRIP.cancelledFlight}</span></div><div className="cancelled-ticket"><small>HARBOR CITY → HOME</small><strong>CANCELED</strong><span>Well. That’s a plot twist.</span></div><div className="pickles-tag"><span className="pickles-emoji" aria-hidden="true">🐶</span><div><small>YOUR TRAVEL COMPANION</small><strong>Pickles</strong><span>Very good dog. Very long day.</span></div></div><div className="story-handoff"><Phone size={17}/><span>Alex by phone</span><ArrowRight size={18}/><span className="new-channel">Alex in iMessage</span></div><p className="story-art-note">Same assistant. Same trip. Try both ways of getting home.</p></div>
+    <div className="story-art"><div className="story-product-brand"><PlotLogo/><small>YOUR TRIP, UNTANGLED.</small></div><div className="story-airline"><Plane size={18}/><strong>{TRIP.airline.toUpperCase()}</strong><span>{TRIP.cancelledFlight}</span></div><div className="cancelled-ticket"><small>HARBOR CITY → HOME</small><strong>CANCELED</strong><span>Well. That’s a plot twist.</span></div><div className="pickles-tag"><span className="pickles-emoji" aria-hidden="true">🐶</span><div><small>YOUR TRAVEL COMPANION</small><strong>Pickles</strong><span>Very good dog. Very long day.</span></div></div><div className="story-handoff"><Phone size={17}/><span>Alex by phone</span><ArrowRight size={18}/><span className="new-channel">Alex in iMessage</span></div><p className="story-art-note">Same assistant. Same trip. Try both ways of getting home.</p></div>
   </div>;
 }
 
@@ -359,6 +354,11 @@ function FlightOptions() {
   return <div className="flight-options" aria-label="Two sample flight options">{FLIGHTS.map(f => <div className="flight-option" key={f.id}><div className="flight-option-top"><Plane size={13}/><strong>{f.flight} · {f.stops}</strong>{f.id === 'direct' && <span>Alex’s pick</span>}</div><div className="flight-option-times"><span>{timeLabel(f.departureMinutes)} <small>PM</small></span><ArrowRight size={15}/><span>{timeLabel(f.arrivalMinutes)} <small>PM</small></span></div><p>{f.layover} · Home tonight</p></div>)}</div>;
 }
 
+function DinnerCard({ scenario }: { scenario: Scenario }) {
+  const dinner = getDinnerPlan(scenario);
+  return <div className="dinner-card"><span>THE DINNER NEGOTIATIONS</span><h4>{dinner.choice === 'gate' ? 'Gate first. Dinner later.' : scenario.buffer < 10 ? 'A tight connection. A shorter plan.' : dinner.choice === 'both' ? 'Two dinners. One way home.' : 'Pickles wins this round.'}</h4><ol>{dinner.steps.map(step => <li key={step}>{step}</li>)}</ol><p>Ready at {scenario.flight.gate} · {dinner.arrival} PM<br/><strong>{dinner.buffer} min before boarding</strong></p></div>;
+}
+
 function Itinerary({
   scenario,
   compact = false,
@@ -391,7 +391,7 @@ function Itinerary({
       </div>
       <div className="itinerary-arrival"><span>HOME TONIGHT</span><strong>{timeLabel(scenario.flight.arrivalMinutes)} PM</strong><small>{scenario.flight.layover}</small></div>
       {!flightOnly && <p>
-        {scenario.routeLabel} · Arrive around {scenario.arrival}
+        {scenario.food ? 'With your dinner plan · Ready at the gate around' : `${scenario.routeLabel} · Arrive around`} {scenario.food ? getDinnerPlan(scenario).arrival : scenario.arrival}
       </p>}
     </div>
   );
@@ -501,6 +501,7 @@ function MessagePhone({ state, onMap }: { state: DemoState; onMap(scenario: Scen
               </div>
             )}
             {message.attachment === 'flights' && <FlightOptions />}
+            {message.attachment === 'food' && message.scenario && <DinnerCard scenario={message.scenario}/>}
             {message.attachment === 'update' && message.scenario && <div className="gate-update"><small>5:33 PM · GATE CHANGE</small><div><s>{message.scenario.originalGate}</s><ArrowRight size={20}/><strong>{message.scenario.flight.gate}</strong></div><p>Boarding still {timeLabel(message.scenario.flight.boardingMinutes)} PM</p></div>}
             {message.attachment === 'plan' && message.scenario && <><Itinerary scenario={message.scenario} compact flightOnly={!message.scenario.updated}/>{state.messages.some(item => item.attachment === 'update') && !message.scenario.updated && <span className="earlier-plan-note">Earlier plan · Gate changed at 5:33 PM</span>}</>}
             {message.attachment === 'map' && state.scenario && (
@@ -614,11 +615,11 @@ export default function App() {
     );
   }
 
-  function play(turn: Turn, choice: FlightId = state.choice) {
+  function play(turn: Turn, choice: FlightId = state.choice, food: FoodChoice | undefined = state.scenario?.food) {
     if (locked.current) return;
     if (turn > 1 && (state.phase === 'responding' || state.turn !== turn - 1))
       return;
-    const scenario = getScenario(choice, turn >= 4);
+    const scenario = getScenario(choice, turn >= 4, turn >= 5 ? food : undefined);
     locked.current = true;
     const user = travelerMessage(turn, scenario);
     const id = ++run.current;
@@ -666,23 +667,21 @@ export default function App() {
     setDialog('map');
   }
   const comparison = state.stage === 'demo' || state.stage === 'complete';
+  const traveler = comparison || state.stage === 'choose';
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className={`site ${comparison ? 'site-comparison' : ''}`}>
+      <div className={`site ${comparison ? 'site-comparison' : ''} ${traveler ? 'theme-traveler' : state.stage === 'outreach' ? 'theme-developer' : 'theme-linq'}`}>
         <header className="site-header">
           <button
             className="wordmark"
             onClick={() => go('intro')}
             aria-label="Return to introduction"
           >
-            <BrandMark />
-            <span>linq</span>
-            <span className="wordmark-divider" />
-            <span className="wordmark-project">plot twist travel</span>
+            {traveler ? <PlotLogo/> : state.stage === 'outreach' ? <><PlotLogo compact/><span className="workspace-label">DEVELOPER PREVIEW</span></> : <LinqLogo/>}
           </button>
           <div className="header-right">
-            <span className="header-label">A GROWTH EXPERIMENT</span>
+            <span className="header-label">{traveler ? 'YOUR TRIP, UNTANGLED' : state.stage === 'outreach' ? 'YOUR INBOX' : 'A GROWTH EXPERIMENT'}</span>
             {state.stage !== 'intro' && (
               <button className="restart-button" onClick={() => go(comparison ? 'choose' : 'intro')}>
                 <RotateCcw size={14} /> Start over
@@ -794,9 +793,8 @@ export default function App() {
                       aria-label="Voice agent"
                     >
                       <div className="channel-heading">
-                        <span className="channel-number">A</span>
-                        <h2>Existing voice agent</h2>
-                        <span className="channel-note">Speak your choice</span>
+                        <PlotLogo compact/>
+                        <h2>By phone</h2>
                       </div>
                       <VoicePhone state={state} keepCaptions={keepCaptions} />
                     </section>
@@ -814,13 +812,12 @@ export default function App() {
                       aria-label="iMessage"
                     >
                       <div className="channel-heading">
-                        <span className="channel-number">B</span>
-                        <h2>iMessage</h2>
-                        <span className="powered"><BrandMark /> Powered by <strong>linq</strong></span>
+                        <h2>Alex in iMessage</h2>
+                        <span className="powered">Powered by <LinqLogo/></span>
                       </div>
                       <MessagePhone state={state} onMap={openMap} />
                     </section>
-                    <WhyMessage key={state.turn} state={state}/>
+                    <WhyMessage state={state}/>
                   </div>
                   <div className="interaction-area" aria-live="polite">
                     {state.phase === 'responding' && (
@@ -853,9 +850,10 @@ export default function App() {
                         </div>
                       </div>
                     )}
-                    {state.phase === 'continue' && state.turn < 6 && (
+                    {state.phase === 'continue' && state.turn === 4 && <div className="food-decision"><span className="interaction-label">ONE LAST PLOT TWIST</span><h2>You’re hungry. Pickles is lobbying.</h2><p>He needs his usual food from your bag. You would like a dinner that isn’t a crushed granola bar.</p><div className="food-choices">{FOOD_CHOICES.map(choice => <button className="followup-button" key={choice.id} onClick={() => play(5, state.choice, choice.id)}><strong>{choice.label}</strong><span>{choice.note}</span><ArrowRight size={15}/></button>)}</div></div>}
+                    {state.phase === 'continue' && state.turn < 6 && state.turn !== 4 && (
                       <div className="next-beat">
-                        <div><span className="interaction-label">WHAT HAPPENS NEXT</span><p>{NEXT_BEAT[(state.turn + 1) as 3 | 4 | 5 | 6].context}</p><blockquote>“{travelerMessage((state.turn + 1) as Turn, getScenario(state.choice, state.turn + 1 >= 4))}”</blockquote></div>
+                        <div><span className="interaction-label">WHAT HAPPENS NEXT</span><p>{NEXT_BEAT[(state.turn + 1) as 3 | 4 | 5 | 6].context}</p><blockquote>“{travelerMessage((state.turn + 1) as Turn, getScenario(state.choice, state.turn + 1 >= 4, state.scenario?.food))}”</blockquote></div>
                         <button className="button button-dark" onClick={() => play((state.turn + 1) as Turn, state.choice)}>{NEXT_BEAT[(state.turn + 1) as 3 | 4 | 5 | 6].label}<ArrowRight size={16}/></button>
                       </div>
                     )}
@@ -1011,21 +1009,13 @@ export default function App() {
           )}
           {dialog === 'cta' && (
             <Modal
-              title="Imagine this for your product."
+              title="More ways to be there for your customers."
               onClose={() => setDialog(null)}
             >
-              <div className="cta-modal-mark">
-                <BrandMark />
-              </div>
-              <p className="modal-lead">
-                In the live campaign, this would connect a qualified prospect
-                with Linq.
-              </p>
-              <p className="modal-intro">
-                Meeting routing is not connected in this prototype. The next
-                conversation would explore the customer workflow, integration
-                needs, and whether Linq is a fit.
-              </p>
+              <div className="partnership-lockup" aria-label="Plot Twist Travel and Linq"><PlotLogo/><span className="partnership-x">×</span><LinqLogo/></div>
+              <p className="modal-lead">Your assistant. Your customer experience.<br/>One more way to show up when it matters.</p>
+              <p className="modal-intro">Let’s explore how Plot Twist Travel and Linq could bring Alex into your customers’ conversations.</p>
+              <p className="modal-note">Demo only · Meeting routing isn’t connected. A real invitation would lead to a conversation about your workflow and integration.</p>
               <div className="modal-actions">
                 <button
                   className="button button-dark"

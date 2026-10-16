@@ -3,7 +3,7 @@ export type Stage = 'intro' | 'explain' | 'outreach' | 'choose' | 'demo' | 'comp
 export type Phase = 'responding' | 'followup' | 'continue' | 'finished';
 export interface Message {
   id: string; role: 'user' | 'assistant'; text: string;
-  reaction?: string; attachment?: 'flights' | 'map' | 'update' | 'plan'; scenario?: Scenario;
+  reaction?: string; attachment?: 'flights' | 'map' | 'update' | 'plan' | 'food'; scenario?: Scenario;
 }
 export interface DemoState {
   stage: Stage; scenario?: Scenario; run: number; turn: Turn; phase: Phase;
@@ -24,7 +24,7 @@ export type Action =
   | { type: 'typing'; run: number; value: boolean }
   | { type: 'reaction'; run: number; emoji: string }
   | { type: 'phrase'; run: number; text: string }
-  | { type: 'block'; run: number; text: string; index: number; attachment?: 'flights' | 'map' | 'update' | 'plan' };
+  | { type: 'block'; run: number; text: string; index: number; attachment?: 'flights' | 'map' | 'update' | 'plan' | 'food' };
 export function reducer(state: DemoState, action: Action): DemoState {
   if (action.type === 'reset') return { ...initialState(action.stage), run: action.run };
   if (action.type === 'stage') return { ...state, stage: action.stage };

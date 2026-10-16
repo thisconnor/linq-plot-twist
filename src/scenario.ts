@@ -1,4 +1,10 @@
 export type FlightId = 'direct' | 'connection';
+export type FoodChoice = 'both' | 'pickles' | 'gate';
+export const FOOD_CHOICES: { id: FoodChoice; label: string; note: string }[] = [
+  { id: 'both', label: 'Feed both of us', note: 'My sandwich is apparently not his dinner.' },
+  { id: 'pickles', label: 'Pickles first', note: 'He has retained a very small lawyer.' },
+  { id: 'gate', label: 'Straight to the gate', note: 'Dinner can wait. Boarding won’t.' },
+];
 export type Turn = 1 | 2 | 3 | 4 | 5 | 6;
 export const TURNS: Turn[] = [1, 2, 3, 4, 5, 6];
 export const BRAND = {
@@ -30,38 +36,53 @@ export function timeLabel(minutes: number): string {
   return `${hours}:${String(minutes % 60).padStart(2, '0')}`;
 }
 export interface Scenario {
-  key: FlightId; flight: Flight; updated: boolean; originalGate: string;
+  key: FlightId; food?: FoodChoice; flight: Flight; updated: boolean; originalGate: string;
   minutes: number; arrival: string; buffer: number; routeLabel: string;
   stops: string[]; initialMessage: string;
 }
-export function getScenario(id: FlightId = 'direct', updated = false): Scenario {
+export function getScenario(id: FlightId = 'direct', updated = false, food?: FoodChoice): Scenario {
   const original = FLIGHTS.find(f => f.id === id);
   if (!original) throw new Error('Choose one of the available sample flights.');
   const flight = updated ? { ...original, gate: original.updatedGate, petToGate: original.petToGate + 2 } : original;
   const minutes = updated ? flight.petToGate : TRIP.petWalk + TRIP.petStop + flight.petToGate;
   const start = updated ? TRIP.updateMinutes : TRIP.startMinutes;
-  return { key: id, flight, updated, originalGate: original.gate, minutes,
+  return { key: id, food, flight, updated, originalGate: original.gate, minutes,
     arrival: timeLabel(start + minutes), buffer: flight.boardingMinutes - start - minutes,
     routeLabel: updated ? `From pet relief to ${flight.gate}` : `Pet stop, then ${flight.gate}`,
     stops: ['Pet relief · B10', `Gate ${flight.gate}`], initialMessage: TRIP.initialMessage };
+}
+export function getDinnerPlan(scenario: Scenario) {
+  const choice = scenario.food ?? 'both';
+  const tight = scenario.buffer < 10;
+  const extraMinutes = choice === 'gate' ? 0 : tight ? 2 : choice === 'both' ? 15 : 5;
+  const arrivalMinutes = TRIP.updateMinutes + scenario.minutes + extraMinutes;
+  const steps = choice === 'gate' ? [`Straight to ${scenario.flight.gate}`, 'Eat after boarding']
+    : tight ? ['Head straight to the gate', '2 min for Pickles’ packed food at the gate', 'Your dinner after boarding']
+    : choice === 'both' ? ['B14 deli · 10 min for takeaway', '5 min for Pickles’ packed food', `Gate ${scenario.flight.gate}`]
+    : ['5 min for Pickles’ packed food', `Gate ${scenario.flight.gate}`, 'Your dinner later'];
+  const reply = choice === 'gate' ? 'Gate first. A sensible choice, although Pickles has requested a written appeal.'
+    : tight ? 'Boarding is too close for the deli. Head to the gate first. You can allow two minutes there for Pickles’ usual food from your bag; save your dinner until after boarding.'
+    : choice === 'both' ? 'Two dinners, one detour. The deli by B14 is on your way. Budget ten minutes for your takeaway and five for Pickles’ usual food from your bag. No mystery airport dog menu.'
+    : 'Pickles wins the dinner negotiations. Allow five minutes for his usual food from your bag, then head to the gate. Your dinner can wait.';
+  return { choice, extraMinutes, steps, reply, arrival: timeLabel(arrivalMinutes), buffer: scenario.flight.boardingMinutes - arrivalMinutes };
 }
 export function travelerMessage(turn: Turn, scenario: Scenario): string {
   if (turn === 1) return TRIP.initialMessage;
   if (turn === 2) return scenario.flight.choice;
   if (turn === 3) return 'Before we go: Pickles needs a pet stop. He’s giving me the look.';
   if (turn === 4) return 'We made it to pet relief. Pickles is ready to move. Anything changed?';
-  if (turn === 5) return 'Leash in one hand, suitcase in the other. Which gate and boarding time again?';
-  return 'Got it. Pickles and I are on our way. Thanks, Alex!';
+  if (turn === 5) return scenario.food === 'gate' ? 'Dinner can wait. Get us straight to the gate.' : scenario.food === 'pickles' ? 'Pickles needs his usual food from my bag. I can eat later. Is there time?' : 'I need dinner. Pickles needs his usual food from my bag. Apparently my sandwich doesn’t count. Can we fit both in?';
+  return 'Got it. We’ll follow that plan. Pickles would like to award you one imaginary biscuit.';
 }
 export const NEXT_BEAT: Record<2 | 3 | 4 | 5 | 6, { context: string; label: string }> = {
   2: { context: 'Choose what works for you and your dog.', label: 'Choose your flight' },
   3: { context: 'One small problem before you head to the gate…', label: 'Ask about a pet stop' },
   4: { context: 'Eight minutes later · You’re at pet relief with Pickles.', label: 'Check for updates' },
-  5: { context: 'You’re moving again. The airport signs are not helping.', label: 'Check the gate and boarding time' },
-  6: { context: 'Now you have what you need. Leash, suitcase, very good dog.', label: 'Thank Alex and head to the gate' },
+  5: { context: 'One last plot twist: two hungry travelers. Two very different dinners.', label: 'Make a dinner plan' },
+  6: { context: 'A plan for the gate. A plan for the hungry duo.', label: 'Thank Alex and follow the plan' },
 };
 export interface ScriptBlock {
-  phrases: string[]; message?: string; attachment?: 'flights' | 'map' | 'update' | 'plan';
+  phrases: string[]; message?: string; attachment?: 'flights' | 'map' | 'update' | 'plan' | 'food';
 }
 export function getTurn(scenario: Scenario, turn: Turn): ScriptBlock[] {
   const f = scenario.flight;
@@ -93,15 +114,17 @@ export function getTurn(scenario: Scenario, turn: Turn): ScriptBlock[] {
     { phrases: [`From pet relief, follow the concourse to ${f.gate}. It’s ${f.petToGate} minutes. You’ll arrive around ${scenario.arrival}, ${bufferText}.${scenario.buffer < 10 ? ' Head straight there now.' : ''}`],
       message: `Updated route: ${f.petToGate} min from pet relief → ${f.gate}. Arrive around ${scenario.arrival}.${scenario.buffer < 10 ? ' Head straight there now; that’s 4 min before boarding.' : ' You still have over an hour before boarding.'}`, attachment: 'map' },
   ];
-  if (turn === 5) return [
-    { phrases: [`Gate ${f.gate}. Boarding at ${timeLabel(f.boardingMinutes)}, departure at ${timeLabel(f.departureMinutes)}. Your arrival home is ${timeLabel(f.arrivalMinutes)} tonight.`],
-      message: `${f.gate} · Boarding ${timeLabel(f.boardingMinutes)} PM. Your latest plan is here. 👇`, attachment: 'plan' },
-    { phrases: [`The route from pet relief is ${f.petToGate} minutes. Follow the concourse signs for ${f.gate}.`],
-      message: `Follow the concourse signs for ${f.gate}. ${f.petToGate} min from pet relief. You can check this card again whenever you need.` },
-  ];
+  if (turn === 5) {
+    const dinner = getDinnerPlan(scenario);
+    return [
+      { phrases: [dinner.reply], message: dinner.reply, attachment: 'food' },
+      { phrases: [`${dinner.steps.join('. ')}. You’ll be ready at the gate around ${dinner.arrival}, ${dinner.buffer} minutes before boarding at ${timeLabel(f.boardingMinutes)}.`],
+        message: `${dinner.steps.join(' → ')}. Ready at ${f.gate} around ${dinner.arrival} PM · ${dinner.buffer} min before boarding.` },
+    ];
+  }
   return [
     { phrases: [`You’re welcome. Head to ${f.gate}, and keep an eye on airport updates. Have a good trip home, both of you.`],
-      message: `Safe trip home, both of you. 🐾 And Pickles? Excellent crisis management.`, attachment: 'plan' },
+      message: `Imaginary biscuit accepted. 🐾 Your flight and dinner plan are here. Safe trip home, both of you.`, attachment: 'plan' },
   ];
 }
 export function captionPhrases(sentence: string): string[] {

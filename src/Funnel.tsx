@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Code2, Mail, MessageCircle, Phone, Plane } from 'lucide-react';
 import { BRAND } from './scenario';
+import { PlotLogo } from './Brands';
 
 export function Landing({ onContinue, onSkip }: { onContinue(): void; onSkip(): void }) {
   return <div className="landing">
@@ -21,8 +22,8 @@ export function Landing({ onContinue, onSkip }: { onContinue(): void; onSkip(): 
 }
 
 const steps = [
-  { title: 'Start with their product.', text: 'Find a qualified developer with a customer workflow that would make sense in iMessage.', example: 'Meet Plot Twist Travel. Its AI assistant, Alex, already helps travelers over the phone.' },
-  { title: 'Give them a useful preview.', text: 'Prepare a short example around that workflow, check the details, and send an invitation to try it.', example: 'Here, Linq shows the developer how Alex could help with a canceled flight in iMessage.' },
+  { title: 'Cold email. Informed by signals.', text: 'Not completely cold: start with a select set of customer profiles, then look for companies showing relevant signals.', example: 'For this example: a funded AI travel company, an existing conversational assistant, and customers who need help on the move. Plot Twist Travel is fictional.' },
+  { title: 'Build for them. Then send it.', text: 'AI custom-builds a lightweight demo for each company before outreach. Review the experience, then cold email that company an invitation.', example: 'Here, the preview uses Plot Twist’s brand, its assistant Alex, and a travel workflow. The email leads with something they can try.' },
   { title: 'Ask after they’ve felt the value.', text: 'Let the developer experience it as their customer. Then ask whether it could fit their product.', example: 'That’s the experiment: can a relevant first experience earn more qualified conversations?' },
 ];
 export function GuidedExplanation({ onContinue, onBack }: { onContinue(): void; onBack(): void }) {
@@ -36,7 +37,7 @@ export function GuidedExplanation({ onContinue, onBack }: { onContinue(): void; 
     <h1 tabIndex={-1} ref={heading}>{current.title}</h1>
     <p className="guide-lead">{current.text}</p>
     <div className="guide-example" key={step}>
-      {step === 0 && <><div className="guide-product"><Plane size={26}/><strong>plot twist <small>TRAVEL</small></strong></div><div className="guide-agent"><img src={BRAND.avatar} alt="Alex, fictional AI assistant"/><div><strong>Alex</strong><span>Plot Twist’s AI travel assistant</span></div><Phone size={20}/></div></>}
+      {step === 0 && <><div className="guide-product"><PlotLogo/></div><div className="guide-agent"><img src={BRAND.avatar} alt="Alex, fictional AI assistant"/><div><strong>Alex</strong><span>Plot Twist’s AI travel assistant</span></div><Phone size={20}/></div></>}
       {step === 1 && <><Mail size={28}/><strong className="guide-invitation">Your voice assistant.<br />Now in iMessage.</strong><span className="guide-linq">A personalized preview from Linq</span></>}
       {step === 2 && <div className="guide-conversation"><span><MessageCircle size={22}/> Try the experience</span><ArrowRight size={20}/><span><Code2 size={22}/> Discuss the fit</span></div>}
       <p>{current.example}</p>

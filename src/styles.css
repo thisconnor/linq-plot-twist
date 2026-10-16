@@ -2134,17 +2134,6 @@ details[open] > summary > svg:last-child {
 .cast-dog { display:grid; place-items:center; background:#e4eadb; border-radius:50%; font-size:25px; }
 .story-copy > .story-time { font-size:10px; margin-bottom:23px; }
 .phone-pair { position:relative; }
-.why-message-slot { position:absolute; left:calc(50% + 378px); top:145px; width:207px; z-index:2; }
-.why-message { background:#e6eddb; border:1px solid #c4d1b0; border-radius:12px; padding:17px; box-shadow:0 12px 30px -24px #405332; position:relative; }
-.why-message::before { content:''; width:10px; height:10px; position:absolute; left:-6px; top:35px; background:#e6eddb; border-left:1px solid #c4d1b0; border-bottom:1px solid #c4d1b0; transform:rotate(45deg); }
-.why-heading { display:flex; align-items:center; justify-content:space-between; gap:5px; }
-.why-heading > span { display:flex; align-items:center; gap:5px; font-size:8px; letter-spacing:.6px; font-weight:750; color:#5a7043; }
-.why-heading button { background:transparent; width:24px; height:24px; display:grid; place-items:center; border-radius:50%; color:#6c7e58; margin:-6px -6px -6px 0; }
-.why-heading button:hover { background:#d6e1c7; }
-.why-message h3 { font-size:15px; line-height:1.5; letter-spacing:-.3px; margin:14px 0 8px; }
-.why-message p { font-size:11px; line-height:1.8; color:#60724e; }
-.why-pointer { display:flex; align-items:center; gap:5px; font-size:8px; color:#81926f; margin-top:16px; }
-.why-reopen { background:#e6eddb; border:1px solid #c4d1b0; border-radius:8px; padding:12px; display:flex; align-items:center; gap:7px; font-size:11px; color:#587141; }
 .gate-update { background:#fff3d9; border:1px solid #ead5aa; padding:14px; border-radius:12px; max-width:94%; margin:10px 0 15px; color:#73552b; }
 .gate-update > small { font-size:8px; letter-spacing:.7px; }
 .gate-update > div { display:flex; align-items:center; gap:15px; margin:10px 0; }
@@ -2160,11 +2149,6 @@ details[open] > summary > svg:last-child {
 .return-to-developer p { font-size:13px; color:#5e7150; margin-top:10px; }
 @media (max-width:1319px) {
   .phone-pair { flex-wrap:wrap; }
-  .why-message-slot { position:static; width:100%; max-width:718px; margin:0 auto; display:flex; justify-content:flex-end; }
-  .why-message { width:312px; }
-  .why-message::before { top:-6px; left:35px; border-left:1px solid #c4d1b0; border-bottom:0; border-top:1px solid #c4d1b0; }
-  .why-message h3 { font-size:14px; margin:10px 0 5px; }
-  .why-pointer { display:none; }
 }
 @media (max-width:800px) {
   .landing { gap:30px; }
@@ -2192,13 +2176,126 @@ details[open] > summary > svg:last-child {
   .guide-invitation { font-size:26px; }
   .story-copy h1 { font-size:37px; }
   .story-copy > p { font-size:13px; }
-  .why-message-slot { max-width:none; justify-content:stretch; margin:7px 0 0; }
-  .why-message { width:100%; padding:17px 20px; }
-  .why-message p { font-size:12px; line-height:1.7; }
-  .why-message h3 { font-size:16px; }
-  .why-heading > span { font-size:9px; }
   .next-beat { flex-direction:column; align-items:stretch; gap:18px; }
   .next-beat .button { max-width:none; justify-content:space-between; }
   .next-beat blockquote { font-size:12px; }
 }
 .earlier-plan-note { display:block; font-size:8px; color:#8a7555; margin:5px 0 13px; line-height:1.5; }
+
+/* Plot Twist owns the customer experience; Linq appears at the channel boundary. */
+.linq-logo { display:block; width:73px; height:auto; object-fit:contain; }
+.wordmark > .linq-logo { width:76px; }
+.plot-logo { display:inline-flex; align-items:center; gap:8px; color:#43283f; white-space:nowrap; }
+.plot-logo > svg { width:35px; height:35px; fill:none; stroke:#bf594c; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+.plot-logo > span { font-size:25px; font-weight:800; letter-spacing:-1.3px; line-height:1; }
+.plot-logo small { display:block; font-size:7px; letter-spacing:3.5px; margin-top:6px; font-weight:650; }
+.plot-logo-small { gap:5px; }
+.plot-logo-small > svg { width:25px; height:25px; }
+.plot-logo-small > span { font-size:18px; letter-spacing:-.8px; }
+.plot-logo-small small { font-size:6px; letter-spacing:2.5px; margin-top:4px; }
+.workspace-label { border-left:1px solid #dacfd6; padding-left:14px; margin-left:9px; font-size:8px; letter-spacing:1px; color:#82707e; }
+.site { transition:background-color .35s ease; }
+.theme-developer { background:#f7f4f4; --line:#e0d7df; --muted:#756573; }
+.theme-developer .context-copy > .plot-logo { margin-bottom:28px; }
+.theme-developer .context-copy h1 > span { color:#8b647d; }
+.theme-developer .email { background:#fff; }
+.theme-developer .eyebrow { color:#866b7e; }
+.theme-developer .email-avatar { width:62px; background:#e9f0de; padding:7px; border-radius:8px; }
+.email-avatar .linq-logo { width:100%; }
+.theme-traveler { background:#fbf4eb; --paper:#fbf4eb; --ink:#3d293a; --muted:#756572; --line:#e2d6d7; --lime:#f1a38b; color:var(--ink); }
+.theme-traveler .button-primary, .theme-traveler .button-dark { background:#56354e; color:#fff8f1; }
+.theme-traveler .button-primary:hover, .theme-traveler .button-dark:hover { background:#70485f; }
+.theme-traveler .eyebrow, .theme-traveler .interaction-label { color:#946956; }
+.theme-traveler .story-copy h1 > span { color:#b85c49; }
+.theme-traveler .story-copy > p, .theme-traveler .comparison-heading p, .theme-traveler .next-beat p { color:#796372; }
+.perspective-handoff { display:flex; align-items:center; flex-wrap:wrap; gap:8px; font-size:8px; letter-spacing:.8px; padding-bottom:22px; margin-bottom:25px; border-bottom:1px solid var(--line); color:#937b88; }
+.perspective-handoff strong { color:#79465a; }
+.theme-traveler .story-art { background:#f3e1d7; border-color:#e1c9c0; transform:rotate(1deg); }
+.story-product-brand { padding-bottom:22px; margin-bottom:20px; border-bottom:1px solid #dcbeb5; }
+.story-product-brand > small { display:block; font-size:7px; letter-spacing:2px; color:#976858; margin-top:15px; }
+.theme-traveler .story-airline { color:#8a625b; font-size:9px; }
+.theme-traveler .cancelled-ticket { border-color:#d2b6ac; }
+.theme-traveler .cancelled-ticket > small, .theme-traveler .cancelled-ticket > span, .theme-traveler .story-art-note { color:#8b6c68; }
+.theme-traveler .pickles-tag { background:#fff9f2; }
+.theme-traveler .cast-dog { background:#f0d8cb; }
+.theme-traveler .story-introductions small { color:#826b78; }
+.theme-traveler .voice-phone { background:#382637; background-image:radial-gradient(ellipse at 50% 0%,#78506a 0%,#462e43 45%,#2a202c 100%); }
+.theme-traveler .call-person > span:last-child { color:#d9bdce; }
+.theme-traveler .waveform i { background:#f0baa5; }
+.theme-traveler .call-state { color:#dfc5d6; }
+.theme-traveler .voice-channel .channel-heading { border-bottom:1px solid #dfc4c9; padding-bottom:10px; }
+.theme-traveler .channel-heading { height:45px; }
+.theme-traveler .voice-channel .channel-heading h2 { margin-left:auto; font-size:10px; color:#957581; }
+.powered { background:#e8f0dc; color:#536545; margin-left:auto; padding:6px 8px; gap:6px; white-space:nowrap; }
+.powered .linq-logo { width:38px; }
+.theme-traveler .message-channel .channel-heading { border-bottom:1px solid #c5d4b7; padding-bottom:10px; }
+.theme-traveler .audio-toggle { border-color:#dac7d0; }
+.theme-traveler .audio-enabled { background:#efdee5; }
+.theme-traveler .followup-button { background:#fffaf4; border-color:#decbd2; color:#51384b; }
+.theme-traveler .followup-button:hover { background:#f2e4e7; border-color:#bc8a9c; }
+.theme-traveler .followup-button small { color:#9a6c60; }
+.theme-traveler .mobile-mode { background:#eee0e3; border-color:#ddc9d3; }
+.theme-traveler .mobile-mode button[aria-pressed='true'] { background:#fff9f1; }
+.theme-traveler .return-to-developer p { color:#745e70; }
+.theme-traveler .return-to-developer > span { color:#9d7e91; }
+.phone-pair { flex-wrap:wrap; }
+.channel-notes { flex-basis:100%; width:100%; max-width:718px; margin:-14px auto 0; display:grid; grid-template-columns:1fr 1fr; column-gap:94px; row-gap:7px; }
+.notes-control { grid-column:1/-1; text-align:right; }
+.notes-control button { display:inline-flex; align-items:center; gap:4px; background:transparent; color:#86757e; padding:6px 0 6px 12px; font-size:9px; }
+.channel-note-card { padding:12px 14px; border:1px solid #dcc8d3; border-radius:9px; background:#f5e8ed; position:relative; }
+.channel-note-card::before { content:''; position:absolute; top:-5px; left:25px; width:8px; height:8px; background:inherit; border-left:inherit; border-top:inherit; transform:rotate(45deg); }
+.channel-note-card > span { display:flex; align-items:center; gap:5px; color:#936a83; font-size:7px; font-weight:700; letter-spacing:.7px; }
+.channel-note-card h3 { font-size:12px; line-height:1.5; margin:8px 0 4px; }
+.channel-note-card p { font-size:10px; line-height:1.65; color:#7d6677; }
+.note-message { background:#eaf0e1; border-color:#c9d7bc; color:#354b31; }
+.note-message > span { color:#698454; }
+.note-message p { color:#627653; }
+.notes-hidden { display:block; }
+.food-decision > h2 { font-size:20px; letter-spacing:-.6px; margin-top:9px; }
+.food-decision > p { font-size:12px; color:#806875; line-height:1.7; margin:10px 0 18px; max-width:570px; }
+.food-choices { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.food-choices .followup-button { display:flex; flex-direction:column; align-items:flex-start; padding:16px; }
+.food-choices strong { font-size:13px; }
+.food-choices .followup-button > span { font-size:10px; margin-top:8px; line-height:1.6; }
+.food-choices svg { margin-top:12px; align-self:flex-end; }
+.dinner-card { background:#fff6ec; border:1px solid #e4c8ad; border-radius:12px; padding:14px; max-width:94%; margin:8px 0 14px; color:#6b4b3a; }
+.dinner-card > span { font-size:7px; letter-spacing:.8px; color:#a27653; }
+.dinner-card h4 { font-size:14px; margin:10px 0; line-height:1.4; }
+.dinner-card ol { padding-left:18px; margin:12px 0; font-size:11px; line-height:1.8; }
+.dinner-card p { border-top:1px dashed #d9bba0; padding-top:10px; font-size:10px; line-height:1.7; }
+.partnership-lockup { display:flex; align-items:center; justify-content:center; gap:28px; padding:30px 0 35px; margin:15px 0 20px; border-bottom:1px solid #e4d8df; }
+.partnership-x { color:#ad939e; font-size:27px; font-weight:300; }
+.partnership-lockup .linq-logo { width:90px; }
+@media (min-width:1440px) {
+  .channel-notes { position:absolute; inset:170px 0 auto; max-width:none; display:block; margin:0; pointer-events:none; }
+  .channel-note-card { position:absolute; width:160px; pointer-events:auto; }
+  .note-voice { right:calc(50% + 382px); }
+  .note-message { left:calc(50% + 382px); }
+  .channel-note-card::before { top:25px; left:auto; right:-5px; transform:rotate(135deg); }
+  .note-message::before { left:-5px; right:auto; transform:rotate(-45deg); }
+  .notes-control { position:absolute; top:160px; right:calc(50% + 382px); width:160px; pointer-events:auto; }
+  .notes-hidden .notes-control { top:0; }
+}
+@media (max-width:800px) {
+  .channel-notes { column-gap:50px; max-width:100%; }
+}
+@media (max-width:650px) {
+  .plot-logo > span { font-size:22px; }
+  .plot-logo > svg { width:29px; height:29px; }
+  .workspace-label { display:none; }
+  .theme-developer .context-copy > .plot-logo { margin-bottom:20px; }
+  .perspective-handoff { font-size:7px; line-height:1.8; margin-bottom:20px; }
+  .channel-notes { margin:0 auto; max-width:350px; column-gap:8px; row-gap:5px; }
+  .channel-note-card { padding:11px; }
+  .channel-note-card h3 { font-size:11px; }
+  .channel-note-card p { font-size:10px; }
+  .notes-control button { font-size:9px; padding:8px; }
+  .food-choices { grid-template-columns:1fr; gap:9px; }
+  .food-choices .followup-button { position:relative; padding:14px 36px 14px 14px; }
+  .food-choices svg { position:absolute; right:14px; top:15px; margin:0; }
+  .partnership-lockup { gap:15px; }
+  .partnership-lockup .plot-logo > span { font-size:20px; }
+  .partnership-lockup .linq-logo { width:65px; }
+}
+.linq-logo { filter:invert(1); }
+.wordmark > .workspace-label { font-size:8px; font-weight:500; letter-spacing:1px; }

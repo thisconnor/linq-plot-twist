@@ -2,13 +2,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   captionPhrases,
   getScenario,
+  getDinnerPlan,
+  FOOD_CHOICES,
   getTurn,
   phraseDuration,
   TRIP,
   TURNS,
   travelerMessage,
 } from './scenario';
-import type { FlightId } from './scenario';
+import type { FlightId, FoodChoice } from './scenario';
 import { Playback, delay } from './playback';
 import { initialState, reducer } from './state';
 
@@ -53,13 +55,42 @@ describe('Flight decisions and travel feasibility', () => {
   });
 });
 
+describe('Dinner choices respect boarding time', () => {
+  it.each([
+    ['direct', 'both', 15, '5:54', 56],
+    ['direct', 'pickles', 5, '5:44', 66],
+    ['direct', 'gate', 0, '5:39', 71],
+    ['connection', 'both', 2, '5:43', 2],
+    ['connection', 'pickles', 2, '5:43', 2],
+    ['connection', 'gate', 0, '5:41', 4],
+  ] as const)('%s / %s has a feasible food plan', (flight, food, extra, arrival, buffer) => {
+    const scenario = getScenario(flight, true, food);
+    const dinner = getDinnerPlan(scenario);
+    expect(dinner.extraMinutes).toBe(extra);
+    expect(dinner.arrival).toBe(arrival);
+    expect(dinner.buffer).toBe(buffer);
+    expect(TRIP.updateMinutes + scenario.minutes + extra + buffer).toBe(scenario.flight.boardingMinutes);
+    const script = getTurn(scenario, 5);
+    expect(script.flatMap(block => block.phrases).join(' ')).toContain(arrival);
+    expect(script.map(block => block.message).join(' ')).toContain(arrival);
+    if (flight === 'connection' && food !== 'gate') expect(dinner.reply).toContain('too close for the deli');
+    if (food === 'gate') expect(dinner.extraMinutes).toBe(0);
+  });
+  it('keeps earlier flight and route snapshots free of later dinner choices', () => {
+    const earlier = getScenario('direct', true);
+    getScenario('direct', true, 'both' as FoodChoice);
+    expect(earlier.food).toBeUndefined();
+    expect(earlier.arrival).toBe('5:39');
+  });
+});
+
 describe('Both complete visitor paths', () => {
-  it.each(['direct', 'connection'] as FlightId[])('%s reaches a retained plan with matching spoken facts', async (choice) => {
+  it.each((['direct', 'connection'] as FlightId[]).flatMap(flight => FOOD_CHOICES.map(food => [flight, food.id] as const)))('%s / %s reaches a retained plan with matching spoken facts', async (choice, food) => {
     vi.useFakeTimers();
     let state = initialState('choose');
     const playback = new Playback();
     for (const turn of TURNS) {
-      const scenario = getScenario(turn === 1 ? 'direct' : choice, turn >= 4);
+      const scenario = getScenario(turn === 1 ? 'direct' : choice, turn >= 4, turn >= 5 ? food : undefined);
       state = reducer(state, { type: 'begin', run: turn, turn, scenario,
         user: travelerMessage(turn, scenario), choice });
       const blocks = getTurn(scenario, turn);
@@ -94,7 +125,12 @@ describe('Both complete visitor paths', () => {
     expect(maps[1].scenario?.updated).toBe(true);
     expect(maps[1].scenario?.flight.gate).toBe(scenario.flight.gate);
     expect(state.messages.filter(m => m.attachment === 'update')).toHaveLength(1);
-    expect(state.messages.filter(m => m.attachment === 'plan')).toHaveLength(3);
+    expect(state.messages.filter(m => m.attachment === 'plan')).toHaveLength(2);
+    expect(state.messages.filter(m => m.attachment === 'food')).toHaveLength(1);
+    expect(state.scenario?.food).toBe(food);
+    const dinner = getDinnerPlan(state.scenario!);
+    expect(transcript).toContain(dinner.arrival);
+    expect(dinner.buffer).toBeGreaterThanOrEqual(2);
   });
   it('shows delivered, then read, then reaction, then typing, then a reply', async () => {
     vi.useFakeTimers();
