@@ -1,287 +1,408 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { existsSync, readFileSync } from "node:fs";
 import {
+  ATTACHMENTS,
   captionPhrases,
-  getScenario,
-  getDinnerPlan,
-  FOOD_CHOICES,
-  getTurn,
-  phraseDuration,
+  ROUTE,
+  STORY,
+  timeLabel,
   TRIP,
-  TURNS,
-  travelerMessage,
-} from './scenario';
-import type { FlightId, FoodChoice } from './scenario';
-import { Playback, delay } from './playback';
-import { initialState, reducer } from './state';
+} from "./scenario";
+import type { Beat } from "./scenario";
+import { initialState, reducer } from "./state";
+import { MessagePlayback, VoicePlayback } from "./playback";
+import type { ChatCallbacks, NarrationClips } from "./playback";
+import narration from "./data/narration.json";
 
-afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
-
-describe('Flight decisions and travel feasibility', () => {
-  it.each([
-    ['direct', 12, '5:37', 73, 'B12'],
-    ['connection', 14, '5:39', 6, 'B16'],
-  ] as const)('%s has a consistent gate route and boarding buffer', (id, minutes, arrival, buffer, gate) => {
-    const scenario = getScenario(id);
-    expect(scenario.minutes).toBe(minutes);
-    expect(scenario.arrival).toBe(arrival);
-    expect(scenario.buffer).toBe(buffer);
-    expect(scenario.stops.at(-1)).toBe(`Gate ${gate}`);
-    expect(TRIP.startMinutes + minutes + buffer).toBe(scenario.flight.boardingMinutes);
-    expect(scenario.flight.arrivalMinutes).toBeGreaterThan(scenario.flight.departureMinutes);
-  });
-  it.each([
-    ['direct', 6, '5:39', 71, 'B18'],
-    ['connection', 8, '5:41', 4, 'B20'],
-  ] as const)('%s gate change updates the route without moving boarding time', (id, minutes, arrival, buffer, gate) => {
-    const updated = getScenario(id, true);
-    const original = getScenario(id);
-    expect(updated.flight.gate).toBe(gate);
-    expect(updated.minutes).toBe(minutes);
-    expect(updated.arrival).toBe(arrival);
-    expect(updated.buffer).toBe(buffer);
-    expect(TRIP.updateMinutes + minutes + buffer).toBe(updated.flight.boardingMinutes);
-    expect(updated.flight.boardingMinutes).toBe(original.flight.boardingMinutes);
-    expect(original.flight.gate).not.toBe(gate);
-  });
-  it('rejects a nonexistent sample flight', () => {
-    expect(() => getScenario('invalid' as FlightId)).toThrow();
-  });
-  it('offers the same two flights and recommendation before either decision', () => {
-    expect(getTurn(getScenario('direct'), 1)).toEqual(getTurn(getScenario('connection'), 1));
-    const script = getTurn(getScenario(), 1).flatMap(b => b.phrases).join(' ');
-    expect(script).toContain('7:20'); expect(script).toContain('9:40');
-    expect(script).toContain('6:15'); expect(script).toContain('8:55');
-    expect(script).toContain('forty minutes'); expect(script).toContain('nonstop');
-  });
+afterEach(() => {
+  vi.useRealTimers();
+});
+const noop = () => {};
+const chatCallbacks = (): ChatCallbacks => ({
+  onRead: noop,
+  onReaction: noop,
+  onTyping: noop,
+  onReply: noop,
+  onShare: noop,
+  onFinish: noop,
+});
+const voiceCallbacks = () => ({
+  onCue: vi.fn(),
+  onAudioUnavailable: vi.fn(),
+  onFinish: vi.fn(),
 });
 
-describe('Dinner choices respect boarding time', () => {
-  it.each([
-    ['direct', 'both', 15, '5:54', 56],
-    ['direct', 'pickles', 5, '5:44', 66],
-    ['direct', 'gate', 0, '5:39', 71],
-    ['connection', 'both', 2, '5:43', 2],
-    ['connection', 'pickles', 2, '5:43', 2],
-    ['connection', 'gate', 0, '5:41', 4],
-  ] as const)('%s / %s has a feasible food plan', (flight, food, extra, arrival, buffer) => {
-    const scenario = getScenario(flight, true, food);
-    const dinner = getDinnerPlan(scenario);
-    expect(dinner.extraMinutes).toBe(extra);
-    expect(dinner.arrival).toBe(arrival);
-    expect(dinner.buffer).toBe(buffer);
-    expect(TRIP.updateMinutes + scenario.minutes + extra + buffer).toBe(scenario.flight.boardingMinutes);
-    const script = getTurn(scenario, 5);
-    expect(script.flatMap(block => block.phrases).join(' ')).toContain(arrival);
-    expect(script.map(block => block.message).join(' ')).toContain(arrival);
-    if (flight === 'connection' && food !== 'gate') expect(dinner.reply).toContain('too close for the deli');
-    if (food === 'gate') expect(dinner.extraMinutes).toBe(0);
-  });
-  it('keeps earlier flight and route snapshots free of later dinner choices', () => {
-    const earlier = getScenario('direct', true);
-    getScenario('direct', true, 'both' as FoodChoice);
-    expect(earlier.food).toBeUndefined();
-    expect(earlier.arrival).toBe('5:39');
-  });
-});
-
-describe('Both complete visitor paths', () => {
-  it.each((['direct', 'connection'] as FlightId[]).flatMap(flight => FOOD_CHOICES.map(food => [flight, food.id] as const)))('%s / %s reaches a retained plan with matching spoken facts', async (choice, food) => {
-    vi.useFakeTimers();
-    let state = initialState('choose');
-    const playback = new Playback();
-    for (const turn of TURNS) {
-      const scenario = getScenario(turn === 1 ? 'direct' : choice, turn >= 4, turn >= 5 ? food : undefined);
-      state = reducer(state, { type: 'begin', run: turn, turn, scenario,
-        user: travelerMessage(turn, scenario), choice });
-      const blocks = getTurn(scenario, turn);
-      const task = playback.play(blocks, {
-        onRead: () => { state = reducer(state, { type: 'read', run: turn }); },
-        onTyping: value => { state = reducer(state, { type: 'typing', run: turn, value }); },
-        onReaction: () => { state = reducer(state, { type: 'reaction', run: turn, emoji: turn === 3 ? '❤️' : '👀' }); },
-        onBlock: (text, index, attachment) => { state = reducer(state, { type: 'block', run: turn, text, index, attachment }); },
-        onPhrase: text => { state = reducer(state, { type: 'phrase', run: turn, text }); },
-        onBlockEnd() {},
-        onFinish: () => { state = reducer(state, { type: 'finish', run: turn }); },
-      }, () => false);
-      await vi.runAllTimersAsync(); await task;
-      expect(state.phase).toBe(turn === 1 ? 'followup' : turn === 6 ? 'finished' : 'continue');
-      const spoken = getTurn(scenario, turn).flatMap(b => b.phrases).join(' ');
-      expect(state.spoken.join(' ')).toContain(spoken);
+describe("One consistent sample story", () => {
+  it("keeps options, selection, gate change and route facts consistent", () => {
+    expect(STORY).toHaveLength(3);
+    expect(TRIP.selected.boarding).toBeLessThan(TRIP.selected.departure);
+    expect(TRIP.selected.departure).toBeLessThan(TRIP.selected.arrival);
+    expect(ROUTE.arrival).toBe("5:39");
+    expect(ROUTE.buffer).toBe(71);
+    const text = STORY.flatMap((beat) =>
+      beat.replies.map((reply) => reply.text),
+    ).join(" ");
+    const spoken = STORY.flatMap((beat) => beat.narration).join(" ");
+    for (const fact of ["PT218", "B12", "B18", "6:50", "7:20", "5:39"]) {
+      expect(text).toContain(fact);
+      expect(spoken).toContain(fact);
     }
-    expect(state.stage).toBe('complete'); expect(state.showMap).toBe(true);
-    expect(state.identityShared).toBe(true); expect(state.typing).toBe(false);
-    expect(state.messages.filter(m => m.attachment === 'flights')).toHaveLength(1);
-    expect(state.messages.filter(m => m.attachment === 'map')).toHaveLength(2);
-    expect(state.messages.filter(m => m.reaction)).toHaveLength(6);
-    expect(new Set(state.messages.map(m => m.id)).size).toBe(state.messages.length);
-    const transcript = state.messages.map(m => m.text).join(' ');
-    const scenario = getScenario(choice, true);
-    for (const fact of [scenario.flight.gate, scenario.flight.flight, scenario.arrival]) expect(transcript).toContain(fact);
-    expect(transcript).not.toMatch(/booked|ticket issued|reserved/i);
-    expect(state.choice).toBe(choice);
-    const maps = state.messages.filter(m => m.attachment === 'map');
-    expect(maps[0].scenario?.updated).toBe(false);
-    expect(maps[0].scenario?.flight.gate).toBe(getScenario(choice).flight.gate);
-    expect(maps[1].scenario?.updated).toBe(true);
-    expect(maps[1].scenario?.flight.gate).toBe(scenario.flight.gate);
-    expect(state.messages.filter(m => m.attachment === 'update')).toHaveLength(1);
-    expect(state.messages.filter(m => m.attachment === 'plan')).toHaveLength(2);
-    expect(state.messages.filter(m => m.attachment === 'food')).toHaveLength(1);
-    expect(state.scenario?.food).toBe(food);
-    const dinner = getDinnerPlan(state.scenario!);
-    expect(transcript).toContain(dinner.arrival);
-    expect(dinner.buffer).toBeGreaterThanOrEqual(2);
+    expect(spoken).toContain("6:15");
+    expect(spoken).toContain("8:55");
+    expect(spoken).toContain("40 minutes");
+    expect(TRIP.updateMinutes - TRIP.startMinutes).toBe(8);
+    expect(TRIP.updateMinutes + TRIP.route.walkMinutes + ROUTE.buffer).toBe(
+      TRIP.selected.boarding,
+    );
+    expect(text).not.toMatch(
+      /ticket issued|booked|purchased|reservation confirmed/i,
+    );
   });
-  it('shows delivered, then read, then reaction, then typing, then a reply', async () => {
-    vi.useFakeTimers();
-    const events: string[] = [];
-    const task = new Playback().play([{phrases:['A calm reply.']}], {
-      onRead: () => events.push('read'), onReaction: () => events.push('reaction'),
-      onTyping: value => {if(value) events.push('typing');},
-      onBlock: () => events.push('reply'), onPhrase() {}, onBlockEnd() {}, onFinish() {},
-    }, () => false);
-    expect(events).toEqual([]);
-    await vi.advanceTimersByTimeAsync(900); expect(events).toEqual(['read']);
-    await vi.runAllTimersAsync(); await task;
-    expect(events).toEqual(['read', 'reaction', 'typing', 'reply']);
+  it("uses three prepared messages, one meaningful reaction and no branches", () => {
+    expect(STORY[0].draft.startsWith("HOME")).toBe(true);
+    expect(STORY.filter((beat) => beat.reaction)).toHaveLength(1);
+    expect(STORY[1].draft).toContain("nonstop");
+    expect(STORY[2].clock).toBe(TRIP.updateMinutes);
+    expect(STORY.map((beat) => beat.id)).toEqual([
+      "options",
+      "confirmation",
+      "gate-change",
+    ]);
   });
-  it('ignores duplicate begins and stale activity across reset', () => {
-    const begun = reducer(initialState(), {type:'begin', run:2, turn:1, scenario:getScenario(), user:TRIP.initialMessage});
-    expect(reducer(begun, {type:'begin',run:2,turn:1,scenario:getScenario(),user:'duplicate'})).toBe(begun);
-    const reset = reducer(begun, {type:'reset',run:3,stage:'choose'});
-    for (const action of [{type:'read',run:2}, {type:'typing',run:2,value:true}, {type:'reaction',run:2,emoji:'❤️'}, {type:'finish',run:2}] as const) expect(reducer(reset,action)).toBe(reset);
+  it("bundles real image files and accurate accessible descriptions", () => {
+    for (const image of Object.values(ATTACHMENTS)) {
+      const bytes = readFileSync("public/" + image.src.replace("./", ""));
+      expect(bytes.subarray(1, 4).toString()).toBe("PNG");
+      expect(image.alt.length).toBeGreaterThan(80);
+    }
+    expect(ATTACHMENTS.map.alt).toContain("6-minute");
+    expect(ATTACHMENTS.map.alt).toContain("71 minutes");
+    expect(ATTACHMENTS.gate.alt).toContain("B12 to B18");
+  });
+  it("keeps bundled voice phrases aligned with the script and actual WAV duration", () => {
+    const clips = narration.clips as NarrationClips;
+    for (const beat of STORY) {
+      const clip = clips[beat.id]!;
+      expect(clip).toBeTruthy();
+      expect(clip.cues.map((cue) => cue.text)).toEqual(beat.narration);
+      expect(existsSync("public/" + clip.src.replace("./", ""))).toBe(true);
+      const bytes = readFileSync("public/" + clip.src.replace("./", ""));
+      expect(bytes.toString("ascii", 0, 4)).toBe("RIFF");
+      const byteRate = bytes.readUInt32LE(28);
+      const duration = (bytes.length - 44) / byteRate;
+      expect(clip.cues.at(-1)!.end).toBeLessThanOrEqual(duration + 0.02);
+      for (let i = 0; i < clip.cues.length; i++) {
+        expect(clip.cues[i].end).toBeGreaterThan(clip.cues[i].start);
+        if (i)
+          expect(clip.cues[i].start).toBeGreaterThanOrEqual(
+            clip.cues[i - 1].end,
+          );
+      }
+    }
+  });
+  it("preserves every word in silent caption fallback", () => {
+    for (const line of STORY.flatMap((beat) => beat.narration))
+      expect(captionPhrases(line).join(" ")).toBe(line);
+    expect(captionPhrases("")).toEqual([]);
+    expect(timeLabel(1160)).toBe("7:20");
   });
 });
 
-describe('Playback resilience', () => {
-  it('cancels an in-flight response and rejects stale callbacks after reset', async () => {
+describe("Linear message state and cancellation", () => {
+  it("completes the full three-send path with retained images and no duplicate IDs", async () => {
     vi.useFakeTimers();
-    const playback = new Playback();
-    const seen: string[] = [];
-    const callbacks = {
-      onRead: vi.fn(),
-      onBlock: (text: string) => seen.push(text),
-      onPhrase: vi.fn(),
-      onBlockEnd: vi.fn(),
-      onFinish: vi.fn(),
-    };
-    const old = playback.play(
-      [{ phrases: ['This old reply must never appear.'] }],
-      callbacks,
-      () => false,
-    );
-    await vi.advanceTimersByTimeAsync(300);
-    playback.cancel();
-    const next = playback.play(
-      [{ phrases: ['The new plan is ready.'] }],
-      callbacks,
-      () => false,
-    );
-    await vi.runAllTimersAsync();
-    await Promise.all([old, next]);
-    expect(seen).toEqual(['The new plan is ready.']);
-    expect(callbacks.onFinish).toHaveBeenCalledTimes(1);
-    const reset = reducer(initialState('demo'), {
-      type: 'reset',
-      stage: 'choose',
-      run: 12,
-    });
-    expect(
-      reducer(reset, { type: 'block', run: 11, text: 'Stale reply', index: 0 }),
-    ).toBe(reset);
-  });
-
-  it.each(['error', 'missing callback', 'success'])(
-    'audio %s still completes',
-    async (mode) => {
-      vi.useFakeTimers();
-      class Utterance {
-        text: string;
-        lang = '';
-        rate = 1;
-        voice = null;
-        onend: (() => void) | null = null;
-        onerror: (() => void) | null = null;
-        constructor(text: string) {
-          this.text = text;
-        }
-      }
-      vi.stubGlobal('SpeechSynthesisUtterance', Utterance);
-      vi.stubGlobal('window', {
-        speechSynthesis: {
-          cancel: vi.fn(),
-          getVoices: () => [],
-          speak: (utterance: Utterance) => {
-            if (mode === 'error') setTimeout(() => utterance.onerror?.(), 5);
-            if (mode === 'success') setTimeout(() => utterance.onend?.(), 1500);
-          },
+    let state = initialState("messages");
+    const player = new MessagePlayback();
+    for (let beat = 0; beat < 3; beat++) {
+      const run = beat + 1;
+      state = reducer(state, { type: "send", run });
+      const task = player.play(beat as Beat, {
+        onRead: () => {
+          state = reducer(state, { type: "read", run });
+        },
+        onReaction: () => {
+          state = reducer(state, { type: "reaction", run });
+        },
+        onTyping: (value) => {
+          state = reducer(state, { type: "typing", run, value });
+        },
+        onReply: (index) => {
+          state = reducer(state, { type: "reply", run, index });
+        },
+        onShare: () => {
+          state = reducer(state, { type: "share", run });
+        },
+        onFinish: () => {
+          state = reducer(state, { type: "finish", run });
         },
       });
-      const finish = vi.fn();
-      const task = new Playback().play(
-        [{ phrases: ['Your flight leaves at six twenty.'] }],
-        {
-          onRead() {},
-          onBlock() {},
-          onPhrase() {},
-          onBlockEnd() {},
-          onFinish: finish,
-        },
-        () => true,
-      );
       await vi.runAllTimersAsync();
       await task;
-      expect(finish).toHaveBeenCalledTimes(1);
-    },
-  );
-
-  it('can change the audio preference between phrases', async () => {
+      expect(state.step).toBe(beat + 1);
+      expect(state.busy).toBe(false);
+    }
+    expect(
+      state.messages.filter((message) => message.role === "user"),
+    ).toHaveLength(3);
+    expect(state.messages.filter((message) => message.attachment)).toHaveLength(
+      3,
+    );
+    expect(state.messages.filter((message) => message.reaction)).toHaveLength(
+      1,
+    );
+    expect(new Set(state.messages.map((message) => message.id)).size).toBe(
+      state.messages.length,
+    );
+    expect(state.sharedIdentity).toBe(true);
+    expect(state.identityAccepted).toBe(false);
+    const finished = state;
+    expect(reducer(state, { type: "send", run: 4 })).toBe(finished);
+  });
+  it("shows delivered before read, one typing sequence per reply and optional reaction", async () => {
     vi.useFakeTimers();
-    let audio = false;
-    const speak = vi.fn((text: string, signal: AbortSignal) =>
-      delay(phraseDuration(text), signal),
-    );
-    const task = new Playback(speak).play(
-      [{ phrases: ['First phrase is silent.', 'Second phrase has audio.'] }],
-      {
-        onRead() {},
-        onBlock() {},
-        onPhrase: (text) => {
-          if (text.startsWith('Second')) audio = true;
-        },
-        onBlockEnd() {},
-        onFinish() {},
+    const events: string[] = [];
+    const task = new MessagePlayback().play(1, {
+      ...chatCallbacks(),
+      onRead: () => events.push("read"),
+      onReaction: () => events.push("reaction"),
+      onTyping: (value) => {
+        if (value) events.push("typing");
       },
-      () => audio,
-    );
+      onReply: () => events.push("reply"),
+    });
+    expect(events).toEqual([]);
+    await vi.advanceTimersByTimeAsync(650);
+    expect(events).toEqual(["read"]);
     await vi.runAllTimersAsync();
     await task;
-    expect(speak).toHaveBeenCalledTimes(1);
-    expect(speak.mock.calls[0][0]).toBe('Second phrase has audio.');
+    expect(events).toEqual([
+      "read",
+      "reaction",
+      "typing",
+      "reply",
+      "typing",
+      "reply",
+    ]);
   });
-
-  it('continues with captions if the browser audio implementation throws', async () => {
+  it("rejects sends in the wrong channel, duplicate sends, duplicate replies and stale callbacks", () => {
+    expect(
+      reducer(initialState("voice"), { type: "send", run: 1 }).messages,
+    ).toEqual([]);
+    const sent = reducer(initialState("messages"), { type: "send", run: 1 });
+    expect(reducer(sent, { type: "send", run: 2 })).toBe(sent);
+    const reply = reducer(sent, { type: "reply", run: 1, index: 0 });
+    expect(reducer(reply, { type: "reply", run: 1, index: 0 })).toBe(reply);
+    const left = reducer(reply, { type: "navigate", screen: "voice", run: 3 });
+    for (const type of ["read", "finish", "share", "reaction"] as const)
+      expect(reducer(left, { type, run: 1 })).toBe(left);
+    expect(left.messages).toHaveLength(0);
+    expect(left.busy).toBe(false);
+  });
+  it("preserves completed chat beats while rolling back an interrupted response on switching", () => {
+    let state = reducer(initialState("messages"), { type: "send", run: 1 });
+    state = reducer(state, { type: "reply", run: 1, index: 0 });
+    state = reducer(state, { type: "share", run: 1 });
+    state = reducer(state, { type: "finish", run: 1 });
+    state = reducer(state, { type: "send", run: 2 });
+    state = reducer(state, { type: "reply", run: 2, index: 0 });
+    const left = reducer(state, { type: "navigate", screen: "voice", run: 3 });
+    expect(left.step).toBe(1);
+    expect(left.messages.every((message) => message.beat === 0)).toBe(true);
+    const back = reducer(left, {
+      type: "navigate",
+      screen: "messages",
+      run: 4,
+    });
+    expect(back.busy).toBe(false);
+    expect(reducer(back, { type: "send", run: 5 }).messages.at(-1)?.text).toBe(
+      STORY[1].draft,
+    );
+  });
+  it("does not expose or accept a contact identity before the sharing event", () => {
+    const start = initialState("messages");
+    expect(
+      reducer(start, { type: "identity-accept", run: 0 }).identityAccepted,
+    ).toBe(false);
+    let state = reducer(start, { type: "send", run: 1 });
+    state = reducer(state, { type: "reply", run: 1, index: 0 });
+    state = reducer(state, { type: "share", run: 1 });
+    expect(state.identityAccepted).toBe(false);
+    expect(
+      reducer(state, { type: "identity-accept", run: 1 }).identityAccepted,
+    ).toBe(true);
+  });
+  it("clears an accepted identity when its incomplete first exchange is rolled back", () => {
+    let state = reducer(initialState("messages"), { type: "send", run: 1 });
+    state = reducer(state, { type: "reply", run: 1, index: 0 });
+    state = reducer(state, { type: "share", run: 1 });
+    state = reducer(state, { type: "identity-accept", run: 1 });
+    expect(state.identityAccepted).toBe(true);
+    const switched = reducer(state, {
+      type: "navigate",
+      screen: "voice",
+      run: 2,
+    });
+    expect(switched.sharedIdentity).toBe(false);
+    expect(switched.identityAccepted).toBe(false);
+  });
+  it("cancels in-flight reply timers before a new channel begins", async () => {
     vi.useFakeTimers();
-    const finish = vi.fn();
-    const task = new Playback(async () => { throw new Error('Audio unavailable'); }).play(
-      [{ phrases: ['The gate is B12.'] }],
-      { onRead() {}, onBlock() {}, onPhrase() {}, onBlockEnd() {}, onFinish: finish },
-      () => true,
-    );
-    await vi.runAllTimersAsync(); await task;
-    expect(finish).toHaveBeenCalledTimes(1);
+    const player = new MessagePlayback();
+    const callbacks = {
+      ...chatCallbacks(),
+      onReply: vi.fn(),
+      onFinish: vi.fn(),
+    };
+    const task = player.play(0, callbacks);
+    await vi.advanceTimersByTimeAsync(700);
+    player.cancel();
+    await vi.runAllTimersAsync();
+    await task;
+    expect(callbacks.onReply).not.toHaveBeenCalled();
+    expect(callbacks.onFinish).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
   });
+  it("revisiting voice resets its story clock and captions without losing completed messages", () => {
+    let state = reducer(initialState("voice"), { type: "voice-start", run: 1 });
+    state = reducer(state, {
+      type: "cue",
+      run: 1,
+      beat: 2,
+      text: "New gate B18",
+      speaker: "alex",
+    });
+    state = reducer(state, { type: "voice-finish", run: 1 });
+    state = reducer(state, { type: "navigate", screen: "messages", run: 2 });
+    state = reducer(state, { type: "navigate", screen: "voice", run: 3 });
+    expect(state.voiceBeat).toBe(0);
+    expect(state.voiceStatus).toBe("ready");
+    expect(state.caption).toBe("");
+  });
+  it("reset returns to the campaign and ignores every earlier run", () => {
+    const state = reducer(initialState("messages"), { type: "send", run: 3 });
+    const reset = reducer(state, { type: "reset", run: 4 });
+    expect(reset.messages).toEqual([]);
+    expect(reset.screen).toBe("campaign");
+    expect(reset.step).toBe(0);
+    expect(reducer(reset, { type: "finish", run: 3 })).toBe(reset);
+    expect(reducer(reset, { type: "reset", run: 2 })).toBe(reset);
+  });
+});
 
-  it('gives captions reading time and preserves all words', () => {
-    const sentence =
-      'Pick up food at the concourse kiosk first, then make a short pet stop beside B10.';
-    const phrases = captionPhrases(sentence);
-    expect(phrases.join(' ')).toBe(sentence);
-    expect(phrases.every((phrase) => phraseDuration(phrase) >= 1700)).toBe(
-      true,
+class FakeAudio extends EventTarget {
+  currentTime = 0;
+  muted = false;
+  paused = true;
+  playError = false;
+  pause = vi.fn(() => {
+    this.paused = true;
+  });
+  play = vi.fn(() => {
+    this.paused = false;
+    return this.playError
+      ? Promise.reject(new Error("blocked"))
+      : Promise.resolve();
+  });
+}
+const oneClip: NarrationClips = {
+  options: {
+    src: "sample.wav",
+    cues: [
+      { start: 0, end: 1, text: "First phrase" },
+      { start: 1, end: 2, text: "Second phrase" },
+    ],
+  },
+};
+describe("Voice plays alone and follows actual audio time", () => {
+  it("uses audio clock cues and finishes after the active clip and later captions", async () => {
+    vi.useFakeTimers();
+    const sample = new FakeAudio();
+    const callbacks = voiceCallbacks();
+    const player = new VoicePlayback(
+      () => sample as unknown as HTMLAudioElement,
     );
-    expect(phrases.every((phrase) => phrase.split(' ').length <= 13)).toBe(
-      true,
+    const task = player.play(oneClip, callbacks);
+    sample.currentTime = 0.25;
+    sample.dispatchEvent(new Event("timeupdate"));
+    expect(callbacks.onCue).toHaveBeenLastCalledWith(0, "First phrase", "alex");
+    sample.currentTime = 1.25;
+    sample.dispatchEvent(new Event("timeupdate"));
+    expect(callbacks.onCue).toHaveBeenLastCalledWith(
+      0,
+      "Second phrase",
+      "alex",
     );
+    sample.dispatchEvent(new Event("ended"));
+    await vi.runAllTimersAsync();
+    await task;
+    expect(callbacks.onFinish).toHaveBeenCalledOnce();
+    expect(callbacks.onAudioUnavailable).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it("mute updates the active audio without resetting its position", async () => {
+    vi.useFakeTimers();
+    const sample = new FakeAudio();
+    const player = new VoicePlayback(
+      () => sample as unknown as HTMLAudioElement,
+    );
+    const task = player.play(oneClip, voiceCallbacks());
+    sample.currentTime = 0.7;
+    player.setMuted(true);
+    expect(sample.muted).toBe(true);
+    expect(sample.currentTime).toBe(0.7);
+    player.cancel();
+    await task;
+    expect(sample.currentTime).toBe(0);
+    expect(sample.pause).toHaveBeenCalled();
+  });
+  it("stops audio, pending captions and callbacks immediately when canceled", async () => {
+    vi.useFakeTimers();
+    const sample = new FakeAudio();
+    const player = new VoicePlayback(
+      () => sample as unknown as HTMLAudioElement,
+    );
+    const callbacks = voiceCallbacks();
+    const task = player.play(oneClip, callbacks);
+    player.cancel();
+    await vi.runAllTimersAsync();
+    await task;
+    sample.currentTime = 1.5;
+    sample.dispatchEvent(new Event("timeupdate"));
+    expect(callbacks.onCue).not.toHaveBeenCalled();
+    expect(callbacks.onFinish).not.toHaveBeenCalled();
+    expect(sample.paused).toBe(true);
+  });
+  it.each(["blocked", "error", "watchdog"] as const)(
+    "finishes with readable captions if audio is %s",
+    async (mode) => {
+      vi.useFakeTimers();
+      const sample = new FakeAudio();
+      sample.playError = mode === "blocked";
+      const callbacks = voiceCallbacks();
+      const task = new VoicePlayback(
+        () => sample as unknown as HTMLAudioElement,
+      ).play(oneClip, callbacks);
+      if (mode === "error") sample.dispatchEvent(new Event("error"));
+      await vi.runAllTimersAsync();
+      await task;
+      expect(callbacks.onAudioUnavailable).toHaveBeenCalledOnce();
+      expect(callbacks.onFinish).toHaveBeenCalledOnce();
+      expect(callbacks.onCue).toHaveBeenCalled();
+      expect(vi.getTimerCount()).toBe(0);
+    },
+  );
+  it("caption-only mode needs no Audio API and cancels cleanly", async () => {
+    vi.useFakeTimers();
+    const player = new VoicePlayback(() => {
+      throw new Error("No audio should be constructed");
+    });
+    const callbacks = voiceCallbacks();
+    const task = player.play({}, callbacks);
+    await vi.advanceTimersByTimeAsync(3000);
+    player.cancel();
+    await vi.runAllTimersAsync();
+    await task;
+    expect(callbacks.onCue).toHaveBeenCalled();
+    expect(callbacks.onFinish).not.toHaveBeenCalled();
   });
 });

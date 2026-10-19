@@ -1,0 +1,16 @@
+{
+  "company": "Plot Twist Travel",
+  "assistant": "Alex",
+  "avatar": "./alex-avatar.jpg",
+  "airline": "Plot Air",
+  "airport": "Harbor City Airport",
+  "terminal": "Terminal 2",
+  "demoNumber": "+1 (202) 555-0147",
+  "keyword": "HOME",
+  "canceledFlight": "PT204",
+  "startMinutes": 1045,
+  "updateMinutes": 1053,
+  "selected": { "flight": "PT218", "departure": 1160, "boarding": 1130, "arrival": 1300, "oldGate": "B12", "gate": "B18", "stops": "Nonstop" },
+  "alternative": { "flight": "PT306", "departure": 1095, "arrival": 1255, "layoverMinutes": 40, "connection": "Meadow City" },
+  "route": { "from": "Pet relief beside B10", "walkMinutes": 6 }
+}

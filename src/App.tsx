@@ -1,79 +1,622 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
-import type { CSSProperties, ReactNode } from 'react';
-import {
-  AnimatePresence,
-  MotionConfig,
-  motion,
-  useReducedMotion,
-} from 'motion/react';
+import { useEffect, useReducer, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import {
   Accessibility,
-  ArrowLeft,
+  Archive,
   ArrowRight,
+  ArrowUp,
   ArrowUpRight,
   Check,
-  ChevronDown,
   ChevronLeft,
+  ChevronRight,
+  Expand,
   Grid2X2,
+  Inbox,
   Mail,
+  MessageCircle,
   MicOff,
+  MoreHorizontal,
   Phone,
-  Plane,
   Plus,
   RotateCcw,
   Signal,
+  Star,
+  UserRound,
   Video,
   Volume2,
   VolumeX,
   Wifi,
   X,
-} from 'lucide-react';
-import { Landing, GuidedExplanation } from './Funnel';
-import { LinqLogo, PlotLogo } from './Brands';
-import { WhyMessage } from './WhyMessage';
-import { AirportMap } from './AirportMap';
-import { Playback } from './playback';
-import {
-  BRAND,
-  FOOD_CHOICES,
-  getDinnerPlan,
-  FLIGHTS,
-  getScenario,
-  getTurn,
-  timeLabel,
-  TRIP,
-  NEXT_BEAT,
-  travelerMessage,
-} from './scenario';
-import type { FlightId, FoodChoice, Scenario, Turn } from './scenario';
-import { initialState, reducer } from './state';
-import type { DemoState, Stage } from './state';
-import { track } from './telemetry';
+} from "lucide-react";
+import { LinqLogo, PlotLogo } from "./Brands";
+import { ATTACHMENTS, BRAND, STORY, timeLabel, TRIP } from "./scenario";
+import type { Attachment, Beat } from "./scenario";
+import { initialState, reducer } from "./state";
+import type { DemoState, Screen } from "./state";
+import { MessagePlayback, VoicePlayback } from "./playback";
+import type { NarrationClips } from "./playback";
+import narration from "./data/narration.json";
+import { track } from "./telemetry";
 
-
-function Avatar({ small = false }: { small?: boolean }) {
+const CLIPS = narration.clips as NarrationClips;
+const HAS_AUDIO = STORY.every((beat) => CLIPS[beat.id]);
+function Avatar({ hidden = false }: { hidden?: boolean }) {
   return (
-    <span
-      className={`avatar ${small ? 'avatar-small' : ''}`}
-      aria-hidden="true"
-    >
-      <img src={BRAND.avatar} alt="" />
+    <span className="avatar" aria-hidden="true">
+      {hidden ? <UserRound size={22} /> : <img src={BRAND.avatar} alt="" />}
     </span>
   );
 }
-
-function BrandMark() { return <LinqLogo/>; }
-
+function StatusBar({ clock }: { clock: number }) {
+  return (
+    <div className="phone-status" aria-hidden="true">
+      <span>{timeLabel(clock)}</span>
+      <span className="island" />
+      <span className="phone-signals">
+        <Signal size={12} />
+        <Wifi size={13} />
+        <i />
+      </span>
+    </div>
+  );
+}
+function Campaign({
+  onExample,
+  onSkip,
+}: {
+  onExample(): void;
+  onSkip(): void;
+}) {
+  return (
+    <section className="campaign">
+      <div className="campaign-copy">
+        <span className="eyebrow">THE GROWTH EXPERIMENT</span>
+        <h1 tabIndex={-1}>
+          Your voice agent.
+          <br />
+          <span>A number they can text.</span>
+        </h1>
+        <p>
+          We email qualified voice-AI builders a personalized demo number, so
+          they can try a customer workflow in iMessage before we ask for a
+          meeting.
+        </p>
+        <div className="campaign-actions">
+          <button className="button primary" onClick={onExample}>
+            See the example <ArrowRight size={17} />
+          </button>
+          <button className="text-button" onClick={onSkip}>
+            Skip to the experience
+          </button>
+        </div>
+        <p className="qualification">
+          Selected profiles. Public signals. A lightweight demo built with AI
+          for each company before outreach.
+        </p>
+      </div>
+      <div
+        className="campaign-visual"
+        aria-label="Proposed campaign: email a personalized number, try the assistant in Messages, then discuss fit"
+      >
+        <div className="visual-email">
+          <div className="visual-email-top">
+            <Mail size={16} />
+            <span>FROM LINQ</span>
+          </div>
+          <strong>
+            We made this for
+            <br />
+            Plot Twist Travel.
+          </strong>
+          <p>
+            Text HOME. Try your assistant
+            <br />
+            as your customer.
+          </p>
+          <span className="visual-number">{TRIP.demoNumber}</span>
+        </div>
+        <div className="visual-connector">
+          <span />
+          <ArrowRight size={16} />
+          <span />
+        </div>
+        <div className="mini-messages">
+          <div className="mini-contact">
+            <span className="mini-avatar">
+              <img src={BRAND.avatar} alt="" />
+            </span>
+            <strong>Alex</strong>
+            <small>Plot Twist Travel</small>
+          </div>
+          <div className="mini-thread">
+            <span className="mini-blue">
+              My flight was canceled.
+              <br />
+              Can you help?
+            </span>
+            <span className="mini-gray">Let’s get you home.</span>
+            <div className="mini-flight">
+              <span>{TRIP.selected.flight} · NONSTOP</span>
+              <strong>
+                {timeLabel(TRIP.selected.departure)} <small>PM</small>
+              </strong>
+              <span>Home tonight · {timeLabel(TRIP.selected.arrival)} PM</span>
+            </div>
+          </div>
+        </div>
+        <div className="visual-summary">
+          <span>1. Personalized email</span>
+          <span>2. Text the number</span>
+          <span>3. Discuss the fit</span>
+        </div>
+        <small className="visual-disclosure">
+          Example company and number. This website simulates the experience for
+          Nate.
+        </small>
+      </div>
+    </section>
+  );
+}
+function Invitation({ onContinue }: { onContinue(): void }) {
+  return (
+    <section className="invitation">
+      <div className="screen-intro">
+        <span className="eyebrow">
+          YOU’RE THE DEVELOPER AT PLOT TWIST TRAVEL
+        </span>
+        <h1 tabIndex={-1}>This lands in your inbox.</h1>
+        <p>
+          Your voice assistant is already live. Linq sends you a number to try.
+        </p>
+      </div>
+      <div className="email-client">
+        <div className="email-toolbar" aria-hidden="true">
+          <span className="mail-client-label">
+            <Mail size={18} /> Mail
+          </span>
+          <ChevronLeft size={17} />
+          <Archive size={16} />
+          <MoreHorizontal size={20} />
+          <span className="toolbar-filler" />
+          <span>1 of 1</span>
+        </div>
+        <div className="email-client-body">
+          <aside className="email-sidebar" aria-hidden="true">
+            <span className="inbox-active">
+              <Inbox size={15} /> Inbox <b>1</b>
+            </span>
+            <span>
+              <Star size={15} /> Starred
+            </span>
+            <span>
+              <Mail size={15} /> Sent
+            </span>
+          </aside>
+          <article className="email-message">
+            <div className="email-subject">
+              <h2>A textable version of your travel assistant</h2>
+              <span>Inbox</span>
+            </div>
+            <div className="email-sender">
+              <div className="sender-logo">
+                <LinqLogo />
+              </div>
+              <div>
+                <strong>
+                  Linq team <small>&lt;hello@linq.example&gt;</small>
+                </strong>
+                <span>to Plot Twist team</span>
+              </div>
+              <small>9:41 AM</small>
+            </div>
+            <div className="email-body">
+              <p>Hi Plot Twist team,</p>
+              <p>
+                Your assistant already helps travelers by phone. We made a small
+                iMessage demo of a canceled-flight workflow for Plot Twist,
+                including directions a traveler can keep handy.
+              </p>
+              <img
+                className="email-preview"
+                src="./demo/email-preview.png"
+                alt="Illustrative Plot Twist message preview: a traveler asks about a canceled flight, Alex replies with two options."
+              />
+              <p>
+                Text <strong>{TRIP.keyword}</strong> to{" "}
+                <strong className="display-number">{TRIP.demoNumber}</strong>{" "}
+                and try it as your customer.
+              </p>
+              <button className="button email-cta" onClick={onContinue}>
+                Try the example <ArrowUpRight size={16} />
+              </button>
+              <p className="email-signoff">The Linq team</p>
+              <span className="example-note">
+                Example invitation · Illustrative number · Button opens this
+                simulation
+              </span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  );
+}
+function Handoff({ onContinue }: { onContinue(): void }) {
+  return (
+    <section className="handoff">
+      <span className="eyebrow">YOU RECEIVED THIS AS THE DEVELOPER</span>
+      <h1 tabIndex={-1}>Now try it as your traveler.</h1>
+      <p>
+        Your flight is canceled. You and <strong>Pickles, your dog,</strong>{" "}
+        need a way home and directions you can check again.
+      </p>
+      <div className="meet-alex">
+        <Avatar />
+        <span>
+          <strong>Meet Alex</strong>
+          <small>Plot Twist’s existing AI travel assistant</small>
+        </span>
+      </div>
+      <button className="button plum" onClick={onContinue}>
+        First, the voice experience <Phone size={16} />
+      </button>
+      <small className="handoff-note">
+        One task. First by phone, then in iMessage.
+      </small>
+    </section>
+  );
+}
+function VoicePhone({
+  state,
+  keepCaptions,
+  muted,
+  onMute,
+  onStart,
+  onEnd,
+  onMessages,
+  audioUnavailable,
+}: {
+  state: DemoState;
+  keepCaptions: boolean;
+  muted: boolean;
+  onMute(): void;
+  onStart(): void;
+  onEnd(): void;
+  onMessages(): void;
+  audioUnavailable: boolean;
+}) {
+  const running = state.voiceStatus === "running";
+  return (
+    <div className="phone voice-phone">
+      <StatusBar clock={STORY[state.voiceBeat].clock} />
+      <div className="call-person">
+        <Avatar />
+        <h2>Alex</h2>
+        <p>Plot Twist Travel</p>
+        <span>AI travel assistant</span>
+      </div>
+      <div className="call-content">
+        <div
+          className={`waveform ${running && state.speaker === "alex" ? "speaking" : ""}`}
+          aria-hidden="true"
+        >
+          {Array.from({ length: 21 }, (_, i) => (
+            <i
+              key={i}
+              style={{
+                height: 10 + ((i * 17) % 29),
+                animationDelay: `${i * -0.07}s`,
+              }}
+            />
+          ))}
+        </div>
+        <div
+          className={`call-captions ${keepCaptions ? "persistent" : ""}`}
+          aria-live="off"
+          tabIndex={keepCaptions ? 0 : undefined}
+          aria-label="Voice captions"
+        >
+          {keepCaptions && state.transcript.length ? (
+            state.transcript.map((text, i) => <p key={i}>{text}</p>)
+          ) : running ? (
+            <>
+              <small>{state.speaker === "you" ? "YOU SAY" : "ALEX"}</small>
+              <p key={state.caption}>{state.caption}</p>
+            </>
+          ) : state.voiceStatus === "done" ? (
+            <>
+              <small>CALL COMPLETE</small>
+              <p>
+                A way home.
+                <br />A gate to remember.
+              </p>
+            </>
+          ) : (
+            <>
+              <small>YOU ASK</small>
+              <p>“{STORY[0].caller}”</p>
+            </>
+          )}
+        </div>
+        <span className="audio-status">
+          {audioUnavailable
+            ? "Caption preview · narration unavailable"
+            : muted
+              ? "Sound muted · captions on"
+              : "Sound on · captions on"}
+        </span>
+      </div>
+      <div className="call-bottom">
+        {running ? (
+          <>
+            <div className="call-tools" aria-hidden="true">
+              <span>
+                <MicOff size={21} />
+                <small>mute</small>
+              </span>
+              <span>
+                <Grid2X2 size={21} />
+                <small>keypad</small>
+              </span>
+              <span>
+                <Volume2 size={21} />
+                <small>speaker</small>
+              </span>
+            </div>
+            <button
+              className="call-circle end-call"
+              onClick={onEnd}
+              aria-label="End voice example"
+            >
+              <Phone size={23} fill="currentColor" />
+            </button>
+          </>
+        ) : state.voiceStatus === "ready" ? (
+          <button className="start-call" onClick={onStart}>
+            <span className="call-circle">
+              <Phone size={25} fill="currentColor" />
+            </span>
+            Start voice example
+          </button>
+        ) : (
+          <button className="button call-next" onClick={onMessages}>
+            Try the same task in iMessage <ArrowRight size={16} />
+          </button>
+        )}
+      </div>
+      <button
+        className="call-mute"
+        onClick={onMute}
+        aria-label={muted ? "Unmute narration" : "Mute narration"}
+        aria-pressed={muted}
+      >
+        {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+      </button>
+      <span className="home-indicator" />
+    </div>
+  );
+}
+function MessagePhone({
+  state,
+  onSend,
+  onAttachment,
+  onAcceptIdentity,
+}: {
+  state: DemoState;
+  onSend(): void;
+  onAttachment(attachment: Attachment): void;
+  onAcceptIdentity(): void;
+}) {
+  const thread = useRef<HTMLDivElement>(null);
+  const follow = useRef(true);
+  const userScrolling = useRef(false);
+  const [away, setAway] = useState(false);
+  const lastUser = state.messages.map((m) => m.role).lastIndexOf("user");
+  useEffect(() => {
+    if (follow.current && thread.current)
+      thread.current.scrollTop = thread.current.scrollHeight;
+  }, [state.messages, state.typing, state.sharedIdentity]);
+  useEffect(() => {
+    const node = thread.current;
+    if (!node) return;
+    const observer = new ResizeObserver(() => {
+      if (follow.current) node.scrollTop = node.scrollHeight;
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  const identity = state.identityAccepted;
+  const clock = state.step >= 2 ? TRIP.updateMinutes : TRIP.startMinutes;
+  return (
+    <div className="phone message-phone">
+      <StatusBar clock={clock} />
+      <div className="messages-contact">
+        <ChevronLeft className="contact-back" size={26} aria-hidden="true" />
+        <div>
+          <Avatar hidden={!identity} />
+          <h2>
+            {identity ? "Alex" : TRIP.demoNumber}
+            <ChevronRight size={9} />
+          </h2>
+          <span>{identity ? "Plot Twist Travel" : "iMessage"}</span>
+        </div>
+        <Video className="contact-video" size={24} aria-hidden="true" />
+      </div>
+      <div
+        className="message-thread"
+        ref={thread}
+        role="log"
+        aria-label="iMessage conversation"
+        aria-live="polite"
+        aria-relevant="additions"
+        tabIndex={0}
+        onWheel={() => {
+          userScrolling.current = true;
+        }}
+        onTouchMove={() => {
+          userScrolling.current = true;
+        }}
+        onPointerDown={(event) => {
+          if (event.target === thread.current) userScrolling.current = true;
+        }}
+        onScroll={() => {
+          if (!userScrolling.current) return;
+          const node = thread.current!;
+          const up =
+            node.scrollHeight - node.scrollTop - node.clientHeight > 60;
+          follow.current = !up;
+          setAway(up);
+          if (!up) userScrolling.current = false;
+        }}
+      >
+        <div className="thread-time">
+          iMessage
+          <br />
+          <strong>Today {timeLabel(TRIP.startMinutes)} PM</strong>
+        </div>
+        {state.messages.length === 0 && (
+          <div className="empty-thread">
+            <MessageCircle size={24} />
+            <p>Your customer texts the demo number.</p>
+            <small>The first message is ready below.</small>
+          </div>
+        )}
+        {state.messages.map((message, index) => (
+          <div className={`message-group ${message.role}`} key={message.id}>
+            {message.beat === 2 && message.role === "user" && (
+              <div className="time-jump">
+                Eight minutes later · {timeLabel(TRIP.updateMinutes)} PM
+              </div>
+            )}
+            <div
+              className={`bubble ${message.role === "user" ? "outgoing" : "incoming"}`}
+            >
+              {message.text}
+              {message.reaction && (
+                <span
+                  className="tapback"
+                  aria-label={`Alex reacted ${message.reaction}`}
+                >
+                  {message.reaction}
+                </span>
+              )}
+            </div>
+            {message.role === "user" && index === lastUser && (
+              <span className="read-marker">
+                {message.read ? "Read" : "Delivered"}
+              </span>
+            )}
+            {message.id.endsWith("reply-0") &&
+              message.beat === 0 &&
+              state.sharedIdentity && (
+                <div className="contact-offer">
+                  <Avatar />
+                  <span>
+                    <strong>Alex shared a name and photo</strong>
+                    <small>Plot Twist Travel · AI assistant</small>
+                  </span>
+                  {!identity && <button onClick={onAcceptIdentity}>Use</button>}
+                  {identity && <Check size={13} />}
+                </div>
+              )}
+            {message.attachment && (
+              <button
+                className="image-attachment"
+                onClick={() => onAttachment(message.attachment!)}
+                aria-label={`Enlarge ${ATTACHMENTS[message.attachment].title}`}
+              >
+                <img
+                  src={ATTACHMENTS[message.attachment].src}
+                  alt={ATTACHMENTS[message.attachment].alt}
+                  onLoad={() => {
+                    if (follow.current && thread.current)
+                      thread.current.scrollTop = thread.current.scrollHeight;
+                  }}
+                />
+                <span>
+                  <Expand size={12} /> View image
+                </span>
+              </button>
+            )}
+          </div>
+        ))}
+        {state.typing && (
+          <span className="typing" aria-label="Alex is typing">
+            <i />
+            <i />
+            <i />
+          </span>
+        )}
+      </div>
+      {away && (
+        <button
+          className="latest"
+          onClick={() => {
+            follow.current = true;
+            userScrolling.current = false;
+            setAway(false);
+            thread.current?.scrollTo({
+              top: thread.current.scrollHeight,
+              behavior: "smooth",
+            });
+          }}
+        >
+          Latest message <ArrowUp size={11} className="down-arrow" />
+        </button>
+      )}
+      <div className="composer">
+        <Plus size={24} aria-hidden="true" />
+        {state.step < 3 ? (
+          <>
+            <textarea
+              aria-label="Prepared traveler message"
+              rows={2}
+              readOnly
+              value={state.busy ? "" : STORY[state.step].draft}
+              placeholder={state.busy ? "Alex is replying…" : "iMessage"}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  follow.current = true;
+                  userScrolling.current = false;
+                  setAway(false);
+                  onSend();
+                }
+              }}
+            />
+            <button
+              className="send"
+              onClick={() => {
+                follow.current = true;
+                userScrolling.current = false;
+                setAway(false);
+                onSend();
+              }}
+              disabled={state.busy}
+              aria-label="Send message"
+            >
+              <ArrowUp size={21} />
+            </button>
+          </>
+        ) : (
+          <span className="composer-complete">
+            <Check size={14} /> Your updated plan stays here.
+          </span>
+        )}
+      </div>
+      <span className="home-indicator" />
+    </div>
+  );
+}
 function Modal({
   title,
   children,
   onClose,
-  wide = false,
 }: {
   title: string;
   children: ReactNode;
   onClose(): void;
-  wide?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
@@ -81,17 +624,17 @@ function Modal({
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     const overflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     ref.current?.focus();
-    function keydown(event: KeyboardEvent) {
-      if (event.key === 'Escape') close.current();
-      if (event.key !== 'Tab') return;
-      const elements = ref.current?.querySelectorAll<HTMLElement>(
-        'button, a[href], input, [tabindex="0"]',
+    function key(event: KeyboardEvent) {
+      if (event.key === "Escape") close.current();
+      if (event.key !== "Tab") return;
+      const nodes = ref.current?.querySelectorAll<HTMLElement>(
+        'button,a[href],[tabindex="0"]',
       );
-      if (!elements?.length) return;
-      const first = elements[0];
-      const last = elements[elements.length - 1];
+      if (!nodes?.length) return;
+      const first = nodes[0],
+        last = nodes[nodes.length - 1];
       if (
         event.shiftKey &&
         (document.activeElement === first ||
@@ -108,31 +651,22 @@ function Modal({
         first.focus();
       }
     }
-    document.addEventListener('keydown', keydown);
+    document.addEventListener("keydown", key);
     return () => {
       document.body.style.overflow = overflow;
-      document.removeEventListener('keydown', keydown);
+      document.removeEventListener("keydown", key);
       previous?.focus();
     };
   }, []);
   return (
-    <motion.div
-      className="modal-backdrop"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-    >
-      <motion.div
-        className={`modal ${wide ? 'modal-wide' : ''}`}
+    <div className="modal-backdrop" onClick={onClose}>
+      <div
+        className="modal"
+        ref={ref}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
         tabIndex={-1}
-        ref={ref}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 8 }}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="modal-heading">
@@ -142,900 +676,440 @@ function Modal({
             onClick={onClose}
             aria-label="Close dialog"
           >
-            <X size={20} />
+            <X size={19} />
           </button>
         </div>
         {children}
-      </motion.div>
-    </motion.div>
-  );
-}
-
-function Outreach({ onContinue }: { onContinue(): void }) {
-  return (
-    <div className="outreach-layout">
-      <div className="context-copy">
-        <PlotLogo compact/><div className="eyebrow">01 / YOU’RE THE DEVELOPER</div>
-        <h1 tabIndex={-1}>
-          Your voice agent.<br /><span>Now in iMessage.</span>
-        </h1>
-        <p>
-          You’re a developer at <strong>Plot Twist Travel</strong>, whose
-          AI travel assistant already helps customers by phone.
-        </p>
-        <p>
-          Linq sent a preview of how that same agent could help in iMessage. You can explore it without connecting your product or supplying customer data.
-        </p>
-<div className="developer-premise"><Phone size={16}/> Already in their product <ArrowRight size={15}/><strong>Preview: iMessage</strong></div>
-        <div className="context-footnote">
-          <Mail size={17} />
-          <span>
-            An example of the invitation a qualified prospect could receive.
-          </span>
-        </div>
-      </div>
-      <div className="email">
-        <div className="email-topline">
-          <span>IN YOUR INBOX</span>
-          <Mail size={18} />
-        </div>
-        <div className="email-sender">
-          <div className="email-avatar">
-            <BrandMark />
-          </div>
-          <div>
-            <strong>Linq team</strong>
-            <span>To: Plot Twist Travel</span>
-          </div>
-          <span className="email-time">9:41 AM</span>
-        </div>
-        <div className="email-body">
-          <h2>
-            Your travel assistant.<br />One more way to reach it.
-          </h2>
-          <p>
-            Your voice assistant already helps when travel plans go sideways. We made a preview of what that experience could look like in iMessage.
-          </p>
-          <p>
-            A canceled flight. A dog named Pickles. Two ways home. Try it as your customer, then see whether this fits Plot Twist.
-          </p>
-          <button className="button button-dark" onClick={onContinue}>
-            Explore the preview <ArrowUpRight size={17} />
-          </button>
-          <div className="email-signoff">The Linq team</div>
-        </div>
-        <div className="email-bottom">
-          <span className="status-dot" /> A BROWSER WALKTHROUGH · ABOUT 3
-          MINUTES
-        </div>
       </div>
     </div>
   );
 }
-
-function Choose({ onStart }: { onStart(): void }) {
-  return <div className="story-layout">
-    <div className="story-copy"><div className="perspective-handoff"><span>THE DEVELOPER’S PREVIEW</span><ArrowRight size={14}/><strong>YOUR CUSTOMER’S WORLD</strong></div><div className="eyebrow">NOW YOU’RE A PLOT TWIST CUSTOMER</div>
-      <h1 tabIndex={-1}>You’re heading home.<br /><span>Your flight isn’t.</span></h1>
-      <p>You open Plot Twist Travel and ask Alex for help. You’re at the airport with your dog, <strong>Pickles</strong>. Your flight has just been canceled. Pickles packed absolutely no patience.</p>
-      <div className="story-introductions"><div><span className="cast-dog" aria-hidden="true">🐶</span><span><strong>Pickles</strong><small>Your dog. Cleared to fly.</small></span></div><div><Avatar small/><span><strong>Alex</strong><small>Your AI assistant in Plot Twist Travel.<br />Already helps you over the phone.</small></span></div></div>
-      <p className="story-time">5:25 PM · Harbor City Airport · Terminal 2</p>
-      <button className="button button-primary" onClick={onStart}>Ask Alex for help <ArrowRight size={17}/></button>
-    </div>
-    <div className="story-art"><div className="story-product-brand"><PlotLogo/><small>YOUR TRIP, UNTANGLED.</small></div><div className="story-airline"><Plane size={18}/><strong>{TRIP.airline.toUpperCase()}</strong><span>{TRIP.cancelledFlight}</span></div><div className="cancelled-ticket"><small>HARBOR CITY → HOME</small><strong>CANCELED</strong><span>Well. That’s a plot twist.</span></div><div className="pickles-tag"><span className="pickles-emoji" aria-hidden="true">🐶</span><div><small>YOUR TRAVEL COMPANION</small><strong>Pickles</strong><span>Very good dog. Very long day.</span></div></div><div className="story-handoff"><Phone size={17}/><span>Alex by phone</span><ArrowRight size={18}/><span className="new-channel">Alex in iMessage</span></div><p className="story-art-note">Same assistant. Same trip. Try both ways of getting home.</p></div>
-  </div>;
-}
-
-function PhoneStatus({ low = false, updated = false }: { low?: boolean; updated?: boolean }) {
-  return (
-    <div className="phone-status" aria-hidden="true">
-      <span>{updated ? '5:33' : '5:25'}</span>
-      <span className="island" />
-      <span className="status-icons">
-        <Signal size={13} fill="currentColor" />
-        <Wifi size={14} />
-        <span className={`battery-symbol ${low ? 'battery-empty' : ''}`} />
-      </span>
-    </div>
-  );
-}
-
-function VoicePhone({
-  state,
-  keepCaptions,
-}: {
-  state: DemoState;
-  keepCaptions: boolean;
-}) {
-  const speaking = state.phase === 'responding' && !!state.current;
-  return (
-    <div className="phone voice-phone">
-      <PhoneStatus updated={state.turn >= 4} />
-      <div className="call-person">
-        <Avatar />
-        <h3>{BRAND.assistant}</h3>
-        <p>{BRAND.company}</p>
-        <span>AI travel assistant</span>
-      </div>
-      <div className="voice-middle">
-        <div
-          className={`waveform ${speaking ? 'speaking' : ''}`}
-          aria-hidden="true"
-        >
-          {Array.from({ length: 27 }, (_, i) => (
-            <i
-              key={i}
-              style={
-                {
-                  '--bar': `${8 + ((i * 17 + 9) % 35)}px`,
-                  '--delay': `${i * -0.08}s`,
-                } as CSSProperties
-              }
-            />
-          ))}
-        </div>
-        <div
-          className={`call-captions ${keepCaptions ? 'persistent-captions' : ''}`}
-          aria-hidden={!keepCaptions}
-          tabIndex={keepCaptions ? 0 : undefined}
-          aria-label={keepCaptions ? 'Visible voice captions' : undefined}
-        >
-          {keepCaptions ? (
-            <div>
-              {state.spoken.map((text, i) => (
-                <p key={i}>{text}</p>
-              ))}
-              {!state.spoken.length && (
-                <p className="caption-placeholder">
-                  Connecting your assistant…
-                </p>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="previous-caption" key={state.previous}>{state.previous}</div>
-              <p className="current-caption" key={state.current || 'empty'}>
-                {state.current ||
-                  (state.phase === 'responding' && !state.previous
-                    ? 'Alex is listening…'
-                    : '')}
-              </p>
-            </>
-          )}
-        </div>
-        <div className="sr-only" aria-hidden={keepCaptions}>Spoken content: {state.spoken.join(' ')}</div>
-      </div>
-      <div className="call-bottom">
-        <span className="call-state">
-          <span />
-          {state.stage === 'complete'
-            ? 'Call complete'
-            : speaking
-              ? 'Alex is speaking'
-              : state.phase === 'responding'
-                ? 'Connected'
-                : 'Your turn'}
-        </span>
-        <div className="call-controls" aria-hidden="true">
-          <span>
-            <MicOff size={18} />
-            <small>mute</small>
-          </span>
-          <span>
-            <Grid2X2 size={18} />
-            <small>keypad</small>
-          </span>
-          <span>
-            <Volume2 size={18} />
-            <small>speaker</small>
-          </span>
-          <span>
-            <Plus size={18} />
-            <small>add call</small>
-          </span>
-          <span>
-            <Video size={18} />
-            <small>video</small>
-          </span>
-          <span>
-            <span className="contact-glyph">○</span>
-            <small>contacts</small>
-          </span>
-        </div>
-        <span className="end-call" aria-hidden="true">
-          <Phone size={24} fill="currentColor" />
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function FlightOptions() {
-  return <div className="flight-options" aria-label="Two sample flight options">{FLIGHTS.map(f => <div className="flight-option" key={f.id}><div className="flight-option-top"><Plane size={13}/><strong>{f.flight} · {f.stops}</strong>{f.id === 'direct' && <span>Alex’s pick</span>}</div><div className="flight-option-times"><span>{timeLabel(f.departureMinutes)} <small>PM</small></span><ArrowRight size={15}/><span>{timeLabel(f.arrivalMinutes)} <small>PM</small></span></div><p>{f.layover} · Home tonight</p></div>)}</div>;
-}
-
-function DinnerCard({ scenario }: { scenario: Scenario }) {
-  const dinner = getDinnerPlan(scenario);
-  return <div className="dinner-card"><span>THE DINNER NEGOTIATIONS</span><h4>{dinner.choice === 'gate' ? 'Gate first. Dinner later.' : scenario.buffer < 10 ? 'A tight connection. A shorter plan.' : dinner.choice === 'both' ? 'Two dinners. One way home.' : 'Pickles wins this round.'}</h4><ol>{dinner.steps.map(step => <li key={step}>{step}</li>)}</ol><p>Ready at {scenario.flight.gate} · {dinner.arrival} PM<br/><strong>{dinner.buffer} min before boarding</strong></p></div>;
-}
-
-function Itinerary({
-  scenario,
-  compact = false,
-  flightOnly = false,
-}: {
-  scenario: Scenario;
-  compact?: boolean;
-  flightOnly?: boolean;
-}) {
-  return (
-    <div className={`itinerary ${compact ? 'itinerary-compact' : ''}`}>
-      <div className="itinerary-heading">
-        <Plane size={16} />
-        <span>{scenario.flight.flight} · Your way home</span>
-        <Check size={15} />
-      </div>
-      <div className="itinerary-facts">
-        <div>
-          <small>GATE</small>
-          <strong>{scenario.flight.gate}</strong>
-        </div>
-        <div>
-          <small>BOARDING</small>
-          <strong>{timeLabel(scenario.flight.boardingMinutes)}</strong>
-        </div>
-        <div>
-          <small>DEPARTURE</small>
-          <strong>{timeLabel(scenario.flight.departureMinutes)}</strong>
-        </div>
-      </div>
-      <div className="itinerary-arrival"><span>HOME TONIGHT</span><strong>{timeLabel(scenario.flight.arrivalMinutes)} PM</strong><small>{scenario.flight.layover}</small></div>
-      {!flightOnly && <p>
-        {scenario.food ? 'With your dinner plan · Ready at the gate around' : `${scenario.routeLabel} · Arrive around`} {scenario.food ? getDinnerPlan(scenario).arrival : scenario.arrival}
-      </p>}
-    </div>
-  );
-}
-
-function MessagePhone({ state, onMap }: { state: DemoState; onMap(scenario: Scenario): void }) {
-  const scroll = useRef<HTMLDivElement>(null);
-  const [scrolledUp, setScrolledUp] = useState(false);
-  const follow = useRef(true);
-  const userScrolling = useRef(false);
-  const reduced = useReducedMotion();
-  useEffect(() => {
-    const node = scroll.current;
-    if (!node) return;
-    const observer = new ResizeObserver(() => {
-      if (follow.current)
-        node.scrollTo({ top: node.scrollHeight, behavior: 'auto' });
-    });
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-  useEffect(() => {
-    if (follow.current && scroll.current)
-      scroll.current.scrollTo({
-        top: scroll.current.scrollHeight,
-        behavior: reduced ? 'auto' : 'smooth',
-      });
-  }, [state.messages, state.typing, state.showMap, state.phase, reduced]);
-  const lastUser = state.messages
-    .map((message) => message.role)
-    .lastIndexOf('user');
-  return (
-    <div className="phone message-phone">
-      <PhoneStatus updated={state.turn >= 4} />
-      <div className="messages-person">
-        <ChevronLeft className="messages-back" size={27} aria-hidden="true" />
-        <Avatar small />
-        <h3>
-          {state.identityShared ? BRAND.assistant : 'New conversation'}{' '}
-          <span>›</span>
-        </h3>
-        <p>{state.identityShared ? BRAND.company : 'AI travel assistant'}</p>
-        <Video className="messages-video" size={22} aria-hidden="true" />
-      </div>
-      <div
-        className="message-thread"
-        ref={scroll}
-        role="log"
-        tabIndex={0}
-        aria-label="iMessage conversation"
-        aria-live="off"
-        onWheel={() => {
-          userScrolling.current = true;
-        }}
-        onTouchMove={() => {
-          userScrolling.current = true;
-        }}
-        onPointerDown={(event) => {
-          if (event.target === scroll.current) userScrolling.current = true;
-        }}
-        onScroll={() => {
-          if (!userScrolling.current) return;
-          const node = scroll.current!;
-          const up =
-            node.scrollHeight - node.scrollTop - node.clientHeight > 95;
-          follow.current = !up;
-          setScrolledUp(up);
-          if (!up) userScrolling.current = false;
-        }}
-      >
-        <div className="thread-time">
-          iMessage
-          <br />
-          <strong>Today 5:25 PM</strong>
-        </div>
-        {state.messages.map((message, index) => (
-          <div key={message.id} className="message-group">
-            <motion.div
-              className={`bubble ${message.role === 'user' ? 'outgoing' : 'incoming'}`}
-              initial={{ opacity: 0, y: 7 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {message.text}
-              {message.reaction && (
-                <span
-                  className="tapback"
-                  aria-label={`Alex reacted ${message.reaction} to your message`}
-                >
-                  {message.reaction}
-                </span>
-              )}
-            </motion.div>
-            {message.role === 'user' && index === lastUser && (
-              <div className="read-marker">
-                {state.read ? `Read · ${state.turn >= 4 ? '5:33' : '5:25'} PM` : 'Delivered'}
-              </div>
-            )}
-            {state.showContact && index === 1 && (
-              <div className="contact-shared">
-                <Avatar small />
-                <span>
-                  <strong>{BRAND.assistant} shared a name and photo</strong>
-                  <span>{BRAND.company} · AI assistant</span>
-                </span>
-                <Check size={13} />
-              </div>
-            )}
-            {message.attachment === 'flights' && <FlightOptions />}
-            {message.attachment === 'food' && message.scenario && <DinnerCard scenario={message.scenario}/>}
-            {message.attachment === 'update' && message.scenario && <div className="gate-update"><small>5:33 PM · GATE CHANGE</small><div><s>{message.scenario.originalGate}</s><ArrowRight size={20}/><strong>{message.scenario.flight.gate}</strong></div><p>Boarding still {timeLabel(message.scenario.flight.boardingMinutes)} PM</p></div>}
-            {message.attachment === 'plan' && message.scenario && <><Itinerary scenario={message.scenario} compact flightOnly={!message.scenario.updated}/>{state.messages.some(item => item.attachment === 'update') && !message.scenario.updated && <span className="earlier-plan-note">Earlier plan · Gate changed at 5:33 PM</span>}</>}
-            {message.attachment === 'map' && state.scenario && (
-              <AirportMap scenario={message.scenario!} onOpen={() => onMap(message.scenario!)} />
-            )}
-          </div>
-        ))}
-        {state.typing && (
-          <div className="typing-bubble" aria-label="Alex is typing">
-            <i />
-            <i />
-            <i />
-          </div>
-        )}
-      </div>
-      {scrolledUp && (
-        <button
-          className="latest-message"
-          onClick={() => {
-            userScrolling.current = false;
-            follow.current = true;
-            setScrolledUp(false);
-            scroll.current?.scrollTo({
-              top: scroll.current.scrollHeight,
-              behavior: 'smooth',
-            });
-          }}
-        >
-          Latest message <ChevronDown size={13} />
-        </button>
-      )}
-      <div className="message-compose" aria-hidden="true">
-        <span className="compose-plus">
-          <Plus size={21} />
-        </span>
-        <span className="compose-field">
-          iMessage <MicOff size={16} />
-        </span>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const [state, dispatch] = useReducer(
     reducer,
-    location.hash.startsWith('#/preview') ? 'outreach' : 'intro',
+    location.hash.startsWith("#/preview") ? "email" : "campaign",
     initialState,
   );
-  const [mode, setMode] = useState<'voice' | 'messages'>('messages');
-  const [audio, setAudio] = useState(false);
+  const [dialog, setDialog] = useState<
+    Attachment | "cta" | "about" | "accessibility" | null
+  >(null);
+  const [muted, setMuted] = useState(false);
+  const [audioUnavailable, setAudioUnavailable] = useState(!HAS_AUDIO);
   const [keepCaptions, setKeepCaptions] = useState(() => {
     try {
-      return sessionStorage.getItem('plot-twist-captions') === 'true';
+      return sessionStorage.getItem("plot-twist-captions") === "true";
     } catch {
       return false;
     }
   });
-  const [mapScenario, setMapScenario] = useState<Scenario>();
-  const [dialog, setDialog] = useState<'map' | 'cta' | null>(null);
-  const playback = useRef(new Playback());
+  const audioNode = useRef<HTMLAudioElement>(null);
+  const voice = useRef(
+    new VoicePlayback((src) => {
+      const node = audioNode.current ?? new Audio();
+      node.src = src;
+      node.load();
+      return node;
+    }),
+  );
+  const chat = useRef(new MessagePlayback());
   const run = useRef(0);
   const locked = useRef(false);
-  const audioRef = useRef(audio);
-  audioRef.current = audio;
-  const fadeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
   const page = useRef<HTMLElement>(null);
-  const fastPreview =
+  const fast =
     import.meta.env.DEV &&
-    new URLSearchParams(location.search).get('qa') === '1';
+    new URLSearchParams(location.search).get("qa") === "1";
+  const experience = state.screen === "voice" || state.screen === "messages";
+  const traveler = experience || state.screen === "handoff";
+  useEffect(
+    () => () => {
+      voice.current.cancel();
+      chat.current.cancel();
+    },
+    [],
+  );
   useEffect(() => {
-    track(
-      state.stage === 'intro'
-        ? 'reviewer_intro_viewed'
-        : 'prospect_setup_started',
-    );
-    return () => {
-      playback.current.cancel();
-      clearTimeout(fadeTimer.current);
-    };
-  }, []);
-  useEffect(() => {
-    if (!['demo', 'complete'].includes(state.stage)) {
-      page.current
-        ?.querySelector<HTMLElement>('h1')
-        ?.focus({ preventScroll: true });
-      window.scrollTo({ top: 0 });
+    page.current
+      ?.querySelector<HTMLElement>("h1")
+      ?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0 });
+  }, [state.screen]);
+  function stop() {
+    voice.current.cancel();
+    chat.current.cancel();
+    const node = audioNode.current;
+    if (node) {
+      node.pause();
+      node.currentTime = 0;
     }
-  }, [state.stage]);
-
-  useEffect(() => {
-    if (state.stage === 'demo' && state.phase !== 'responding') {
-      page.current?.querySelector<HTMLElement>('.followup-button, .next-beat button')?.focus({ preventScroll: true });
-    }
-  }, [state.phase, state.stage]);
-
-  function go(stage: Stage) {
     locked.current = false;
-    setMode('messages');
-    playback.current.cancel();
-    clearTimeout(fadeTimer.current);
-    dispatch({ type: 'reset', stage, run: ++run.current });
-    if (stage === 'outreach') track('prospect_setup_started');
-    if (stage === 'intro') track('reviewer_intro_viewed');
+  }
+  function go(screen: Screen) {
+    stop();
+    dispatch({ type: "navigate", screen, run: ++run.current });
     history.replaceState(
       null,
-      '',
-      `${location.pathname}${location.search}${stage === 'outreach' ? '#/preview' : '#/'}`,
+      "",
+      `${location.pathname}${location.search}${screen === "email" ? "#/preview" : "#/"}`,
     );
+    track("screen_viewed", { screen });
   }
-
-  function play(turn: Turn, choice: FlightId = state.choice, food: FoodChoice | undefined = state.scenario?.food) {
-    if (locked.current) return;
-    if (turn > 1 && (state.phase === 'responding' || state.turn !== turn - 1))
+  function reset() {
+    stop();
+    dispatch({ type: "reset", run: ++run.current });
+    history.replaceState(null, "", `${location.pathname}${location.search}#/`);
+  }
+  function send() {
+    if (
+      locked.current ||
+      state.busy ||
+      state.screen !== "messages" ||
+      state.step >= 3
+    )
       return;
-    const scenario = getScenario(choice, turn >= 4, turn >= 5 ? food : undefined);
     locked.current = true;
-    const user = travelerMessage(turn, scenario);
     const id = ++run.current;
-    clearTimeout(fadeTimer.current);
-    dispatch({ type: 'begin', run: id, turn, scenario, user, choice });
-    if (turn === 1) {
-      track('scenario_started', { story: 'pickles' });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    if (turn === 2) track('flight_chosen', { flight: choice });
-    void playback.current.play(
-      getTurn(scenario, turn),
+    dispatch({ type: "send", run: id });
+    track("prepared_message_sent", { beat: state.step + 1 });
+    void chat.current.play(
+      state.step as Beat,
       {
-        onRead: () => dispatch({ type: 'read', run: id }),
-        onBlock: (text, index, attachment) =>
-          dispatch({ type: 'block', run: id, text, index, attachment }),
-        onTyping: (value) => dispatch({ type: 'typing', run: id, value }),
-        onReaction: () => dispatch({ type: 'reaction', run: id, emoji: turn === 1 ? '👀' : turn === 6 ? '❤️' : '👍' }),
-        onPhrase: (text) => dispatch({ type: 'phrase', run: id, text }),
-        onBlockEnd: () => {},
+        onRead: () => dispatch({ type: "read", run: id }),
+        onReaction: () => dispatch({ type: "reaction", run: id }),
+        onTyping: (value) => dispatch({ type: "typing", run: id, value }),
+        onReply: (index) => dispatch({ type: "reply", run: id, index }),
+        onShare: () => dispatch({ type: "share", run: id }),
         onFinish: () => {
           locked.current = false;
-          dispatch({ type: 'finish', run: id });
-          track('turn_completed', { turn });
-          fadeTimer.current = setTimeout(
-            () => dispatch({ type: 'fade', run: id }),
-            2600,
-          );
-          if (turn === 6)
-            track('scenario_completed', { flight: scenario.key });
+          dispatch({ type: "finish", run: id });
         },
       },
-      () => audioRef.current,
-      fastPreview ? 0.015 : 1,
+      fast ? 0.02 : 1,
     );
   }
-
-  function toggleAudio() {
-    if (audio && 'speechSynthesis' in window) window.speechSynthesis.cancel();
-    setAudio(!audio);
+  function startVoice() {
+    if (state.voiceStatus === "running") return;
+    stop();
+    const id = ++run.current;
+    dispatch({ type: "voice-start", run: id });
+    voice.current.setMuted(muted);
+    void voice.current.play(
+      fast ? {} : CLIPS,
+      {
+        onCue: (beat, text, speaker) =>
+          dispatch({ type: "cue", run: id, beat, text, speaker }),
+        onAudioUnavailable: () => setAudioUnavailable(true),
+        onFinish: () => dispatch({ type: "voice-finish", run: id }),
+      },
+      fast ? 0.02 : 1,
+    );
+    track("voice_started");
   }
-  function openMap(scenario: Scenario) {
-    setMapScenario(scenario);
-    track('diagram_opened');
-    setDialog('map');
+  function endVoice() {
+    stop();
+    dispatch({ type: "voice-finish", run: state.run });
   }
-  const comparison = state.stage === 'demo' || state.stage === 'complete';
-  const traveler = comparison || state.stage === 'choose';
-
+  function toggleMute() {
+    voice.current.setMuted(!muted);
+    setMuted(!muted);
+  }
   return (
     <MotionConfig reducedMotion="user">
-      <div className={`site ${comparison ? 'site-comparison' : ''} ${traveler ? 'theme-traveler' : state.stage === 'outreach' ? 'theme-developer' : 'theme-linq'}`}>
+      <div
+        className={`site ${traveler ? "traveler" : state.screen === "email" || state.screen === "complete" ? "developer" : ""} ${experience ? "experience-site" : ""}`}
+      >
+        <audio ref={audioNode} preload="metadata" aria-hidden="true" />
         <header className="site-header">
           <button
             className="wordmark"
-            onClick={() => go('intro')}
+            onClick={reset}
             aria-label="Return to introduction"
           >
-            {traveler ? <PlotLogo/> : state.stage === 'outreach' ? <><PlotLogo compact/><span className="workspace-label">DEVELOPER PREVIEW</span></> : <LinqLogo/>}
-          </button>
-          <div className="header-right">
-            <span className="header-label">{traveler ? 'YOUR TRIP, UNTANGLED' : state.stage === 'outreach' ? 'YOUR INBOX' : 'A GROWTH EXPERIMENT'}</span>
-            {state.stage !== 'intro' && (
-              <button className="restart-button" onClick={() => go(comparison ? 'choose' : 'intro')}>
-                <RotateCcw size={14} /> Start over
-              </button>
+            {traveler || state.screen === "complete" ? (
+              <PlotLogo compact />
+            ) : (
+              <LinqLogo />
             )}
-          </div>
+          </button>
+          <span className="header-context">
+            {traveler
+              ? "YOU’RE THE TRAVELER"
+              : state.screen === "email" || state.screen === "complete"
+                ? "YOU’RE THE DEVELOPER"
+                : "A LINQ GROWTH EXPERIMENT"}
+          </span>
+          {state.screen !== "campaign" && (
+            <button className="restart" onClick={reset}>
+              <RotateCcw size={13} />
+              <span>Restart walkthrough</span>
+            </button>
+          )}
         </header>
-        <main ref={page}>
+        <main ref={page} className={experience ? "experience-main" : ""}>
           <AnimatePresence mode="wait">
             <motion.div
-              key={comparison ? 'comparison' : state.stage}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.22 }}
-              onAnimationComplete={() => {
-                if (state.stage !== 'complete')
-                  page.current
-                    ?.querySelector<HTMLElement>('h1')
-                    ?.focus({ preventScroll: true });
-              }}
+              key={experience ? "experience" : state.screen}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onAnimationComplete={() =>
+                page.current
+                  ?.querySelector<HTMLElement>("h1")
+                  ?.focus({ preventScroll: true })
+              }
+              className={experience ? "experience-shell" : ""}
             >
-              {state.stage === 'intro' && (
-                <Landing onContinue={() => go('explain')} onSkip={() => go('choose')} />
-              )}
-              {state.stage === 'explain' && <GuidedExplanation onBack={() => go('intro')} onContinue={() => go('outreach')}/>}
-              {state.stage === 'outreach' && (
-                <Outreach
-                  onContinue={() => {
-                    dispatch({ type: 'stage', stage: 'choose' });
-                    history.replaceState(
-                      null,
-                      '',
-                      `${location.pathname}${location.search}#/preview`,
-                    );
-                  }}
+              {state.screen === "campaign" && (
+                <Campaign
+                  onExample={() => go("email")}
+                  onSkip={() => go("handoff")}
                 />
               )}
-              {state.stage === 'choose' && (
-                <>
-                  <button className="back-link" onClick={() => go('outreach')}>
-                    <ArrowLeft size={14} /> Back to the invitation
-                  </button>
-                  <Choose onStart={() => play(1)} />
-                </>
+              {state.screen === "email" && (
+                <Invitation onContinue={() => go("handoff")} />
               )}
-              {comparison && (
-                <div
-                  className={`comparison ${state.stage === 'complete' ? 'is-complete' : ''}`}
-                >
-                  <div className="comparison-heading">
+              {state.screen === "handoff" && (
+                <Handoff onContinue={() => go("voice")} />
+              )}
+              {experience && (
+                <section className="experience">
+                  <div className="experience-heading">
                     <div>
-                      <div className="eyebrow">
-                        {state.stage === 'complete'
-                          ? 'THE PLAN, READY WHEN YOU NEED IT'
-                          : `YOU’RE THE TRAVELER · ${state.turn} OF 6`}
-                      </div>
                       <h1 tabIndex={-1}>
-                        {state.stage === 'complete'
-                          ? 'Your next step, still in the conversation.'
-                          : 'Alex has your back. So does the thread.'}
+                        {state.screen === "voice"
+                          ? "Your assistant today: voice"
+                          : "Your assistant in iMessage"}
                       </h1>
+                      {state.screen === "messages" ? (
+                        <span className="powered">
+                          Powered by <LinqLogo />
+                        </span>
+                      ) : (
+                        <p>
+                          {STORY[state.voiceBeat].label}
+                          {state.voiceBeat === 2
+                            ? ` · ${timeLabel(TRIP.updateMinutes)} PM`
+                            : ""}
+                        </p>
+                      )}
+                    </div>
+                    <div
+                      className="channel-switch"
+                      role="group"
+                      aria-label="Compare channels"
+                    >
+                      <button
+                        aria-pressed={state.screen === "voice"}
+                        onClick={() => go("voice")}
+                      >
+                        Voice
+                      </button>
+                      <button
+                        aria-pressed={state.screen === "messages"}
+                        onClick={() => go("messages")}
+                      >
+                        iMessage
+                      </button>
+                    </div>
+                  </div>
+                  {state.screen === "voice" ? (
+                    <VoicePhone
+                      state={state}
+                      keepCaptions={keepCaptions}
+                      muted={muted}
+                      onMute={toggleMute}
+                      onStart={startVoice}
+                      onEnd={endVoice}
+                      onMessages={() => go("messages")}
+                      audioUnavailable={audioUnavailable}
+                    />
+                  ) : (
+                    <MessagePhone
+                      state={state}
+                      onSend={send}
+                      onAttachment={setDialog}
+                      onAcceptIdentity={() =>
+                        dispatch({ type: "identity-accept", run: state.run })
+                      }
+                    />
+                  )}
+                  <div className="experience-next">
+                    {state.screen === "voice" &&
+                    state.voiceStatus !== "done" ? (
+                      <button
+                        className="text-button"
+                        onClick={() => go("messages")}
+                      >
+                        Try the same task in iMessage <ArrowRight size={13} />
+                      </button>
+                    ) : state.screen === "messages" && state.step >= 3 ? (
+                      <button
+                        className="button plum compact"
+                        onClick={() => go("complete")}
+                      >
+                        Back to your product <ArrowRight size={15} />
+                      </button>
+                    ) : state.screen === "messages" ? (
                       <p>
-                        {state.stage === 'complete'
-                          ? 'Gate details, directions, and the plan you agreed on are ready when you need them.'
-                          : 'Your existing Plot Twist assistant, through voice and iMessage.'}
+                        Guided walkthrough: tap <strong>Send</strong> to
+                        continue. Prepared messages are demo controls.
                       </p>
-                    </div>
-                    <button
-                      className={`audio-toggle ${audio ? 'audio-enabled' : ''}`}
-                      aria-pressed={audio}
-                      onClick={toggleAudio}
-                    >
-                      {audio ? <Volume2 size={17} /> : <VolumeX size={17} />}
-                      <span>
-                        {audio ? 'Voice audio on' : 'Enable voice audio'}
-                      </span>
-                    </button>
+                    ) : (
+                      <p>
+                        Same assistant. Same facts. Now a different way to use
+                        them.
+                      </p>
+                    )}
                   </div>
-                  <div
-                    className="mobile-mode"
-                    role="group"
-                    aria-label="View channel"
+                </section>
+              )}
+              {state.screen === "complete" && (
+                <section className="completion">
+                  <span className="eyebrow">BACK IN THE DEVELOPER’S SHOES</span>
+                  <h1 tabIndex={-1}>Could this fit your product?</h1>
+                  <div className="partnership">
+                    <PlotLogo />
+                    <span>×</span>
+                    <LinqLogo />
+                  </div>
+                  <p>
+                    Your assistant. Your customer experience.
+                    <br />
+                    One more way to be there when plans change.
+                  </p>
+                  <button
+                    className="button plum"
+                    onClick={() => {
+                      track("cta_clicked");
+                      setDialog("cta");
+                    }}
                   >
-                    <button
-                      aria-pressed={mode === 'voice'}
-                      onClick={() => setMode('voice')}
-                    >
-                      Voice agent{' '}
-                      <span>
-                        {state.stage === 'complete'
-                          ? 'Complete'
-                          : state.phase === 'responding'
-                            ? 'Speaking'
-                            : 'Your turn'}
-                      </span>
-                    </button>
-                    <button
-                      aria-pressed={mode === 'messages'}
-                      onClick={() => setMode('messages')}
-                    >
-                      iMessage <span>{state.messages.length} messages</span>
-                    </button>
-                  </div>
-                  <p className="mobile-guidance">Both views follow your choice. {mode === 'messages' ? 'Try Voice to hear the same options.' : 'Switch to iMessage to compare the options and keep your plan.'}</p>
-                  <div className={`phone-pair mode-${mode}`}>
-                    <section
-                      className="channel voice-channel"
-                      aria-label="Voice agent"
-                    >
-                      <div className="channel-heading">
-                        <PlotLogo compact/>
-                        <h2>By phone</h2>
-                      </div>
-                      <VoicePhone state={state} keepCaptions={keepCaptions} />
-                    </section>
-                    <div className="comparison-bridge" aria-hidden="true">
-                      <span />
-                      <i>
-                        same
-                        <br />
-                        plan
-                      </i>
-                      <span />
-                    </div>
-                    <section
-                      className="channel message-channel"
-                      aria-label="iMessage"
-                    >
-                      <div className="channel-heading">
-                        <h2>Alex in iMessage</h2>
-                        <span className="powered">Powered by <LinqLogo/></span>
-                      </div>
-                      <MessagePhone state={state} onMap={openMap} />
-                    </section>
-                    <WhyMessage state={state}/>
-                  </div>
-                  <div className="interaction-area" aria-live="polite">
-                    {state.phase === 'responding' && (
-                      <div className="responding">
-                        <span className="responding-dot" />
-                        <span>
-                          Alex is replying.
-
-                        </span>
-                        <span className="turn-counter">
-                          STEP {state.turn} OF 6
-                        </span>
-                      </div>
-                    )}
-                    {state.phase === 'followup' && (
-                      <div className="followup-area">
-                        <span className="interaction-label">
-                          SAY YOUR CHOICE ON THE CALL · SEND IT IN IMESSAGE
-                        </span>
-                        <div className="followup-buttons">
-                          {FLIGHTS.map((flight) => (
-                            <button
-                              key={flight.id}
-                              className="followup-button"
-                              onClick={() => play(2, flight.id)}
-                            >
-                              <span><small>{flight.label}</small>{flight.choice}</span> <ArrowUpRight size={16} />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {state.phase === 'continue' && state.turn === 4 && <div className="food-decision"><span className="interaction-label">ONE LAST PLOT TWIST</span><h2>You’re hungry. Pickles is lobbying.</h2><p>He needs his usual food from your bag. You would like a dinner that isn’t a crushed granola bar.</p><div className="food-choices">{FOOD_CHOICES.map(choice => <button className="followup-button" key={choice.id} onClick={() => play(5, state.choice, choice.id)}><strong>{choice.label}</strong><span>{choice.note}</span><ArrowRight size={15}/></button>)}</div></div>}
-                    {state.phase === 'continue' && state.turn < 6 && state.turn !== 4 && (
-                      <div className="next-beat">
-                        <div><span className="interaction-label">WHAT HAPPENS NEXT</span><p>{NEXT_BEAT[(state.turn + 1) as 3 | 4 | 5 | 6].context}</p><blockquote>“{travelerMessage((state.turn + 1) as Turn, getScenario(state.choice, state.turn + 1 >= 4, state.scenario?.food))}”</blockquote></div>
-                        <button className="button button-dark" onClick={() => play((state.turn + 1) as Turn, state.choice)}>{NEXT_BEAT[(state.turn + 1) as 3 | 4 | 5 | 6].label}<ArrowRight size={16}/></button>
-                      </div>
-                    )}
-                    {state.stage === 'complete' && (
-                      <div className="completion-area">
-                        <div className="completion-copy">
-                          <span className="completion-check">
-                            <Check size={18} />
-                          </span>
-                          <div>
-                            <strong>A plan you can come back to.</strong>
-                            <p>
-                              Explore what this could look like for your
-                              customers.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="completion-actions">
-                          <button
-                            className="button button-primary"
-                            onClick={() => {
-                              track('cta_clicked');
-                              if (BRAND.meetingUrl)
-                                window.open(
-                                  BRAND.meetingUrl,
-                                  '_blank',
-                                  'noopener,noreferrer',
-                                );
-                              else setDialog('cta');
-                            }}
-                          >
-                            Discuss this for your product{' '}
-                            <ArrowUpRight size={17} />
-                          </button>
-                          <button
-                            className="text-button"
-                            onClick={() => go('choose')}
-                          >
-                            Try the other flight
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  {state.stage === 'complete' && <div className="return-to-developer"><span>BACK IN THE DEVELOPER’S SHOES</span><p>You’ve tried it as your customer. Could this fit your product?</p></div>}
-                </div>
+                    Discuss this for your product <ArrowUpRight size={16} />
+                  </button>
+                  <button className="text-button" onClick={reset}>
+                    Restart walkthrough
+                  </button>
+                </section>
               )}
             </motion.div>
           </AnimatePresence>
         </main>
         <footer className="site-footer">
           <span>Interactive simulation · Fictional travel data</span>
-          <div className="footer-controls">
-            <details className="methodology">
-              <summary>
-                About this demo <Plus size={12} />
-              </summary>
-              <div>
-                <strong>A product preview</strong>
+          <div>
+            <button onClick={() => setDialog("about")}>About this demo</button>
+            <button
+              onClick={() => setDialog("accessibility")}
+              aria-label="Accessibility options"
+            >
+              <Accessibility size={14} />
+              <span>Accessibility</span>
+            </button>
+          </div>
+        </footer>
+        {fast && (
+          <span className="qa-indicator">Local QA · accelerated playback</span>
+        )}
+        {dialog && (
+          <Modal
+            title={
+              dialog === "cta"
+                ? "Let’s make this useful for your customers."
+                : dialog === "about"
+                  ? "About this demo"
+                  : dialog === "accessibility"
+                    ? "Accessibility"
+                    : ATTACHMENTS[dialog].title
+            }
+            onClose={() => setDialog(null)}
+          >
+            {dialog === "cta" ? (
+              <>
+                <div className="partnership small">
+                  <PlotLogo />
+                  <span>×</span>
+                  <LinqLogo />
+                </div>
                 <p>
-                  This browser simulation uses scripted responses and a
-                  fictional airport. It does not make calls, send iMessages,
-                  place orders, or book meetings.
+                  Explore the customer workflow, integration needs, and whether
+                  Linq fits your product.
+                </p>
+                <p className="disclosure">
+                  Meeting routing is not connected. This prototype does not send
+                  a meeting request.
+                </p>
+                <button className="button plum" onClick={() => setDialog(null)}>
+                  Back to the demo <Check size={15} />
+                </button>
+              </>
+            ) : dialog === "about" ? (
+              <>
+                <p>
+                  The proposed campaign sends qualified voice-AI builders a
+                  personalized invitation, a visual, and a real provisioned
+                  number to text. This website shows Nate how that campaign
+                  could work.
                 </p>
                 <p>
-                  The call illustrates spoken interaction. Real voice products
-                  may also offer written follow-up. Contact-card display and
-                  read receipts depend on platform behavior and settings.
+                  Plot Twist Travel, Alex, the airport and flights are
+                  fictional. Alex’s narration uses a locally generated Kokoro
+                  stock voice. The displayed number is illustrative. No
+                  messages, calls, bookings, or meeting requests are sent.
                 </p>
                 <p>
-                  The same scenario facts power both channels. The airport
-                  diagram is illustrative. Local demo events stay in this
-                  browser’s memory and reset on reload.
+                  Flight results and maps are original image attachments, not
+                  native booking widgets. Contact sharing and read receipts
+                  depend on platform behavior and recipient settings.
                 </p>
-              </div>
-            </details>
-            <details className="accessibility-menu">
-              <summary>
-                <Accessibility size={14} /> Accessibility
-              </summary>
-              <div>
-                <label>
+                <p>
+                  Voice and texting use the same facts. Real voice products may
+                  offer written follow-up. Demo events stay in this browser’s
+                  memory.
+                </p>
+              </>
+            ) : dialog === "accessibility" ? (
+              <>
+                <label className="caption-option">
                   <input
                     type="checkbox"
                     checked={keepCaptions}
                     onChange={(event) => {
-                      const checked = event.target.checked;
-                      setKeepCaptions(checked);
+                      setKeepCaptions(event.target.checked);
                       try {
                         sessionStorage.setItem(
-                          'plot-twist-captions',
-                          String(checked),
+                          "plot-twist-captions",
+                          String(event.target.checked),
                         );
                       } catch {
                         /* Preference is optional. */
                       }
-                      track('accessibility_mode_changed', {
-                        keepCaptions: checked,
-                      });
                     }}
                   />
                   <span>
-                    <strong>Keep captions visible</strong>
-                    <small>Preserve spoken text for this walkthrough.</small>
+                    <strong>Keep voice captions visible</strong>
+                    <small>
+                      Retain the call’s spoken text in its caption area.
+                    </small>
                   </span>
                 </label>
                 <p>
-                  Keyboard navigation and your device’s reduced-motion
-                  preference are supported.
+                  Keyboard controls, image descriptions, a screen-reader message
+                  log, and your device’s reduced-motion preference are
+                  supported.
                 </p>
-              </div>
-            </details>
-          </div>
-        </footer>
-        {fastPreview && (
-          <span className="qa-indicator">Local QA · accelerated playback</span>
+              </>
+            ) : (
+              <>
+                <img
+                  className="expanded-image"
+                  src={ATTACHMENTS[dialog].src}
+                  alt={ATTACHMENTS[dialog].alt}
+                />
+                <p className="image-description">{ATTACHMENTS[dialog].alt}</p>
+              </>
+            )}
+          </Modal>
         )}
-        <AnimatePresence>
-          {dialog === 'map' && mapScenario && (
-            <Modal
-              title={`Your route to ${mapScenario.flight.gate}`}
-              onClose={() => setDialog(null)}
-              wide
-            >
-              <p className="modal-intro">
-                {TRIP.airport} · {TRIP.terminal}
-              </p>
-              <AirportMap scenario={mapScenario} large />
-              <div className="map-modal-facts">
-                <div>
-                  <small>ALLOW</small>
-                  <strong>{mapScenario.minutes} minutes</strong>
-                </div>
-                <div>
-                  <small>ARRIVE AROUND</small>
-                  <strong>{mapScenario.arrival} PM</strong>
-                </div>
-                <div>
-                  <small>BOARDING</small>
-                  <strong>{timeLabel(mapScenario.flight.boardingMinutes)} PM</strong>
-                </div>
-              </div>
-              <p className="modal-note">
-                {mapScenario.stops.join(' → ')}. {mapScenario.updated ? 'The pet stop is complete; this route starts at pet relief.' : 'Times include the planned pet stop.'} Keep an eye on airport updates.
-              </p>
-              <button
-                className="button button-dark"
-                onClick={() => setDialog(null)}
-              >
-                Back to the conversation <ArrowRight size={16} />
-              </button>
-            </Modal>
-          )}
-          {dialog === 'cta' && (
-            <Modal
-              title="More ways to be there for your customers."
-              onClose={() => setDialog(null)}
-            >
-              <div className="partnership-lockup" aria-label="Plot Twist Travel and Linq"><PlotLogo/><span className="partnership-x">×</span><LinqLogo/></div>
-              <p className="modal-lead">Your assistant. Your customer experience.<br/>One more way to show up when it matters.</p>
-              <p className="modal-intro">Let’s explore how Plot Twist Travel and Linq could bring Alex into your customers’ conversations.</p>
-              <p className="modal-note">Demo only · Meeting routing isn’t connected. A real invitation would lead to a conversation about your workflow and integration.</p>
-              <div className="modal-actions">
-                <button
-                  className="button button-dark"
-                  onClick={() => setDialog(null)}
-                >
-                  Close <X size={16} />
-                </button>
-                <button
-                  className="text-button"
-                  onClick={() => {
-                    setDialog(null);
-                    go('choose');
-                  }}
-                >
-                  Try the other flight <ArrowUpRight size={14} />
-                </button>
-              </div>
-            </Modal>
-          )}
-        </AnimatePresence>
       </div>
     </MotionConfig>
   );

@@ -1,83 +1,65 @@
-# Plot Twist Travel — version 4
+# Plot Twist Travel — version 5
 
-A guided Linq product preview: the same fictional AI travel assistant through a voice call and iMessage. The opening explains a proposed growth tactic: select companies by customer profile and relevant signals, have AI custom-build a lightweight demo for each company, review it, then send a cold email invitation before asking for a meeting.
+An interviewer-facing simulation of a proposed Linq campaign: qualify voice-AI builders, prepare a relevant live iMessage demo for each company, then email a short personalized invitation with a visual and a number to text. The website shows Nate that experience; prospects would text a real provisioned number rather than complete this website.
 
 ## Run
-
-Requires Node.js 24 and npm.
 
 ```sh
 npm ci
 npm run dev
-```
-
-```sh
 npm test
 npm run build
 npm run preview
 ```
 
-The production build is static output in `dist/`. Asset URLs are relative, so it works under a GitHub Pages repository path.
+Node.js 24 and npm are used for the static React/TypeScript/Vite build. Relative assets support the existing GitHub Pages repository path.
 
-## Entry points
+## Walkthrough
 
-- `/`: reviewer introduction, followed by the prospect walkthrough.
-- `/#/preview`: begin at the mock outreach email.
+1. One-screen campaign explanation with email, number and Messages visuals.
+2. Recognizable example email, an original message-preview image, and a clearly illustrative number.
+3. Explicit developer-to-traveler handoff using Plot Twist's established identity.
+4. One phone at a time: a short call, then the same task in iMessage. Start the call intentionally; the compact channel switch cancels the inactive channel.
+5. Three prepared messages sent from the iMessage composer: disruption, nonstop confirmation, gate change and directions. There are no flight/food branches or side annotations.
+6. Explicit return to the developer, Plot Twist × Linq partnership CTA, and non-sending prototype modal.
 
-Refreshing resets the walkthrough to its entry point. Only the optional caption preference is retained in session storage.
+`/` opens the campaign explanation. `/#/preview` opens the example email. Reload resets to the matching entry point. Optional persistent captions are retained in session storage. The development-only `?qa=1` accelerates caption/message timers and skips narration playback for repeated tests. It does not affect production.
 
-## What works
+The phone's message history scrolls independently. Flight results, gate details and map are PNG attachments with image enlargement and accessible descriptions. Identity sharing appears after the first reply; the recipient can accept it. Read/typing states and one acknowledgment reaction are simulated. No ticket is purchased.
 
-- Linq introduction, a subtly branded developer inbox, then a cream/plum/coral Plot Twist customer experience with its own logo.
-- A focused landing, three sequential explanation screens, a developer invitation, then clear introductions to Alex and Pickles.
-- One canceled-flight story with Pickles, two flight-choice paths, a pet stop, a gate change, and a three-way dinner decision. All six flight-and-food combinations complete.
-- Six user-controlled interaction stages, with natural voice wording, short message bursts, fading captions, and persistent Messages history.
-- Generated fictional contact portrait, simulated contact sharing, and distinct delivered/read/reaction/typing events.
-- Original and updated SVG routes, historical map snapshots, and a retained itinerary.
-- Smaller, paired voice/iMessage notes, with one hide/reopen control that persists across beats.
-- Mobile channel switching without restarting the conversation.
-- Optional browser speech synthesis, with timed-caption fallback and a watchdog.
-- Keyboard access, modal focus management, reduced motion, and persistent captions.
-- Restart cancellation to prevent old replies or audio continuing into a new run.
-- Local event logging, available as `window.plotTwistEvents` in DevTools.
+## Narration
 
-Everything is scripted and all travel data is fictional. No Linq API, phone number, microphone, booking service, live model, or analytics transport is connected. The final CTA opens an explanatory modal. Events remain in memory and reset on reload. GitHub Pages may maintain its own standard hosting logs.
+Three WAV clips are generated locally using [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M), stock voice `am_fenrir`, through [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx). User authorized open-source voice tooling on October 19, 2026. No account, subscription, API key or voice cloning was used. WAV output totals about 2.2 MB; model weights and Python dependencies stay ignored in `.local/` and are not deployed.
 
-## Editing
+Caption cue boundaries follow each generated sentence's actual duration; playback uses the HTML audio clock. Muting preserves timing. Switching channels, ending the call, restarting and unmounting pause and reset audio and cancel pending timers. Failed/blocked audio falls back to timed captions. Browser speech synthesis is not used.
 
-- `src/scenario.ts`: shared facts, assistant identity, route calculations, scripts, and optional meeting URL.
-- `src/state.ts`: explicit walkthrough state and transitions.
-- `src/playback.ts`: cancellable phrase playback and browser audio fallback.
-- `src/App.tsx`: screens, simulated interfaces, flight cards, and controls.
-- `src/Brands.tsx`: fictional Plot Twist logo and official Linq lockup.
-- `src/Funnel.tsx`: landing and sequential growth explanation.
-- `src/WhyMessage.tsx`: paired event-triggered channel notes.
-- `public/alex-avatar.jpg`: generated fictional contact portrait.
-- `src/AirportMap.tsx`: illustrative diagram.
-- `src/styles.css`: visual tokens and responsive behavior.
-- `src/telemetry.ts`: local-only demo events.
+Exact script: [docs/audio-script.md](docs/audio-script.md). Audio manifests are in `src/data/narration.json`. Licenses and attribution: [docs/asset-sources.md](docs/asset-sources.md).
 
-Keep both channel renderers on the same canonical facts. Channel wording can differ; the options, recommendation, selected flight, and route must agree. The scenario starts at 5:25 PM, then explicitly advances to 5:33 after the pet stop. Playback duration does not advance travel time.
+## Source map
 
-After the gate change, the nonstop reaches B18 at 5:39 PM; the connection reaches B20 at 5:41 PM. Earlier maps remain historical snapshots. See [scenario decisions](docs/scenario-decisions.md).
+- `src/data/trip.json`: canonical fictional airport, flight, clock and route facts.
+- `src/scenario.ts`: three prepared messages, equivalent voice/text facts and image descriptions.
+- `src/state.ts`: linear progression, stale-run guards, interrupted-response rollback and identity state.
+- `src/playback.ts`: independent message and voice controllers.
+- `src/App.tsx`: campaign, email, role handoff, single-phone interfaces, accessible modals and CTA.
+- `src/Brands.tsx`: retained original Plot Twist identity and official Linq asset.
+- `src/styles.css`: viewport-fitting desktop/mobile layout and reduced motion.
+- `src/telemetry.ts`: in-memory events only; no network transport.
 
-## Testing and deployment
+Original asset generation: `scripts/render-demo-assets.mjs`, using installed Sharp through `DEMO_SHARP_MODULE`. Narration reproduction: `scripts/prepare-voice-input.mjs` then `scripts/generate-narration.py` in the isolated voice environment. Audio-generation dependencies are separate from the website's dependencies.
 
-The 28-test automated suite checks all six flight-and-food paths, food feasibility, original and updated route arithmetic, historical snapshot preservation, shared flight-option facts, message-event ordering, stale callbacks, cancellation, caption pacing, and audio success/failure/missing-callback behavior. The deploy script runs the suite and production build before publishing.
+## Verification and delivery
 
-For browser QA only, the development server accepts `?qa=1`, which accelerates captions without audio. This flag is gated by `import.meta.env.DEV` and has no effect in the production build. Use the normal URL for pacing and audio review.
+See [verification](docs/verification.md), [screen copy](docs/screen-copy.md), [canonical scenario export](docs/final-scenario.json), and [video scene list](docs/video-scenes.md). The ten-second comprehension target requires a fresh human viewer; automated checks cannot establish it.
 
-GitHub Pages serves the prebuilt `gh-pages` branch. Run `npm run deploy` from a clean, committed checkout to test, build, and publish it. The deploy script preserves the branch history and records the source commit in `version.json`. The current GitHub credential can publish branches but cannot upload Actions workflows, so this deployment does not require a new credential scope.
+GitHub Pages serves the prebuilt `gh-pages` branch. `npm run deploy` requires a clean committed checkout, reruns tests/build, preserves branch history, and writes the source commit to `version.json`. No Actions workflow is needed.
 
-To connect a verified meeting destination later, set `BRAND.meetingUrl` in `src/scenario.ts`; leave it blank to retain the prototype modal.
+## Simulation boundaries
 
-## Design references
+No live agent, Linq CLI, number, microphone, flight service, booking, food order, meeting routing, outreach or analytics transport is connected. `+1 (202) 555-0147` is illustrative and has no `sms:` or `tel:` link. The final modal explicitly states that meeting routing is not connected. All airport imagery is fictional; no provider integration or real reservation is implied.
 
-- [Hallmark](https://github.com/nutlope/hallmark) for hierarchy, restraint, and avoiding generic layouts. Simulated phone chrome is intentional because it is the demonstration itself.
-- [No AI Slop](https://github.com/petergyang/no-ai-slop) for concrete, edited copy.
-- [Linq](https://linqapp.com/) for restrained brand context.
-- [Linq contact cards](https://docs.linqapp.com/channel/imessage/guides/contact-cards/), [messaging](https://docs.linqapp.com/channel/imessage/guides/messaging/), and [typing indicators](https://docs.linqapp.com/channel/imessage/guides/chats/typing-indicators/) for feature presentation.
+## References
 
-Manrope is bundled locally through Fontsource under its open font license. Icons are from Lucide. No remote fonts or stock photography are required.
-
-Linq logo asset: official homepage lockup, retrieved October 15, 2026 from https://res.cloudinary.com/linq/image/upload/v1775832022/website/homepage/Logo_lock_up_0-00-00-00_yya5pq.png. The Plot Twist logo is an original fictional mark for this demo.
+- [Linq attachments](https://docs.linqapp.com/channel/imessage/guides/messaging/attachments/), [contact sharing](https://docs.linqapp.com/channel/imessage/guides/chats/share-contact-card/), [typing](https://docs.linqapp.com/channel/imessage/guides/chats/typing-indicators/) and [reactions](https://docs.linqapp.com/channel/imessage/guides/messaging/reactions/).
+- [Apple Messages](https://support.apple.com/en-ca/guide/iphone/iph82fb73ba3/ios) for familiar interaction patterns.
+- [Hallmark](https://github.com/nutlope/hallmark) and [No AI Slop](https://github.com/petergyang/no-ai-slop) for restraint and concrete copy.

@@ -1,0 +1,65 @@
+{
+  "description": "Locally generated Kokoro-82M v1.0 stock voice am_fenrir; Apache-2.0 model, MIT inference wrapper. Approved by user October 19, 2026. Cue boundaries follow the actual generated sentence audio.",
+  "clips": {
+    "options": {
+      "src": "./audio/options.wav",
+      "cues": [
+        {
+          "start": 0.0,
+          "end": 4.7507,
+          "text": "I can help. There are two flights home tonight. Pickles can travel on either one."
+        },
+        {
+          "start": 4.8907,
+          "end": 8.784,
+          "text": "The nonstop leaves at 7:20 and arrives at 9:40."
+        },
+        {
+          "start": 8.924,
+          "end": 15.1627,
+          "text": "The connection leaves at 6:15 and arrives at 8:55, with 40 minutes in Meadow City."
+        },
+        {
+          "start": 15.3027,
+          "end": 19.1027,
+          "text": "I\u2019d take the nonstop. One less plane change for Pickles."
+        }
+      ]
+    },
+    "confirmation": {
+      "src": "./audio/confirmation.wav",
+      "cues": [
+        {
+          "start": 0.0,
+          "end": 7.2039,
+          "text": "PT218, the nonstop. Gate B12. Boarding at 6:50, departure at 7:20."
+        },
+        {
+          "start": 7.3439,
+          "end": 10.9919,
+          "text": "Stop at pet relief beside B10 first. You have time."
+        }
+      ]
+    },
+    "gate-change": {
+      "src": "./audio/gate-change.wav",
+      "cues": [
+        {
+          "start": 0.0,
+          "end": 7.22,
+          "text": "One update: PT218 now boards at B18, instead of B12. Boarding is still 6:50."
+        },
+        {
+          "start": 7.36,
+          "end": 12.4026,
+          "text": "From pet relief, walk along the B concourse to B18. It takes 6 minutes."
+        },
+        {
+          "start": 12.5426,
+          "end": 16.7232,
+          "text": "You\u2019ll arrive around 5:39, with over an hour before boarding."
+        }
+      ]
+    }
+  }
+}

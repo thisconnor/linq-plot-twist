@@ -1,57 +1,192 @@
-import type { FlightId, Scenario, Turn } from './scenario';
-export type Stage = 'intro' | 'explain' | 'outreach' | 'choose' | 'demo' | 'complete';
-export type Phase = 'responding' | 'followup' | 'continue' | 'finished';
+import { STORY } from "./scenario";
+import type { Attachment, Beat } from "./scenario";
+export type Screen =
+  | "campaign"
+  | "email"
+  | "handoff"
+  | "voice"
+  | "messages"
+  | "complete";
 export interface Message {
-  id: string; role: 'user' | 'assistant'; text: string;
-  reaction?: string; attachment?: 'flights' | 'map' | 'update' | 'plan' | 'food'; scenario?: Scenario;
+  id: string;
+  beat: Beat;
+  role: "user" | "assistant";
+  text: string;
+  attachment?: Attachment;
+  reaction?: string;
+  read?: boolean;
 }
 export interface DemoState {
-  stage: Stage; scenario?: Scenario; run: number; turn: Turn; phase: Phase;
-  messages: Message[]; current: string; previous: string; spoken: string[];
-  typing: boolean; read: boolean; identityShared: boolean; showContact: boolean;
-  showMap: boolean; choice: FlightId;
+  screen: Screen;
+  run: number;
+  step: number;
+  busy: boolean;
+  messages: Message[];
+  typing: boolean;
+  sharedIdentity: boolean;
+  identityAccepted: boolean;
+  voiceStatus: "ready" | "running" | "done";
+  voiceBeat: Beat;
+  caption: string;
+  speaker: "you" | "alex";
+  transcript: string[];
 }
-export function initialState(stage: Stage = 'intro'): DemoState {
-  return { stage, run: 0, turn: 1, phase: 'responding', messages: [], current: '',
-    previous: '', spoken: [], typing: false, read: false, identityShared: false,
-    showContact: false, showMap: false, choice: 'direct' };
+export function initialState(screen: Screen = "campaign"): DemoState {
+  return {
+    screen,
+    run: 0,
+    step: 0,
+    busy: false,
+    messages: [],
+    typing: false,
+    sharedIdentity: false,
+    identityAccepted: false,
+    voiceStatus: "ready",
+    voiceBeat: 0,
+    caption: "",
+    speaker: "alex",
+    transcript: [],
+  };
 }
 export type Action =
-  | { type: 'stage'; stage: Stage }
-  | { type: 'reset'; run: number; stage: Stage }
-  | { type: 'begin'; run: number; turn: Turn; scenario: Scenario; user: string; choice?: FlightId }
-  | { type: 'read' | 'finish' | 'fade'; run: number }
-  | { type: 'typing'; run: number; value: boolean }
-  | { type: 'reaction'; run: number; emoji: string }
-  | { type: 'phrase'; run: number; text: string }
-  | { type: 'block'; run: number; text: string; index: number; attachment?: 'flights' | 'map' | 'update' | 'plan' | 'food' };
+  | { type: "navigate"; screen: Screen; run: number }
+  | { type: "reset"; run: number }
+  | { type: "send"; run: number }
+  | {
+      type: "read" | "reaction" | "share" | "finish" | "identity-accept";
+      run: number;
+    }
+  | { type: "typing"; run: number; value: boolean }
+  | { type: "reply"; run: number; index: number }
+  | { type: "voice-start"; run: number }
+  | {
+      type: "cue";
+      run: number;
+      beat: Beat;
+      text: string;
+      speaker: "you" | "alex";
+    }
+  | { type: "voice-finish"; run: number };
 export function reducer(state: DemoState, action: Action): DemoState {
-  if (action.type === 'reset') return { ...initialState(action.stage), run: action.run };
-  if (action.type === 'stage') return { ...state, stage: action.stage };
-  if (action.type === 'begin') {
+  if (action.type === "reset")
+    return action.run > state.run
+      ? { ...initialState(), run: action.run }
+      : state;
+  if (action.type === "navigate") {
     if (action.run <= state.run) return state;
-    return { ...state, stage: 'demo', run: action.run, scenario: action.scenario,
-      turn: action.turn, phase: 'responding', typing: false, read: false,
-      current: '', previous: '', spoken: action.turn === 1 ? [] : state.spoken,
-      choice: action.choice ?? state.choice,
-      messages: [...(action.turn === 1 ? [] : state.messages),
-        { id: `${action.run}-user`, role: 'user', text: action.user }] };
+    const messages = state.busy
+      ? state.messages.filter((m) => m.beat < state.step)
+      : state.messages;
+    return {
+      ...state,
+      screen: action.screen,
+      run: action.run,
+      messages,
+      busy: false,
+      typing: false,
+      sharedIdentity: messages.some((m) => m.role === "assistant"),
+      identityAccepted:
+        state.identityAccepted && messages.some((m) => m.role === "assistant"),
+      voiceStatus: "ready",
+      voiceBeat: 0,
+      caption: "",
+      transcript: [],
+    };
+  }
+  if (action.type === "send") {
+    if (
+      state.screen !== "messages" ||
+      state.busy ||
+      state.step >= STORY.length ||
+      action.run <= state.run
+    )
+      return state;
+    return {
+      ...state,
+      run: action.run,
+      busy: true,
+      messages: [
+        ...state.messages,
+        {
+          id: `${action.run}-user`,
+          beat: state.step as Beat,
+          role: "user",
+          text: STORY[state.step].draft,
+        },
+      ],
+    };
+  }
+  if (action.type === "voice-start") {
+    if (
+      state.screen !== "voice" ||
+      state.voiceStatus === "running" ||
+      action.run <= state.run
+    )
+      return state;
+    return {
+      ...state,
+      run: action.run,
+      voiceStatus: "running",
+      voiceBeat: 0,
+      caption: "",
+      transcript: [],
+    };
   }
   if (action.run !== state.run) return state;
-  if (action.type === 'read') return { ...state, read: true };
-  if (action.type === 'typing') return { ...state, typing: action.value };
-  if (action.type === 'reaction') return { ...state, messages: state.messages.map(m =>
-    m.id === `${action.run}-user` ? { ...m, reaction: action.emoji } : m) };
-  if (action.type === 'phrase') return { ...state, previous: state.current,
-    current: action.text, spoken: [...state.spoken, action.text] };
-  if (action.type === 'block') return { ...state, typing: false, identityShared: true,
-    showContact: true, showMap: state.showMap || action.attachment === 'map',
-    messages: [...state.messages, { id: `${action.run}-assistant-${action.index}`,
-      role: 'assistant', text: action.text, attachment: action.attachment, scenario: state.scenario }] };
-  if (action.type === 'fade') return { ...state, current: '', previous: '' };
-  if (action.type === 'finish') return { ...state,
-    stage: state.turn === 6 ? 'complete' : 'demo',
-    phase: state.turn === 1 ? 'followup' : state.turn === 6 ? 'finished' : 'continue',
-    current: '', previous: state.current, typing: false };
+  if (action.type === "cue")
+    return state.screen === "voice" && state.voiceStatus === "running"
+      ? {
+          ...state,
+          voiceBeat: action.beat,
+          caption: action.text,
+          speaker: action.speaker,
+          transcript: action.text
+            ? [
+                ...state.transcript,
+                `${action.speaker === "you" ? "You" : "Alex"}: ${action.text}`,
+              ]
+            : state.transcript,
+        }
+      : state;
+  if (action.type === "voice-finish")
+    return state.screen === "voice"
+      ? { ...state, voiceStatus: "done", caption: "" }
+      : state;
+  if (action.type === "identity-accept")
+    return state.sharedIdentity ? { ...state, identityAccepted: true } : state;
+  if (state.screen !== "messages" || !state.busy) return state;
+  if (action.type === "read")
+    return {
+      ...state,
+      messages: state.messages.map((m) =>
+        m.id === `${action.run}-user` ? { ...m, read: true } : m,
+      ),
+    };
+  if (action.type === "reaction")
+    return {
+      ...state,
+      messages: state.messages.map((m) =>
+        m.id === `${action.run}-user`
+          ? { ...m, reaction: STORY[state.step].reaction }
+          : m,
+      ),
+    };
+  if (action.type === "share") return { ...state, sharedIdentity: true };
+  if (action.type === "typing") return { ...state, typing: action.value };
+  if (action.type === "reply") {
+    const reply = STORY[state.step].replies[action.index];
+    const id = `${action.run}-reply-${action.index}`;
+    if (!reply || state.messages.some((m) => m.id === id)) return state;
+    return {
+      ...state,
+      typing: false,
+      messages: [
+        ...state.messages,
+        { id, beat: state.step as Beat, role: "assistant", ...reply },
+      ],
+    };
+  }
+  if (action.type === "finish")
+    return { ...state, busy: false, typing: false, step: state.step + 1 };
   return state;
 }

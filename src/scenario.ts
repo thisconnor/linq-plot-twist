@@ -1,140 +1,134 @@
-export type FlightId = 'direct' | 'connection';
-export type FoodChoice = 'both' | 'pickles' | 'gate';
-export const FOOD_CHOICES: { id: FoodChoice; label: string; note: string }[] = [
-  { id: 'both', label: 'Feed both of us', note: 'My sandwich is apparently not his dinner.' },
-  { id: 'pickles', label: 'Pickles first', note: 'He has retained a very small lawyer.' },
-  { id: 'gate', label: 'Straight to the gate', note: 'Dinner can wait. Boarding won’t.' },
-];
-export type Turn = 1 | 2 | 3 | 4 | 5 | 6;
-export const TURNS: Turn[] = [1, 2, 3, 4, 5, 6];
+import trip from "./data/trip.json";
+
+export const TRIP = trip;
 export const BRAND = {
-  company: 'Plot Twist Travel', assistant: 'Alex', avatar: './alex-avatar.jpg', meetingUrl: '',
+  company: trip.company,
+  assistant: trip.assistant,
+  avatar: trip.avatar,
+  meetingUrl: "",
 };
-export const TRIP = {
-  airline: 'Plot Air', airport: 'Harbor City Airport', terminal: 'Terminal 2',
-  cancelledFlight: 'PT204', startMinutes: 17 * 60 + 25, updateMinutes: 17 * 60 + 33,
-  petWalk: 3, petStop: 5,
-  initialMessage: 'My flight home just got canceled. I’m at Harbor City Airport with my dog, Pickles. He packed absolutely no patience. Can you help?',
+export const timeLabel = (minutes: number) =>
+  `${Math.floor(minutes / 60) % 12 || 12}:${String(minutes % 60).padStart(2, "0")}`;
+export const ROUTE = {
+  arrival: timeLabel(trip.updateMinutes + trip.route.walkMinutes),
+  buffer: trip.selected.boarding - trip.updateMinutes - trip.route.walkMinutes,
 };
-export interface Flight {
-  id: FlightId; flight: string; departureMinutes: number; boardingMinutes: number;
-  arrivalMinutes: number; gate: string; updatedGate: string; stops: string;
-  layover: string; petToGate: number; label: string; choice: string;
+export type Beat = 0 | 1 | 2;
+export type Attachment = "flights" | "gate" | "map";
+export interface Reply {
+  text: string;
+  attachment?: Attachment;
 }
-export const FLIGHTS: Flight[] = [
-  { id: 'direct', flight: 'PT218', departureMinutes: 19 * 60 + 20,
-    boardingMinutes: 18 * 60 + 50, arrivalMinutes: 21 * 60 + 40,
-    gate: 'B12', updatedGate: 'B18', stops: 'Nonstop', layover: 'No plane change', petToGate: 4,
-    label: 'Keep it simple', choice: 'The nonstop. Pickles has had enough plot twists.' },
-  { id: 'connection', flight: 'PT306', departureMinutes: 18 * 60 + 15,
-    boardingMinutes: 17 * 60 + 45, arrivalMinutes: 20 * 60 + 55,
-    gate: 'B16', updatedGate: 'B20', stops: 'One stop', layover: '40 min in Meadow City', petToGate: 6,
-    label: 'Get home earlier', choice: 'The connection. I’d like to get home earlier.' },
+export interface StoryBeat {
+  id: string;
+  label: string;
+  clock: number;
+  draft: string;
+  caller: string;
+  narration: string[];
+  replies: Reply[];
+  reaction?: string;
+}
+const f = trip.selected;
+const a = trip.alternative;
+export const STORY: StoryBeat[] = [
+  {
+    id: "options",
+    label: "A canceled flight",
+    clock: trip.startMinutes,
+    draft: `${trip.keyword} — my flight was canceled. Can you get me and Pickles home tonight?`,
+    caller: "My flight was canceled. Can you get me and Pickles home tonight?",
+    narration: [
+      `I can help. There are two flights home tonight. Pickles can travel on either one.`,
+      `The nonstop leaves at ${timeLabel(f.departure)} and arrives at ${timeLabel(f.arrival)}.`,
+      `The connection leaves at ${timeLabel(a.departure)} and arrives at ${timeLabel(a.arrival)}, with ${a.layoverMinutes} minutes in ${a.connection}.`,
+      `I’d take the nonstop. One less plane change for Pickles.`,
+    ],
+    replies: [
+      {
+        text: "Hi, I’m Alex, Plot Twist’s AI travel assistant. Let’s get you and Pickles home.",
+      },
+      {
+        text: "Two flights tonight. Pickles can travel on either one.",
+        attachment: "flights",
+      },
+      { text: "I’d take the nonstop. One less plane change for Pickles." },
+    ],
+  },
+  {
+    id: "confirmation",
+    label: "One simple choice",
+    clock: trip.startMinutes,
+    draft:
+      "The nonstop, please. We’re stopping at pet relief beside B10 first.",
+    caller:
+      "The nonstop, please. We’re stopping at pet relief beside B10 first.",
+    narration: [
+      `${f.flight}, the nonstop. Gate ${f.oldGate}. Boarding at ${timeLabel(f.boarding)}, departure at ${timeLabel(f.departure)}.`,
+      `Stop at pet relief beside B10 first. You have time.`,
+    ],
+    replies: [
+      {
+        text: `The nonstop: ${f.flight} · ${timeLabel(f.departure)} PM. Gate ${f.oldGate}, boarding ${timeLabel(f.boarding)} PM.`,
+      },
+      { text: "Pet relief beside B10 works. Stop there first; you have time." },
+    ],
+    reaction: "👍",
+  },
+  {
+    id: "gate-change",
+    label: "Eight minutes later",
+    clock: trip.updateMinutes,
+    draft: "We’re at pet relief. Any updates before we head over?",
+    caller: "We’re at pet relief. Any updates before we head over?",
+    narration: [
+      `One update: ${f.flight} now boards at ${f.gate}, instead of ${f.oldGate}. Boarding is still ${timeLabel(f.boarding)}.`,
+      `From pet relief, walk along the B concourse to ${f.gate}. It takes ${trip.route.walkMinutes} minutes.`,
+      `You’ll arrive around ${ROUTE.arrival}, with over an hour before boarding.`,
+    ],
+    replies: [
+      {
+        text: `New gate: ${f.gate}, replacing ${f.oldGate}. Boarding is still ${timeLabel(f.boarding)} PM.`,
+        attachment: "gate",
+      },
+      {
+        text: `${trip.route.from} to ${f.gate}: follow the B concourse. ${trip.route.walkMinutes} min on foot; arrive around ${ROUTE.arrival} PM.`,
+        attachment: "map",
+      },
+      {
+        text: "Your updated gate and route are here whenever you need them. Safe trip home, both of you.",
+      },
+    ],
+  },
 ];
-export function timeLabel(minutes: number): string {
-  const hours = Math.floor(minutes / 60) % 12 || 12;
-  return `${hours}:${String(minutes % 60).padStart(2, '0')}`;
-}
-export interface Scenario {
-  key: FlightId; food?: FoodChoice; flight: Flight; updated: boolean; originalGate: string;
-  minutes: number; arrival: string; buffer: number; routeLabel: string;
-  stops: string[]; initialMessage: string;
-}
-export function getScenario(id: FlightId = 'direct', updated = false, food?: FoodChoice): Scenario {
-  const original = FLIGHTS.find(f => f.id === id);
-  if (!original) throw new Error('Choose one of the available sample flights.');
-  const flight = updated ? { ...original, gate: original.updatedGate, petToGate: original.petToGate + 2 } : original;
-  const minutes = updated ? flight.petToGate : TRIP.petWalk + TRIP.petStop + flight.petToGate;
-  const start = updated ? TRIP.updateMinutes : TRIP.startMinutes;
-  return { key: id, food, flight, updated, originalGate: original.gate, minutes,
-    arrival: timeLabel(start + minutes), buffer: flight.boardingMinutes - start - minutes,
-    routeLabel: updated ? `From pet relief to ${flight.gate}` : `Pet stop, then ${flight.gate}`,
-    stops: ['Pet relief · B10', `Gate ${flight.gate}`], initialMessage: TRIP.initialMessage };
-}
-export function getDinnerPlan(scenario: Scenario) {
-  const choice = scenario.food ?? 'both';
-  const tight = scenario.buffer < 10;
-  const extraMinutes = choice === 'gate' ? 0 : tight ? 2 : choice === 'both' ? 15 : 5;
-  const arrivalMinutes = TRIP.updateMinutes + scenario.minutes + extraMinutes;
-  const steps = choice === 'gate' ? [`Straight to ${scenario.flight.gate}`, 'Eat after boarding']
-    : tight ? ['Head straight to the gate', '2 min for Pickles’ packed food at the gate', 'Your dinner after boarding']
-    : choice === 'both' ? ['B14 deli · 10 min for takeaway', '5 min for Pickles’ packed food', `Gate ${scenario.flight.gate}`]
-    : ['5 min for Pickles’ packed food', `Gate ${scenario.flight.gate}`, 'Your dinner later'];
-  const reply = choice === 'gate' ? 'Gate first. A sensible choice, although Pickles has requested a written appeal.'
-    : tight ? 'Boarding is too close for the deli. Head to the gate first. You can allow two minutes there for Pickles’ usual food from your bag; save your dinner until after boarding.'
-    : choice === 'both' ? 'Two dinners, one detour. The deli by B14 is on your way. Budget ten minutes for your takeaway and five for Pickles’ usual food from your bag. No mystery airport dog menu.'
-    : 'Pickles wins the dinner negotiations. Allow five minutes for his usual food from your bag, then head to the gate. Your dinner can wait.';
-  return { choice, extraMinutes, steps, reply, arrival: timeLabel(arrivalMinutes), buffer: scenario.flight.boardingMinutes - arrivalMinutes };
-}
-export function travelerMessage(turn: Turn, scenario: Scenario): string {
-  if (turn === 1) return TRIP.initialMessage;
-  if (turn === 2) return scenario.flight.choice;
-  if (turn === 3) return 'Before we go: Pickles needs a pet stop. He’s giving me the look.';
-  if (turn === 4) return 'We made it to pet relief. Pickles is ready to move. Anything changed?';
-  if (turn === 5) return scenario.food === 'gate' ? 'Dinner can wait. Get us straight to the gate.' : scenario.food === 'pickles' ? 'Pickles needs his usual food from my bag. I can eat later. Is there time?' : 'I need dinner. Pickles needs his usual food from my bag. Apparently my sandwich doesn’t count. Can we fit both in?';
-  return 'Got it. We’ll follow that plan. Pickles would like to award you one imaginary biscuit.';
-}
-export const NEXT_BEAT: Record<2 | 3 | 4 | 5 | 6, { context: string; label: string }> = {
-  2: { context: 'Choose what works for you and your dog.', label: 'Choose your flight' },
-  3: { context: 'One small problem before you head to the gate…', label: 'Ask about a pet stop' },
-  4: { context: 'Eight minutes later · You’re at pet relief with Pickles.', label: 'Check for updates' },
-  5: { context: 'One last plot twist: two hungry travelers. Two very different dinners.', label: 'Make a dinner plan' },
-  6: { context: 'A plan for the gate. A plan for the hungry duo.', label: 'Thank Alex and follow the plan' },
+export const ATTACHMENTS: Record<
+  Attachment,
+  { src: string; alt: string; title: string }
+> = {
+  flights: {
+    src: "./demo/flights.png",
+    title: "Tonight’s flight options",
+    alt: `${trip.airline} sample flights. ${f.flight}, nonstop, ${timeLabel(f.departure)} to ${timeLabel(f.arrival)} PM. ${a.flight}, one stop, ${timeLabel(a.departure)} to ${timeLabel(a.arrival)} PM, ${a.layoverMinutes} minutes in ${a.connection}. Neither option is a booked ticket.`,
+  },
+  gate: {
+    src: "./demo/gate.png",
+    title: "Updated flight details",
+    alt: `${f.flight} gate change from ${f.oldGate} to ${f.gate}. Boarding ${timeLabel(f.boarding)} PM, departure ${timeLabel(f.departure)} PM, home at ${timeLabel(f.arrival)} PM. Sample flight data; no ticket issued.`,
+  },
+  map: {
+    src: "./demo/map.png",
+    title: `Directions to ${f.gate}`,
+    alt: `Fictional ${trip.airport} terminal diagram. From pet relief beside B10 follow the B concourse to ${f.gate}, a ${trip.route.walkMinutes}-minute walk. At ${timeLabel(trip.updateMinutes)} PM, estimated arrival ${ROUTE.arrival} PM, ${ROUTE.buffer} minutes before boarding. Diagram is not to scale.`,
+  },
 };
-export interface ScriptBlock {
-  phrases: string[]; message?: string; attachment?: 'flights' | 'map' | 'update' | 'plan' | 'food';
-}
-export function getTurn(scenario: Scenario, turn: Turn): ScriptBlock[] {
-  const f = scenario.flight;
-  const [direct, connection] = FLIGHTS;
-  const bufferText = scenario.buffer >= 60 ? 'over an hour before boarding' : `${scenario.buffer} minutes before boarding`;
-  if (turn === 1) return [
-    { phrases: ['I can help. Let’s get you and Pickles home.'], message: 'Let’s get you and Pickles home. 🐾' },
-    { phrases: ['There are two replacement options. Pickles is cleared to travel on either one.'] },
-    { phrases: [`The nonstop leaves at ${timeLabel(direct.departureMinutes)} and gets you home at ${timeLabel(direct.arrivalMinutes)} tonight.`,
-      `The connection leaves at ${timeLabel(connection.departureMinutes)}, with forty minutes in Meadow City. You get home at ${timeLabel(connection.arrivalMinutes)} tonight.`],
-      message: 'Earlier arrival, or one less plane change?', attachment: 'flights' },
-    { phrases: ['I’d take the nonstop for a simpler trip with Pickles. Which would you prefer?'],
-      message: 'I’d take the nonstop. One less plane change for Pickles. Your call.' },
-  ];
-  if (turn === 2) return [
-    { phrases: [`${f.stops === 'Nonstop' ? 'The nonstop' : 'The connection'} it is. ${f.flight}, gate ${f.gate}. Departure is ${timeLabel(f.departureMinutes)}, boarding at ${timeLabel(f.boardingMinutes)}.`],
-      message: `${f.stops === 'Nonstop' ? 'Nonstop' : 'Connection'} it is. ${f.flight} · ${timeLabel(f.departureMinutes)} PM · ${f.gate}. Boarding ${timeLabel(f.boardingMinutes)} PM.`, attachment: 'plan' },
-    { phrases: ['Anything you and Pickles need before heading over?'], message: 'Anything Pickles needs before you head over? Water? A small union break?' },
-  ];
-  if (turn === 3) return [
-    { phrases: [`Pet relief is beside B10, a ${TRIP.petWalk}-minute walk. Allow ${TRIP.petStop} minutes for the stop, then ${f.petToGate} minutes to ${f.gate}.`],
-      message: `The look is legally binding. 🐶 Pet relief by B10: ${TRIP.petWalk} min there, ${TRIP.petStop} min stop, then ${f.petToGate} min to ${f.gate}.`, attachment: 'map' },
-    { phrases: [`Leave now and you’ll reach the gate around ${scenario.arrival}, ${bufferText}.`],
-      message: `You’ll reach ${f.gate} around ${scenario.arrival}. ${scenario.buffer >= 60 ? 'Plenty of time before boarding.' : `${scenario.buffer} min before boarding. Keep the stop short.`}` },
-  ];
-  if (turn === 4) return [
-    { phrases: [`There’s a gate change. ${f.flight} now boards at ${f.gate}, instead of ${scenario.originalGate}. Boarding is still ${timeLabel(f.boardingMinutes)}.`],
-      message: `One more plot twist: new gate ${f.gate}, replacing ${scenario.originalGate}. Boarding is still ${timeLabel(f.boardingMinutes)} PM.`, attachment: 'update' },
-    { phrases: [`From pet relief, follow the concourse to ${f.gate}. It’s ${f.petToGate} minutes. You’ll arrive around ${scenario.arrival}, ${bufferText}.${scenario.buffer < 10 ? ' Head straight there now.' : ''}`],
-      message: `Updated route: ${f.petToGate} min from pet relief → ${f.gate}. Arrive around ${scenario.arrival}.${scenario.buffer < 10 ? ' Head straight there now; that’s 4 min before boarding.' : ' You still have over an hour before boarding.'}`, attachment: 'map' },
-  ];
-  if (turn === 5) {
-    const dinner = getDinnerPlan(scenario);
-    return [
-      { phrases: [dinner.reply], message: dinner.reply, attachment: 'food' },
-      { phrases: [`${dinner.steps.join('. ')}. You’ll be ready at the gate around ${dinner.arrival}, ${dinner.buffer} minutes before boarding at ${timeLabel(f.boardingMinutes)}.`],
-        message: `${dinner.steps.join(' → ')}. Ready at ${f.gate} around ${dinner.arrival} PM · ${dinner.buffer} min before boarding.` },
-    ];
-  }
-  return [
-    { phrases: [`You’re welcome. Head to ${f.gate}, and keep an eye on airport updates. Have a good trip home, both of you.`],
-      message: `Imaginary biscuit accepted. 🐾 Your flight and dinner plan are here. Safe trip home, both of you.`, attachment: 'plan' },
-  ];
-}
-export function captionPhrases(sentence: string): string[] {
-  const words = sentence.trim().split(/\s+/);
-  if (!sentence.trim()) return [];
-  const chunkSize = Math.ceil(words.length / Math.ceil(words.length / 13));
+export function captionPhrases(text: string): string[] {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  const size = Math.ceil(
+    words.length / Math.max(1, Math.ceil(words.length / 11)),
+  );
   const result: string[] = [];
-  while (words.length > 0) result.push(words.splice(0, chunkSize).join(' '));
+  while (words.length) result.push(words.splice(0, size).join(" "));
   return result;
 }
-export function phraseDuration(text: string): number {
-  return Math.max(1700, text.split(/\s+/).length * 360 + (/[.!?]$/.test(text) ? 450 : 150));
-}
+export const phraseDuration = (text: string) =>
+  Math.max(1800, text.split(/\s+/).length * 350 + 300);
