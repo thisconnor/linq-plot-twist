@@ -1,10 +1,10 @@
-# Version 6 screen copy
+# Version 7 screen copy
 
-The UI and `src/scenario.ts` remain authoritative. Story facts, narration, and the three prepared sends are unchanged from version 5.
+The UI and `src/scenario.ts` remain authoritative. Travel facts and the three voice scenes are unchanged. Text now starts with a separate keyword and greeting before the customer request.
 
 ## Campaign
 
-Headline: **Win the meeting. Let them try it first.**
+Headline: **Let them try it first. Win the meeting.**
 
 We email qualified voice-AI builders a personalized demo number, so they can try a customer workflow in iMessage before we ask for a meeting.
 
@@ -14,11 +14,9 @@ Primary: See the example. Secondary: Skip to the experience.
 
 ## Developer invitation
 
-YOU’RE THE DEVELOPER AT PLOT TWIST TRAVEL
+A single compact line: **You’re the lead developer at** beside the Plot Twist Travel logo.
 
-**You build the assistant. We send you the demo.**
-
-You’re the developer behind Plot Twist Travel. Your voice assistant already helps customers by phone. This email invites you to try it in iMessage.
+The large headline and repeated explanatory paragraph are removed so the email remains the focus.
 
 The example email's main action is **Try your customer’s experience**. Its original context, HOME keyword, illustrative number and non-sending disclosure remain.
 
@@ -50,11 +48,19 @@ Next channel: **Now try iMessage**
 
 Text title: **Text Alex in iMessage** · Powered by Linq
 
-Initial empty thread: You’re the traveler. Text Alex for help. Your first message is ready. Tap Send.
+Initial empty thread: Start by texting “home”. Alex will introduce himself. Tap Send.
 
-Contact offer: Alex shared a name and photo. Plot Twist Travel · AI assistant. Optional Use control.
+First send: **home**
 
-After acceptance: Alex / Plot Twist · AI assistant.
+Alex: **Hi, I’m Alex, Plot Twist Travel’s AI travel assistant. What can I help you with today?**
+
+Next prepared message: **My flight was canceled. Can you help?**
+
+Then continue with the flight options, nonstop confirmation, and gate-update request. There are four prepared sends in total.
+
+Contact card: Alex shared a name and photo. Plot Twist Travel · AI assistant. Header name/photo appear automatically with the greeting; no Use control.
+
+After the greeting: Alex / Plot Twist · AI assistant.
 
 Two short editorial notes appear beside the phone on desktop, triggered by the actual thread feature. Each dismisses after nine seconds or its close control:
 

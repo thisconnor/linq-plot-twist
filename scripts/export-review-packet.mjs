@@ -7,7 +7,7 @@ const bundle = await build({
   platform: "node",
   format: "esm",
 });
-const { TRIP, ROUTE, STORY, ATTACHMENTS } = await import(
+const { TRIP, ROUTE, STORY, MESSAGE_STEPS, ATTACHMENTS } = await import(
   "data:text/javascript;base64," +
     Buffer.from(bundle.outputFiles[0].text).toString("base64")
 );
@@ -20,6 +20,7 @@ await fs.writeFile(
       trip: TRIP,
       route: ROUTE,
       story: STORY,
+      messageSteps: MESSAGE_STEPS,
       attachments: ATTACHMENTS,
     },
     null,

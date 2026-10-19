@@ -1,5 +1,5 @@
-import { STORY } from "./scenario";
-import type { Attachment, Beat } from "./scenario";
+import { MESSAGE_STEPS } from "./scenario";
+import type { Attachment, Beat, MessageStep } from "./scenario";
 export type Screen =
   | "campaign"
   | "email"
@@ -9,7 +9,7 @@ export type Screen =
   | "complete";
 export interface Message {
   id: string;
-  beat: Beat;
+  beat: MessageStep;
   role: "user" | "assistant";
   text: string;
   attachment?: Attachment;
@@ -24,7 +24,6 @@ export interface DemoState {
   messages: Message[];
   typing: boolean;
   sharedIdentity: boolean;
-  identityAccepted: boolean;
   voiceStatus: "ready" | "running" | "done";
   voiceBeat: Beat;
   caption: string;
@@ -40,7 +39,6 @@ export function initialState(screen: Screen = "campaign"): DemoState {
     messages: [],
     typing: false,
     sharedIdentity: false,
-    identityAccepted: false,
     voiceStatus: "ready",
     voiceBeat: 0,
     caption: "",
@@ -53,7 +51,7 @@ export type Action =
   | { type: "reset"; run: number }
   | { type: "send"; run: number }
   | {
-      type: "read" | "reaction" | "share" | "finish" | "identity-accept";
+      type: "read" | "reaction" | "share" | "finish";
       run: number;
     }
   | { type: "typing"; run: number; value: boolean }
@@ -85,8 +83,6 @@ export function reducer(state: DemoState, action: Action): DemoState {
       busy: false,
       typing: false,
       sharedIdentity: messages.some((m) => m.role === "assistant"),
-      identityAccepted:
-        state.identityAccepted && messages.some((m) => m.role === "assistant"),
       voiceStatus: "ready",
       voiceBeat: 0,
       caption: "",
@@ -97,7 +93,7 @@ export function reducer(state: DemoState, action: Action): DemoState {
     if (
       state.screen !== "messages" ||
       state.busy ||
-      state.step >= STORY.length ||
+      state.step >= MESSAGE_STEPS.length ||
       action.run <= state.run
     )
       return state;
@@ -109,9 +105,9 @@ export function reducer(state: DemoState, action: Action): DemoState {
         ...state.messages,
         {
           id: `${action.run}-user`,
-          beat: state.step as Beat,
+          beat: state.step as MessageStep,
           role: "user",
-          text: STORY[state.step].draft,
+          text: MESSAGE_STEPS[state.step].draft,
         },
       ],
     };
@@ -152,8 +148,6 @@ export function reducer(state: DemoState, action: Action): DemoState {
     return state.screen === "voice"
       ? { ...state, voiceStatus: "done", caption: "" }
       : state;
-  if (action.type === "identity-accept")
-    return state.sharedIdentity ? { ...state, identityAccepted: true } : state;
   if (state.screen !== "messages" || !state.busy) return state;
   if (action.type === "read")
     return {
@@ -167,14 +161,18 @@ export function reducer(state: DemoState, action: Action): DemoState {
       ...state,
       messages: state.messages.map((m) =>
         m.id === `${action.run}-user`
-          ? { ...m, reaction: STORY[state.step].reaction }
+          ? { ...m, reaction: MESSAGE_STEPS[state.step].reaction }
           : m,
       ),
     };
-  if (action.type === "share") return { ...state, sharedIdentity: true };
+  if (action.type === "share")
+    return MESSAGE_STEPS[state.step].shareIdentity &&
+      state.messages.some((m) => m.id === `${action.run}-reply-0`)
+      ? { ...state, sharedIdentity: true }
+      : state;
   if (action.type === "typing") return { ...state, typing: action.value };
   if (action.type === "reply") {
-    const reply = STORY[state.step].replies[action.index];
+    const reply = MESSAGE_STEPS[state.step].replies[action.index];
     const id = `${action.run}-reply-${action.index}`;
     if (!reply || state.messages.some((m) => m.id === id)) return state;
     return {
@@ -182,7 +180,7 @@ export function reducer(state: DemoState, action: Action): DemoState {
       typing: false,
       messages: [
         ...state.messages,
-        { id, beat: state.step as Beat, role: "assistant", ...reply },
+        { id, beat: state.step as MessageStep, role: "assistant", ...reply },
       ],
     };
   }

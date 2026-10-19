@@ -30,8 +30,15 @@ import {
   X,
 } from "lucide-react";
 import { LinqLogo, PlotLogo } from "./Brands";
-import { ATTACHMENTS, BRAND, STORY, timeLabel, TRIP } from "./scenario";
-import type { Attachment, Beat } from "./scenario";
+import {
+  ATTACHMENTS,
+  BRAND,
+  STORY,
+  MESSAGE_STEPS,
+  timeLabel,
+  TRIP,
+} from "./scenario";
+import type { Attachment, MessageStep } from "./scenario";
 import { initialState, reducer } from "./state";
 import type { DemoState, Screen } from "./state";
 import { MessagePlayback, VoicePlayback } from "./playback";
@@ -74,9 +81,9 @@ function Campaign({
       <div className="campaign-copy">
         <span className="eyebrow">THE GROWTH EXPERIMENT</span>
         <h1 tabIndex={-1}>
-          Win the meeting.
+          Let them try it first.
           <br />
-          <span>Let them try it first.</span>
+          <span>Win the meeting.</span>
         </h1>
         <p>
           We email qualified voice-AI builders a personalized demo number, so
@@ -162,16 +169,14 @@ function Campaign({
 function Invitation({ onContinue }: { onContinue(): void }) {
   return (
     <section className="invitation">
-      <div className="screen-intro">
-        <span className="eyebrow">
-          YOU’RE THE DEVELOPER AT PLOT TWIST TRAVEL
-        </span>
-        <h1 tabIndex={-1}>You build the assistant. We send you the demo.</h1>
-        <p>
-          You’re the developer behind Plot Twist Travel. Your voice assistant
-          already helps customers by phone. This email invites you to try it in
-          iMessage.
-        </p>
+      <div className="email-role-intro">
+        <h1
+          tabIndex={-1}
+          aria-label="You’re the lead developer at Plot Twist Travel."
+        >
+          <span>You’re the lead developer at</span>
+          <PlotLogo compact />
+        </h1>
       </div>
       <div className="email-client">
         <div className="email-toolbar" aria-hidden="true">
@@ -414,12 +419,10 @@ function MessagePhone({
   state,
   onSend,
   onAttachment,
-  onAcceptIdentity,
 }: {
   state: DemoState;
   onSend(): void;
   onAttachment(attachment: Attachment): void;
-  onAcceptIdentity(): void;
 }) {
   const thread = useRef<HTMLDivElement>(null);
   const follow = useRef(true);
@@ -439,8 +442,8 @@ function MessagePhone({
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
-  const identity = state.identityAccepted;
-  const clock = state.step >= 2 ? TRIP.updateMinutes : TRIP.startMinutes;
+  const identity = state.sharedIdentity;
+  const clock = state.step >= 3 ? TRIP.updateMinutes : TRIP.startMinutes;
   return (
     <div className="phone message-phone">
       <StatusBar clock={clock} />
@@ -491,13 +494,13 @@ function MessagePhone({
         {state.messages.length === 0 && (
           <div className="empty-thread">
             <MessageCircle size={24} />
-            <p>You’re the traveler. Text Alex for help.</p>
-            <small>Your first message is ready. Tap Send.</small>
+            <p>Start by texting “home”.</p>
+            <small>Alex will introduce himself. Tap Send.</small>
           </div>
         )}
         {state.messages.map((message, index) => (
           <div className={`message-group ${message.role}`} key={message.id}>
-            {message.beat === 2 && message.role === "user" && (
+            {message.beat === 3 && message.role === "user" && (
               <div className="time-jump">
                 Eight minutes later · {timeLabel(TRIP.updateMinutes)} PM
               </div>
@@ -529,8 +532,7 @@ function MessagePhone({
                     <strong>Alex shared a name and photo</strong>
                     <small>Plot Twist Travel · AI assistant</small>
                   </span>
-                  {!identity && <button onClick={onAcceptIdentity}>Use</button>}
-                  {identity && <Check size={13} />}
+                  <Check size={13} aria-label="Contact shown automatically" />
                 </div>
               )}
             {message.attachment &&
@@ -600,13 +602,13 @@ function MessagePhone({
       )}
       <div className="composer">
         <Plus size={24} aria-hidden="true" />
-        {state.step < 3 ? (
+        {state.step < MESSAGE_STEPS.length ? (
           <>
             <textarea
               aria-label="Prepared traveler message"
               rows={2}
               readOnly
-              value={state.busy ? "" : STORY[state.step].draft}
+              value={state.busy ? "" : MESSAGE_STEPS[state.step].draft}
               placeholder={state.busy ? "Alex is replying…" : "iMessage"}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) {
@@ -796,7 +798,7 @@ export default function App() {
       locked.current ||
       state.busy ||
       state.screen !== "messages" ||
-      state.step >= 3
+      state.step >= MESSAGE_STEPS.length
     )
       return;
     locked.current = true;
@@ -804,7 +806,7 @@ export default function App() {
     dispatch({ type: "send", run: id });
     track("prepared_message_sent", { beat: state.step + 1 });
     void chat.current.play(
-      state.step as Beat,
+      state.step as MessageStep,
       {
         onRead: () => dispatch({ type: "read", run: id }),
         onReaction: () => dispatch({ type: "reaction", run: id }),
@@ -965,9 +967,6 @@ export default function App() {
                         state={state}
                         onSend={send}
                         onAttachment={setDialog}
-                        onAcceptIdentity={() =>
-                          dispatch({ type: "identity-accept", run: state.run })
-                        }
                       />
                     )}
                     {state.screen === "messages" && (
@@ -983,7 +982,8 @@ export default function App() {
                       >
                         Now try iMessage <ArrowRight size={18} />
                       </button>
-                    ) : state.screen === "messages" && state.step >= 3 ? (
+                    ) : state.screen === "messages" &&
+                      state.step >= MESSAGE_STEPS.length ? (
                       <button
                         className="button plum compact"
                         onClick={() => go("complete")}
@@ -1104,8 +1104,9 @@ export default function App() {
                   Flight results and maps are screenshots of purpose-built
                   sample travel pages, not live provider data or native booking
                   widgets. The route opens an interactive fictional airport
-                  preview. Contact sharing and read receipts depend on platform
-                  behavior and recipient settings.
+                  preview. Alex’s name and photo appear automatically in this
+                  walkthrough. Live contact sharing and read receipts depend on
+                  platform behavior and recipient settings.
                 </p>
                 <p>
                   Voice and texting use the same facts. Real voice products may

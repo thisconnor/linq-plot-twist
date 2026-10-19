@@ -42,7 +42,7 @@
       "id": "options",
       "label": "A canceled flight",
       "clock": 1045,
-      "draft": "HOME — my flight was canceled. Can you get me and Pickles home tonight?",
+      "draft": "My flight was canceled. Can you help?",
       "caller": "My flight was canceled. Can you get me and Pickles home tonight?",
       "narration": [
         "I can help. There are two flights home tonight. Pickles can travel on either one.",
@@ -52,8 +52,86 @@
       ],
       "replies": [
         {
-          "text": "Hi, I’m Alex, Plot Twist’s AI travel assistant. Let’s get you and Pickles home."
+          "text": "Two flights tonight. Pickles can travel on either one.",
+          "attachment": "flights"
         },
+        {
+          "text": "I’d take the nonstop. One less plane change for Pickles."
+        }
+      ]
+    },
+    {
+      "id": "confirmation",
+      "label": "One simple choice",
+      "clock": 1045,
+      "draft": "The nonstop, please. We’re stopping at pet relief beside B10 first.",
+      "caller": "The nonstop, please. We’re stopping at pet relief beside B10 first.",
+      "narration": [
+        "PT218, the nonstop. Gate B12. Boarding at 6:50, departure at 7:20.",
+        "Stop at pet relief beside B10 first. You have time."
+      ],
+      "replies": [
+        {
+          "text": "The nonstop: PT218 · 7:20 PM. Gate B12, boarding 6:50 PM."
+        },
+        {
+          "text": "Pet relief beside B10 works. Stop there first; you have time."
+        }
+      ],
+      "reaction": "👍"
+    },
+    {
+      "id": "gate-change",
+      "label": "Eight minutes later",
+      "clock": 1053,
+      "draft": "We’re at pet relief. Any updates before we head over?",
+      "caller": "We’re at pet relief. Any updates before we head over?",
+      "narration": [
+        "One update: PT218 now boards at B18, instead of B12. Boarding is still 6:50.",
+        "From pet relief, walk along the B concourse to B18. It takes 6 minutes.",
+        "You’ll arrive around 5:39, with over an hour before boarding."
+      ],
+      "replies": [
+        {
+          "text": "New gate: B18, replacing B12. Boarding is still 6:50 PM.",
+          "attachment": "gate"
+        },
+        {
+          "text": "Pet relief beside B10 to B18: follow the B concourse. 6 min on foot; arrive around 5:39 PM.",
+          "attachment": "map"
+        },
+        {
+          "text": "Your updated gate and route are here whenever you need them. Safe trip home, both of you."
+        }
+      ]
+    }
+  ],
+  "messageSteps": [
+    {
+      "id": "welcome",
+      "label": "Meet Alex",
+      "clock": 1045,
+      "draft": "home",
+      "replies": [
+        {
+          "text": "Hi, I’m Alex, Plot Twist Travel’s AI travel assistant. What can I help you with today?"
+        }
+      ],
+      "shareIdentity": true
+    },
+    {
+      "id": "options",
+      "label": "A canceled flight",
+      "clock": 1045,
+      "draft": "My flight was canceled. Can you help?",
+      "caller": "My flight was canceled. Can you get me and Pickles home tonight?",
+      "narration": [
+        "I can help. There are two flights home tonight. Pickles can travel on either one.",
+        "The nonstop leaves at 7:20 and arrives at 9:40.",
+        "The connection leaves at 6:15 and arrives at 8:55, with 40 minutes in Meadow City.",
+        "I’d take the nonstop. One less plane change for Pickles."
+      ],
+      "replies": [
         {
           "text": "Two flights tonight. Pickles can travel on either one.",
           "attachment": "flights"

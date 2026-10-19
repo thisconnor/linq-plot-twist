@@ -14,6 +14,7 @@ export const ROUTE = {
   buffer: trip.selected.boarding - trip.updateMinutes - trip.route.walkMinutes,
 };
 export type Beat = 0 | 1 | 2;
+export type MessageStep = 0 | 1 | 2 | 3;
 export type Attachment = "flights" | "gate" | "map";
 export interface Reply {
   text: string;
@@ -36,7 +37,7 @@ export const STORY: StoryBeat[] = [
     id: "options",
     label: "A canceled flight",
     clock: trip.startMinutes,
-    draft: `${trip.keyword} — my flight was canceled. Can you get me and Pickles home tonight?`,
+    draft: "My flight was canceled. Can you help?",
     caller: "My flight was canceled. Can you get me and Pickles home tonight?",
     narration: [
       `I can help. There are two flights home tonight. Pickles can travel on either one.`,
@@ -45,9 +46,6 @@ export const STORY: StoryBeat[] = [
       `I’d take the nonstop. One less plane change for Pickles.`,
     ],
     replies: [
-      {
-        text: "Hi, I’m Alex, Plot Twist’s AI travel assistant. Let’s get you and Pickles home.",
-      },
       {
         text: "Two flights tonight. Pickles can travel on either one.",
         attachment: "flights",
@@ -100,6 +98,25 @@ export const STORY: StoryBeat[] = [
       },
     ],
   },
+];
+// The keyword starts the text conversation; the voice example keeps its three scenes.
+export const MESSAGE_STEPS: (Pick<
+  StoryBeat,
+  "id" | "label" | "clock" | "draft" | "replies" | "reaction"
+> & { shareIdentity?: boolean })[] = [
+  {
+    id: "welcome",
+    label: "Meet Alex",
+    clock: trip.startMinutes,
+    draft: trip.keyword.toLowerCase(),
+    replies: [
+      {
+        text: "Hi, I’m Alex, Plot Twist Travel’s AI travel assistant. What can I help you with today?",
+      },
+    ],
+    shareIdentity: true,
+  },
+  ...STORY,
 ];
 export const ATTACHMENTS: Record<
   Attachment,

@@ -5,10 +5,11 @@ import {
   captionPhrases,
   ROUTE,
   STORY,
+  MESSAGE_STEPS,
   timeLabel,
   TRIP,
 } from "./scenario";
-import type { Beat } from "./scenario";
+import type { MessageStep } from "./scenario";
 import { initialState, reducer } from "./state";
 import { MessagePlayback, VoicePlayback } from "./playback";
 import type { ChatCallbacks, NarrationClips } from "./playback";
@@ -58,8 +59,15 @@ describe("One consistent sample story", () => {
       /ticket issued|booked|purchased|reservation confirmed/i,
     );
   });
-  it("uses three prepared messages, one meaningful reaction and no branches", () => {
-    expect(STORY[0].draft.startsWith("HOME")).toBe(true);
+  it("starts with the keyword, then a separate request, with one reaction and no branches", () => {
+    expect(MESSAGE_STEPS).toHaveLength(4);
+    expect(MESSAGE_STEPS[0].draft).toBe("home");
+    expect(MESSAGE_STEPS[0].replies).toHaveLength(1);
+    expect(MESSAGE_STEPS[0].replies[0].text).toContain("I’m Alex");
+    expect(MESSAGE_STEPS[0].replies[0].attachment).toBeUndefined();
+    expect(MESSAGE_STEPS[1].draft).toBe(
+      "My flight was canceled. Can you help?",
+    );
     expect(STORY.filter((beat) => beat.reaction)).toHaveLength(1);
     expect(STORY[1].draft).toContain("nonstop");
     expect(STORY[2].clock).toBe(TRIP.updateMinutes);
@@ -109,14 +117,14 @@ describe("One consistent sample story", () => {
 });
 
 describe("Linear message state and cancellation", () => {
-  it("completes the full three-send path with retained images and no duplicate IDs", async () => {
+  it("completes the full four-send path with retained images and no duplicate IDs", async () => {
     vi.useFakeTimers();
     let state = initialState("messages");
     const player = new MessagePlayback();
-    for (let beat = 0; beat < 3; beat++) {
+    for (let beat = 0; beat < MESSAGE_STEPS.length; beat++) {
       const run = beat + 1;
       state = reducer(state, { type: "send", run });
-      const task = player.play(beat as Beat, {
+      const task = player.play(beat as MessageStep, {
         onRead: () => {
           state = reducer(state, { type: "read", run });
         },
@@ -143,7 +151,7 @@ describe("Linear message state and cancellation", () => {
     }
     expect(
       state.messages.filter((message) => message.role === "user"),
-    ).toHaveLength(3);
+    ).toHaveLength(4);
     expect(state.messages.filter((message) => message.attachment)).toHaveLength(
       3,
     );
@@ -154,14 +162,13 @@ describe("Linear message state and cancellation", () => {
       state.messages.length,
     );
     expect(state.sharedIdentity).toBe(true);
-    expect(state.identityAccepted).toBe(false);
     const finished = state;
-    expect(reducer(state, { type: "send", run: 4 })).toBe(finished);
+    expect(reducer(state, { type: "send", run: 5 })).toBe(finished);
   });
   it("shows delivered before read, one typing sequence per reply and optional reaction", async () => {
     vi.useFakeTimers();
     const events: string[] = [];
-    const task = new MessagePlayback().play(1, {
+    const task = new MessagePlayback().play(2, {
       ...chatCallbacks(),
       onRead: () => events.push("read"),
       onReaction: () => events.push("reaction"),
@@ -215,35 +222,66 @@ describe("Linear message state and cancellation", () => {
     });
     expect(back.busy).toBe(false);
     expect(reducer(back, { type: "send", run: 5 }).messages.at(-1)?.text).toBe(
-      STORY[1].draft,
+      MESSAGE_STEPS[1].draft,
     );
   });
-  it("does not expose or accept a contact identity before the sharing event", () => {
-    const start = initialState("messages");
-    expect(
-      reducer(start, { type: "identity-accept", run: 0 }).identityAccepted,
-    ).toBe(false);
-    let state = reducer(start, { type: "send", run: 1 });
+  it("reveals the contact automatically after Alex’s greeting, never before it", () => {
+    let state = reducer(initialState("messages"), { type: "send", run: 1 });
+    expect(state.messages[0].text).toBe("home");
+    expect(state.sharedIdentity).toBe(false);
+    expect(reducer(state, { type: "share", run: 1 })).toBe(state);
     state = reducer(state, { type: "reply", run: 1, index: 0 });
+    expect(state.sharedIdentity).toBe(false);
     state = reducer(state, { type: "share", run: 1 });
-    expect(state.identityAccepted).toBe(false);
-    expect(
-      reducer(state, { type: "identity-accept", run: 1 }).identityAccepted,
-    ).toBe(true);
+    expect(state.sharedIdentity).toBe(true);
+    state = reducer(state, { type: "finish", run: 1 });
+    expect(MESSAGE_STEPS[state.step].draft).toBe(
+      "My flight was canceled. Can you help?",
+    );
+    expect(state.messages.some((message) => message.attachment)).toBe(false);
   });
-  it("clears an accepted identity when its incomplete first exchange is rolled back", () => {
+  it("clears the automatically shown identity when an incomplete welcome is rolled back", () => {
     let state = reducer(initialState("messages"), { type: "send", run: 1 });
     state = reducer(state, { type: "reply", run: 1, index: 0 });
     state = reducer(state, { type: "share", run: 1 });
-    state = reducer(state, { type: "identity-accept", run: 1 });
-    expect(state.identityAccepted).toBe(true);
+    expect(state.sharedIdentity).toBe(true);
     const switched = reducer(state, {
       type: "navigate",
       screen: "voice",
       run: 2,
     });
     expect(switched.sharedIdentity).toBe(false);
-    expect(switched.identityAccepted).toBe(false);
+    expect(switched.messages).toEqual([]);
+    expect(switched.step).toBe(0);
+  });
+  it("finishes the welcome before queuing the flight request or showing flight images", async () => {
+    vi.useFakeTimers();
+    let state = reducer(initialState("messages"), { type: "send", run: 1 });
+    await Promise.all([
+      new MessagePlayback().play(0, {
+        ...chatCallbacks(),
+        onReply: (index) => {
+          state = reducer(state, { type: "reply", run: 1, index });
+        },
+        onShare: () => {
+          state = reducer(state, { type: "share", run: 1 });
+        },
+        onFinish: () => {
+          state = reducer(state, { type: "finish", run: 1 });
+        },
+      }),
+      vi.runAllTimersAsync(),
+    ]);
+    expect(state.step).toBe(1);
+    expect(state.sharedIdentity).toBe(true);
+    expect(state.messages.map((message) => message.role)).toEqual([
+      "user",
+      "assistant",
+    ]);
+    expect(state.messages.some((message) => message.attachment)).toBe(false);
+    expect(reducer(state, { type: "send", run: 2 }).messages.at(-1)?.text).toBe(
+      "My flight was canceled. Can you help?",
+    );
   });
   it("cancels in-flight reply timers before a new channel begins", async () => {
     vi.useFakeTimers();

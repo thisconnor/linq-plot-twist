@@ -2718,3 +2718,32 @@ a.image-attachment {
   color: inherit;
   text-decoration: none;
 }
+
+/* Version 7: one compact role cue leaves the email as the main event. */
+.email-role-intro {
+  margin: 24px auto 26px;
+}
+.email-role-intro h1 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  font-size: 17px;
+  line-height: 1.6;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  color: #796574;
+}
+.email-role-intro .plot-logo {
+  color: #553e50;
+}
+@media (max-width: 650px) {
+  .email-role-intro {
+    margin: 24px 0;
+  }
+  .email-role-intro h1 {
+    gap: 11px;
+    font-size: 16px;
+  }
+}

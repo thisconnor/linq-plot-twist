@@ -1,5 +1,10 @@
-import { captionPhrases, phraseDuration, STORY } from "./scenario";
-import type { Beat } from "./scenario";
+import {
+  captionPhrases,
+  phraseDuration,
+  STORY,
+  MESSAGE_STEPS,
+} from "./scenario";
+import type { Beat, MessageStep } from "./scenario";
 
 export function delay(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -30,7 +35,7 @@ export class MessagePlayback {
     this.controller?.abort();
     this.controller = undefined;
   }
-  async play(beat: Beat, callbacks: ChatCallbacks, pace = 1) {
+  async play(beat: MessageStep, callbacks: ChatCallbacks, pace = 1) {
     this.cancel();
     const controller = new AbortController();
     this.controller = controller;
@@ -38,23 +43,24 @@ export class MessagePlayback {
     try {
       await delay(650 * pace, signal);
       callbacks.onRead();
-      if (STORY[beat].reaction) {
+      if (MESSAGE_STEPS[beat].reaction) {
         await delay(400 * pace, signal);
         callbacks.onReaction();
       }
-      for (let index = 0; index < STORY[beat].replies.length; index++) {
+      for (let index = 0; index < MESSAGE_STEPS[beat].replies.length; index++) {
         callbacks.onTyping(true);
         await delay(
           Math.min(
             1900,
-            Math.max(900, STORY[beat].replies[index].text.length * 14),
+            Math.max(900, MESSAGE_STEPS[beat].replies[index].text.length * 14),
           ) * pace,
           signal,
         );
         callbacks.onReply(index);
-        if (beat === 0 && index === 0) callbacks.onShare();
+        if (MESSAGE_STEPS[beat].shareIdentity && index === 0)
+          callbacks.onShare();
         await delay(
-          (STORY[beat].replies[index].attachment ? 1100 : 550) * pace,
+          (MESSAGE_STEPS[beat].replies[index].attachment ? 1100 : 550) * pace,
           signal,
         );
       }
