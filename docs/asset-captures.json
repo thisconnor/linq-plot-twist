@@ -1,0 +1,22 @@
+{
+  "captured": "2026-10-19",
+  "method": "Browser screenshots of local HTML/CSS/SVG sample website; encoded as PNG",
+  "source": "public/travel-preview.html",
+  "sourceSha256": "f772bc62ef19dfa2b491da5a50bb06750c1dbe65c741d3bf52c2314b2648f104",
+  "captures": [
+    {
+      "src": "public/demo/flights.png",
+      "url": "/travel-preview.html?view=flights",
+      "width": 600,
+      "height": 690,
+      "sha256": "898f86aa378c18d08def210f286e0b3e20792ec532a15fb33be8b44122a5f08a"
+    },
+    {
+      "src": "public/demo/map.png",
+      "url": "/travel-preview.html?view=map",
+      "width": 1000,
+      "height": 740,
+      "sha256": "8710f4009b720851122dc792d92d62b49d73a6ce7e8115ba2b8995b98f785598"
+    }
+  ]
+}

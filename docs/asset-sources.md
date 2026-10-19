@@ -1,24 +1,34 @@
-# Version 5 asset sources and use
+# Version 6 asset sources and use
 
 Reviewed October 19, 2026.
 
 | Asset | Source | Use and limits |
 |---|---|---|
-| Plot Twist logo | Original SVG in `src/Brands.tsx`, retained from v4 | Fictional company identity, not a real customer relationship |
-| Alex portrait | Existing generated fictional portrait, `public/alex-avatar.jpg` | Labels Alex as an AI assistant; not a real person's identity |
-| Linq lockup | Official Linq homepage asset, https://res.cloudinary.com/linq/image/upload/v1775832022/website/homepage/Logo_lock_up_0-00-00-00_yya5pq.png | Retained contextual product attribution; original source documented, no endorsement claimed |
-| Flight, gate, map, email-preview PNGs | Original SVGs rendered by `scripts/render-demo-assets.mjs` from `src/data/trip.json` | Fictional images with familiar information hierarchy. No Google/Expedia branding, screenshots or live integrations. No fictional gates overlaid on an unrelated real airport |
-| Manrope font | Existing bundled Fontsource font | Open Font License notice in `public/licenses/manrope.txt` |
-| Lucide icons | Existing package | ISC notice in `public/licenses/lucide.txt` |
-| Alex narration | Locally generated with Kokoro-82M v1.0 stock voice `am_fenrir` | Model: https://huggingface.co/hexgrad/Kokoro-82M, Apache-2.0. Inference wrapper: https://github.com/thewh1teagle/kokoro-onnx, MIT. No cloning or paid service. Notices in `public/licenses/kokoro-model.txt` and `kokoro-onnx.txt` |
+| Plot Twist logo | Original SVG in `src/Brands.tsx` | Fictional company identity |
+| Alex portrait | Built-in imagegen; `public/alex-travel-advisor.webp` | Fictional male AI travel assistant, airport and aircraft backdrop. Replaces the former portrait. Compressed to 640px WebP for delivery. |
+| Linq lockup | Official Linq homepage asset, https://res.cloudinary.com/linq/image/upload/v1775832022/website/homepage/Logo_lock_up_0-00-00-00_yya5pq.png | Contextual product attribution; no endorsement claimed |
+| Flight and map PNGs | Actual browser screenshots of `public/travel-preview.html`, generated from canonical trip data by `scripts/render-travel-preview.mjs` | Realistic sample travel website, not Google/airline screenshots, live search, or real navigation. Flight screenshot: 600×690; map: 1000×740. Original fictional indoor plan, not an unrelated airport map. |
+| Gate and email-preview PNGs | Original SVGs rendered by `scripts/render-demo-assets.mjs` | Fictional itinerary and invitation visuals; no ticket issued |
+| Manrope | Bundled Fontsource font | Open Font License, `public/licenses/manrope.txt` |
+| Lucide | Existing package | ISC, `public/licenses/lucide.txt` |
+| Alex narration | Local Kokoro-82M v1.0 stock voice `am_fenrir` | Model: https://huggingface.co/hexgrad/Kokoro-82M (Apache-2.0); wrapper: https://github.com/thewh1teagle/kokoro-onnx (MIT). No cloning or paid service. Notices in `public/licenses/`. |
 
-Kokoro model and voice presets came from the wrapper's linked official release:
+## Screenshot capture
 
-- https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx
-- https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin
+Open the dev server's `/travel-preview.html?view=flights` at 600×690 and `/travel-preview.html?view=map` at 1000×740. Capture with browser screenshot controls, then encode the captured image as PNG. These are rendered HTML/CSS/SVG website screenshots, not AI image-generation approximations of text or controls. The map link opens the same route website, where zoom controls work. The screenshot itself remains an ordinary image attachment.
 
-Model files, downloaded voice presets, dependency environment and raw generation logs remain under ignored `.local/`. Only the generated WAV clips and cue manifest are distributed. Inference ran locally. No script, credentials, customer data or private transcript was sent to a speech service.
+Do not run an image generator for flight or map interfaces. Do not overwrite these screenshots with the old diagram assets. The small gate-change summary and email invitation visual intentionally remain original SVG renderings.
 
-The model's published stock voice is used as supplied; this project did not train, clone or claim to reproduce a particular person's voice. The site's About disclosure identifies the narration as generated.
+## Portrait generation prompt
 
-Image depiction follows Linq's documented attachment feature: https://docs.linqapp.com/channel/imessage/guides/messaging/attachments/. These images are not evidence of a native booking widget. Linq separately documents interactive apps and Experiences, but this demo does not pretend to configure them.
+Built-in imagegen, new generation, no reference face or cloned person:
+
+> Use case: photorealistic-natural. Asset type: square profile photograph for Alex, a fictional male AI travel assistant in a travel-planning demo. Create a natural editorial head-and-shoulders portrait of an approachable man in his early thirties, short dark hair, light beard, friendly calm expression, wearing a smart casual navy overshirt. Scene: modern airport terminal lounge with large windows and an unmistakable passenger airplane on the apron behind him, departure planning context. Face large and centered, entire head inside central circle-safe area, upper chest visible, enough airport background to recognize travel even at a small circular crop. Natural daylight, believable skin texture, professional travel adviser, warm and competent. No text, no airline logos, no lanyard text, no watermarks. This is a fictional character, not a real person.
+
+## Research and approach
+
+- Official SFO indoor map and animal-relief locations were inspected: https://www.flysfo.com/maps and https://www.flysfo.com/passengers/services/animal-relief-areas. Because the story uses fictional Harbor City Airport and gates, the release does not place fictional gate data on a real airport screenshot.
+- Google's documented Maps URLs support origin/destination links: https://developers.google.com/maps/documentation/urls/get-started. No Google link is fabricated for the fictional airport. The working route instead opens the matching sample map page.
+- Linq's documented image-attachment feature: https://docs.linqapp.com/channel/imessage/guides/messaging/attachments/. These screenshots are not evidence of native booking widgets or a configured interactive app.
+
+Kokoro model and presets remain in ignored `.local/`; generated WAVs and their cue manifest are distributed. Narration is unchanged in this revision.

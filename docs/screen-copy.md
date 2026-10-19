@@ -1,116 +1,91 @@
-# Version 5 screen copy
+# Version 6 screen copy
 
-The actual UI and `src/scenario.ts` remain authoritative. This file records the intended stable scenes for review and video production.
+The UI and `src/scenario.ts` remain authoritative. Story facts, narration, and the three prepared sends are unchanged from version 5.
 
 ## Campaign
 
-Eyebrow: THE GROWTH EXPERIMENT
-
-Headline: Your voice agent. A number they can text.
+Headline: **Win the meeting. Let them try it first.**
 
 We email qualified voice-AI builders a personalized demo number, so they can try a customer workflow in iMessage before we ask for a meeting.
 
 Selected profiles. Public signals. A lightweight demo built with AI for each company before outreach.
 
-Primary: See the example
+Primary: See the example. Secondary: Skip to the experience.
 
-Secondary: Skip to the experience
-
-Visual: Personalized email; text the number; discuss the fit.
-
-Disclosure: Example company and number. This website simulates the experience for Nate.
-
-## Developer inbox
+## Developer invitation
 
 YOU’RE THE DEVELOPER AT PLOT TWIST TRAVEL
 
-This lands in your inbox.
+**You build the assistant. We send you the demo.**
 
-Your voice assistant is already live. Linq sends you a number to try.
+You’re the developer behind Plot Twist Travel. Your voice assistant already helps customers by phone. This email invites you to try it in iMessage.
 
-Subject: A textable version of your travel assistant
+The example email's main action is **Try your customer’s experience**. Its original context, HOME keyword, illustrative number and non-sending disclosure remain.
 
-Sender: Linq team <hello@linq.example>
+## Role handoff
 
-Recipient: Plot Twist team
+You opened the email as Plot Twist’s developer.
 
-Hi Plot Twist team,
+**Now be the customer who needs your assistant.**
 
-Your assistant already helps travelers by phone. We made a small iMessage demo of a canceled-flight workflow for Plot Twist, including directions a traveler can keep handy.
+Imagine you’re at the airport. Your flight just got canceled. You and **Pickles, your dog,** need a way home tonight.
 
-Text HOME to +1 (202) 555-0147 and try it as your customer.
+**Alex is your AI travel assistant.**
 
-Try the example
+You’re the traveler. Alex helps you make a new plan.
 
-The Linq team
+Primary: **Start as the traveler**
 
-Example invitation · Illustrative number · Button opens this simulation
+First, hear Alex by phone. Then try the same task in iMessage.
 
-## Perspective change
+## Voice and iMessage
 
-YOU RECEIVED THIS AS THE DEVELOPER
+Persistent role label: YOU ARE THE TRAVELER · ALEX IS THE AI ASSISTANT
 
-Now try it as your traveler.
+Voice title: **Call Alex for help**
 
-Your flight is canceled. You and Pickles, your dog, need a way home and directions you can check again.
+Voice action: Start voice example
 
-Meet Alex: Plot Twist’s existing AI travel assistant
+Next channel: **Now try iMessage**
 
-First, the voice experience
+Text title: **Text Alex in iMessage** · Powered by Linq
 
-One task. First by phone, then in iMessage.
+Initial empty thread: You’re the traveler. Text Alex for help. Your first message is ready. Tap Send.
 
-## Voice
+Contact offer: Alex shared a name and photo. Plot Twist Travel · AI assistant. Optional Use control.
 
-Your assistant today: voice
+After acceptance: Alex / Plot Twist · AI assistant.
 
-Three scene labels: A canceled flight; One simple choice; Eight minutes later · 5:33 PM
+Two short editorial notes appear beside the phone on desktop, triggered by the actual thread feature. Each dismisses after nine seconds or its close control:
 
-Start voice example
+- Thumb reaction: WHY iMESSAGE? **A familiar reply.** Reactions, built in.
+- Map attachment: WHY iMESSAGE? **See the way.** 6 min. A route you can keep.
 
-Call complete: A way home. A gate to remember.
+On narrow screens, notes sit below the phone in reserved space and do not cover its messages or composer.
 
-Try the same task in iMessage
+The map attachment includes **Open walking route**, which opens the fictional route website with A/B markers, three directions, and working zoom controls.
 
-Narration and traveler prompts are in `docs/final-scenario.json`; spoken pronunciation script is in `docs/audio-script.md`.
+Final next action: **See this for your product**
 
-## iMessage
-
-Your assistant in iMessage
-
-Powered by Linq
-
-Initial contact: +1 (202) 555-0147
-
-Your customer texts the demo number. The first message is ready below.
-
-Guided walkthrough: tap Send to continue. Prepared messages are demo controls.
-
-Identity offer: Alex shared a name and photo. Plot Twist Travel · AI assistant. Optional Use control.
-
-Final composer: Your updated plan stays here.
-
-Back to your product
-
-## Commercial handoff
+## Commercial ending
 
 BACK IN THE DEVELOPER’S SHOES
 
-Could this fit your product?
+**Give your voice agent a place in iMessage.**
 
 Plot Twist Travel × Linq
 
-Your assistant. Your customer experience. One more way to be there when plans change.
+Your customers already text. Put your assistant in the conversation, with the photos, plans, and directions they need to act.
 
-Discuss this for your product
+Primary: **Build your iMessage pilot**
 
-Restart walkthrough
+Modal: **Let’s put your assistant in iMessage.**
 
-Modal title: Let’s make this useful for your customers.
+Start with one customer workflow. Bring your existing agent; work with Linq on the messaging experience. Then test a small pilot with your customers.
 
-Explore the customer workflow, integration needs, and whether Linq fits your product.
+Prototype preview: a live campaign would book a pilot conversation here. This demo does not send a request.
 
-Meeting routing is not connected. This prototype does not send a meeting request.
+Close: Got it — back to the walkthrough
 
 ## Persistent disclosure
 

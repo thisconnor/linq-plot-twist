@@ -108,7 +108,7 @@ export const ATTACHMENTS: Record<
   flights: {
     src: "./demo/flights.png",
     title: "Tonight’s flight options",
-    alt: `${trip.airline} sample flights. ${f.flight}, nonstop, ${timeLabel(f.departure)} to ${timeLabel(f.arrival)} PM. ${a.flight}, one stop, ${timeLabel(a.departure)} to ${timeLabel(a.arrival)} PM, ${a.layoverMinutes} minutes in ${a.connection}. Neither option is a booked ticket.`,
+    alt: `${trip.airline} sample flight-search screenshot. ${f.flight}, nonstop, ${timeLabel(f.departure)} to ${timeLabel(f.arrival)} PM. ${a.flight}, one stop, ${timeLabel(a.departure)} to ${timeLabel(a.arrival)} PM, ${a.layoverMinutes} minutes in ${a.connection}. Neither option is a booked ticket.`,
   },
   gate: {
     src: "./demo/gate.png",
@@ -118,7 +118,7 @@ export const ATTACHMENTS: Record<
   map: {
     src: "./demo/map.png",
     title: `Directions to ${f.gate}`,
-    alt: `Fictional ${trip.airport} terminal diagram. From pet relief beside B10 follow the B concourse to ${f.gate}, a ${trip.route.walkMinutes}-minute walk. At ${timeLabel(trip.updateMinutes)} PM, estimated arrival ${ROUTE.arrival} PM, ${ROUTE.buffer} minutes before boarding. Diagram is not to scale.`,
+    alt: `Browser screenshot of a fictional ${trip.airport} indoor walking route. From pet relief beside B10 follow the B concourse to ${f.gate}, a ${trip.route.walkMinutes}-minute walk. At ${timeLabel(trip.updateMinutes)} PM, estimated arrival ${ROUTE.arrival} PM, ${ROUTE.buffer} minutes before boarding. Open the route to view directions and zoom the sample airport map.`,
   },
 };
 export function captionPhrases(text: string): string[] {

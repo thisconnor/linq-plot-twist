@@ -1,4 +1,4 @@
-# Version 5 scenario decisions
+# Scenario decisions through version 6
 
 The October 19 handoff supersedes the earlier branching comparison. This website demonstrates a campaign to Nate. The proposed prospect offer is a relevant live demo number, emailed with a short invitation and a visual. The website and future explainer video are separate deliverables.
 
@@ -10,7 +10,7 @@ There is one fixed scenario, shown first as a call and then in Messages. Both mo
 2. One confirmation: the prepared reply selects the nonstop and mentions pet relief beside B10.
 3. Eight minutes later: B12 changes to B18. Boarding remains 6:50 PM. Directions remain available as a fictional map image.
 
-No food branch, alternate-flight game, repeated dog jokes, side notes or external response panel remain. The initial `HOME` keyword is included in the first prepared traveler message. The website's illustrative number is never made actionable by SMS/phone links.
+No food branch, alternate-flight game, repeated dog jokes or external response panel remain. Version 6 adds two short feature notes at the user’s request. The initial `HOME` keyword is included in the first prepared traveler message. The website's illustrative number is never made actionable by SMS/phone links.
 
 ## Canonical facts
 
@@ -29,7 +29,7 @@ Prepared traveler drafts live inside the composer and Send is the next action. T
 
 Alex's name/photo are offered only after the first reply. The recipient may choose Use; the header does not assume acceptance beforehand. Contact sharing, read receipts and typing are illustrative and depend on real platform settings and delivery behavior.
 
-Flight results, gate information and map use original PNG attachments. Only image enlargement is interactive. No unsupported flight-selection widget, Google/Expedia integration or reservation evidence is presented. The map is explicitly fictional and not to scale.
+Flight results and map use browser screenshots of the sample website; gate information uses an original PNG summary. Flight/gate images enlarge; the map opens the matching fictional route website with working zoom. No unsupported flight-selection widget, Google/Expedia integration or reservation evidence is presented. The airport route remains fictional.
 
 ## Narration
 
@@ -40,3 +40,13 @@ The call starts only after the viewer presses Start voice example. The prepared 
 ## Commercial ending
 
 Return explicitly to the developer role, show both logos, and offer Discuss this for your product. Retain the existing non-sending modal and routing disclosure. Restart walkthrough is secondary. No email, meeting request or live message is sent.
+
+## Version 6 review changes
+
+The campaign headline now sells the growth tactic: let qualified builders experience a personalized demo before asking for a meeting. The approved explanation paragraph is unchanged. The role handoff uses readable copy and explicitly identifies the viewer as the traveler, Pickles as their dog, and Alex as the AI assistant. The new male airport portrait matches the existing male narration.
+
+Two short iMessage feature notes are restored at the user's request: one reaction note and one visual-route note, triggered when those features appear. They dismiss automatically or manually. Desktop notes sit beside the phone; mobile notes reserve space below it. The linear three-send scenario is preserved.
+
+Flight and map attachments are now actual screenshots of a purpose-built sample website. This provides familiar search and map hierarchy without claiming real booking results or putting fictional gates on an unrelated real airport screenshot. The map attachment opens the matching fictional route website with working zoom and directions. No Google branding or live navigation is claimed.
+
+The ending makes a concrete pilot proposal, with a stronger headline and action. Its modal stays explicitly non-sending because meeting routing is not configured.

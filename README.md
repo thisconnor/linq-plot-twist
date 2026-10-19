@@ -1,4 +1,4 @@
-# Plot Twist Travel — version 5
+# Plot Twist Travel — version 6
 
 An interviewer-facing simulation of a proposed Linq campaign: qualify voice-AI builders, prepare a relevant live iMessage demo for each company, then email a short personalized invitation with a visual and a number to text. The website shows Nate that experience; prospects would text a real provisioned number rather than complete this website.
 
@@ -20,12 +20,12 @@ Node.js 24 and npm are used for the static React/TypeScript/Vite build. Relative
 2. Recognizable example email, an original message-preview image, and a clearly illustrative number.
 3. Explicit developer-to-traveler handoff using Plot Twist's established identity.
 4. One phone at a time: a short call, then the same task in iMessage. Start the call intentionally; the compact channel switch cancels the inactive channel.
-5. Three prepared messages sent from the iMessage composer: disruption, nonstop confirmation, gate change and directions. There are no flight/food branches or side annotations.
+5. Three prepared messages sent from the iMessage composer: disruption, nonstop confirmation, gate change and directions. There are no flight/food branches. Two brief notes highlight reactions and visual directions.
 6. Explicit return to the developer, Plot Twist × Linq partnership CTA, and non-sending prototype modal.
 
 `/` opens the campaign explanation. `/#/preview` opens the example email. Reload resets to the matching entry point. Optional persistent captions are retained in session storage. The development-only `?qa=1` accelerates caption/message timers and skips narration playback for repeated tests. It does not affect production.
 
-The phone's message history scrolls independently. Flight results, gate details and map are PNG attachments with image enlargement and accessible descriptions. Identity sharing appears after the first reply; the recipient can accept it. Read/typing states and one acknowledgment reaction are simulated. No ticket is purchased.
+The phone's message history scrolls independently. Flight results, gate details and map are PNG attachments with accessible descriptions. Flight/gate images enlarge; the map opens its matching fictional route website. Identity sharing appears after the first reply; the recipient can accept it. Read/typing states and one acknowledgment reaction are simulated. No ticket is purchased.
 
 ## Narration
 
@@ -46,7 +46,7 @@ Exact script: [docs/audio-script.md](docs/audio-script.md). Audio manifests are 
 - `src/styles.css`: viewport-fitting desktop/mobile layout and reduced motion.
 - `src/telemetry.ts`: in-memory events only; no network transport.
 
-Original asset generation: `scripts/render-demo-assets.mjs`, using installed Sharp through `DEMO_SHARP_MODULE`. Narration reproduction: `scripts/prepare-voice-input.mjs` then `scripts/generate-narration.py` in the isolated voice environment. Audio-generation dependencies are separate from the website's dependencies.
+Gate/email asset generation: `scripts/render-demo-assets.mjs`, using installed Sharp through `DEMO_SHARP_MODULE`. Flight/map website source: `scripts/render-travel-preview.mjs`; browser capture steps and provenance: `docs/asset-sources.md` and `docs/asset-captures.json`. Narration reproduction: `scripts/prepare-voice-input.mjs` then `scripts/generate-narration.py` in the isolated voice environment. Audio-generation dependencies are separate from the website's dependencies.
 
 ## Verification and delivery
 
@@ -63,3 +63,5 @@ No live agent, Linq CLI, number, microphone, flight service, booking, food order
 - [Linq attachments](https://docs.linqapp.com/channel/imessage/guides/messaging/attachments/), [contact sharing](https://docs.linqapp.com/channel/imessage/guides/chats/share-contact-card/), [typing](https://docs.linqapp.com/channel/imessage/guides/chats/typing-indicators/) and [reactions](https://docs.linqapp.com/channel/imessage/guides/messaging/reactions/).
 - [Apple Messages](https://support.apple.com/en-ca/guide/iphone/iph82fb73ba3/ios) for familiar interaction patterns.
 - [Hallmark](https://github.com/nutlope/hallmark) and [No AI Slop](https://github.com/petergyang/no-ai-slop) for restraint and concrete copy.
+
+Version 6 clarifies both roles, strengthens the opening and pilot CTA, enlarges channel controls, adds two brief feature notes, and replaces flight/map diagrams with browser screenshots of `public/travel-preview.html`. Its route opens a matching fictional map with working zoom. See `docs/asset-sources.md` for capture steps and the portrait prompt.

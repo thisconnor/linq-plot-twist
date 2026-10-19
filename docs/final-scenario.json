@@ -3,7 +3,7 @@
   "trip": {
     "company": "Plot Twist Travel",
     "assistant": "Alex",
-    "avatar": "./alex-avatar.jpg",
+    "avatar": "./alex-travel-advisor.webp",
     "airline": "Plot Air",
     "airport": "Harbor City Airport",
     "terminal": "Terminal 2",
@@ -113,7 +113,7 @@
     "flights": {
       "src": "./demo/flights.png",
       "title": "Tonight’s flight options",
-      "alt": "Plot Air sample flights. PT218, nonstop, 7:20 to 9:40 PM. PT306, one stop, 6:15 to 8:55 PM, 40 minutes in Meadow City. Neither option is a booked ticket."
+      "alt": "Plot Air sample flight-search screenshot. PT218, nonstop, 7:20 to 9:40 PM. PT306, one stop, 6:15 to 8:55 PM, 40 minutes in Meadow City. Neither option is a booked ticket."
     },
     "gate": {
       "src": "./demo/gate.png",
@@ -123,7 +123,7 @@
     "map": {
       "src": "./demo/map.png",
       "title": "Directions to B18",
-      "alt": "Fictional Harbor City Airport terminal diagram. From pet relief beside B10 follow the B concourse to B18, a 6-minute walk. At 5:33 PM, estimated arrival 5:39 PM, 71 minutes before boarding. Diagram is not to scale."
+      "alt": "Browser screenshot of a fictional Harbor City Airport indoor walking route. From pet relief beside B10 follow the B concourse to B18, a 6-minute walk. At 5:33 PM, estimated arrival 5:39 PM, 71 minutes before boarding. Open the route to view directions and zoom the sample airport map."
     }
   }
 }

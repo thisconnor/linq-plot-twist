@@ -1,24 +1,16 @@
-# Stable scenes for the separate video session
+# Version 6 video scenes
 
-Version 5, October 19, 2026. Record the website; do not create a live agent, use the illustrative number, or imply real bookings. The video is a separate deliverable and does not block the website.
+October 19, 2026. Record the website. The video remains a separate deliverable and does not block the website.
 
-| Scene | Entry and action | Stable content | Suggested recording |
+| Scene | Action | What the viewer sees | Direction |
 |---|---|---|---|
-| 1. Campaign in one glance | Open `/` | Headline, personalized email, demo number, Messages preview | Brief static wide shot; readable main sentence |
-| 2. Invitation | Click See the example, or open `/#/preview` | Mock email with normal sender/recipient/subject, original preview image and illustrative number | Show email before advancing; no real inbox footage |
-| 3. Role change | Click Try the example | You received this as the developer. Now try it as your traveler. | Hold this bridge; Plot Twist identity makes the role change visible |
-| 4. Voice today | Click First, the voice experience, then Start voice example | One iPhone call, Alex, three fixed response segments | Narration starts after the click; never composite it as simultaneous texting |
-| 5. Same task in Messages | Click Try the same task in iMessage | One phone, initial number, first prepared HOME message | Tap Send. Optionally accept name/photo with Use; two flight options appear as an image |
-| 6. Confirm, then update | Send prepared nonstop reply, then prepared update question | One reaction, explicit eight-minute story jump, B12 changes to B18 | Show retained gate information; avoid implying a ticket purchase |
-| 7. Directions retained | Tap View image on the map attachment | Fictional terminal route, six minutes, 5:39 PM arrival | Image enlargement is the only attachment interaction. Original diagram is not a Google Maps screenshot |
-| 8. Commercial handoff | Close image; click Back to your product | Could this fit your product? Plot Twist × Linq | End on Discuss this for your product; modal explicitly says routing is not connected |
+| 1. Growth tactic | Open homepage | Win the meeting. Let them try it first. | Preserve the approved campaign explanation |
+| 2. Developer inbox | Click See the example | You build the assistant. We send you the demo. | Show the personalized invitation and large Try your customer’s experience action |
+| 3. Role change | Open the experience | Now be the customer who needs your assistant. | Hold long enough to read the role explanation, Pickles context, and Alex card |
+| 4. Voice | Start as the traveler; Start voice example | Call Alex for help | Alex is the male AI assistant; viewer is the traveler. Narration runs before any channel switch |
+| 5. Text | Now try iMessage; Send | Text Alex in iMessage | Show prepared composer, identity offer, and realistic flight website screenshot |
+| 6. Acknowledgment | Send the nonstop selection | 👍 reaction and A familiar reply note | Let the brief feature note appear beside the phone |
+| 7. Gate change | Send the final update request | Gate B18, screenshot of route, See the way note | Tap Open walking route; show A/B markers and zoom |
+| 8. Pilot | Return to original tab; See this for your product | Give your voice agent a place in iMessage. | End on Build your iMessage pilot and the non-sending pilot modal |
 
-## Narration and continuity
-
-Use `public/audio/options.wav`, `confirmation.wav`, and `gate-change.wav` if approved for the separate video edit. The audio is generated stock narration, not a cloned person. Sentence cue times are in `src/data/narration.json`. Full copy is in `docs/screen-copy.md`; canonical scenario export is `docs/final-scenario.json`.
-
-Do not use `?qa=1` for a finished recording. It is a development-only acceleration flag, bypasses narration, and displays a QA label. Production ignores it. For repeatable recording, reload or use Restart walkthrough; the only optional session preference is persistent captions.
-
-Actual audio plus interstitial traveler captions lasts roughly one minute. Allow additional time for three intentional sends and viewing images. No unverified thirty-second completion claim is made.
-
-The iMessage prepared-draft behavior belongs to the guided simulation. Keep that framing in any narration or captions; native Messages does not limit customers to these replies.
+Keep simulation disclosures visible in context. Flight availability, airline, airports, number, bookings, contact behavior, and meeting routing are illustrative. Do not imply live booking or navigation. The browser-rendered map is a fictional airport preview.

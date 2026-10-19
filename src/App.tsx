@@ -38,6 +38,7 @@ import { MessagePlayback, VoicePlayback } from "./playback";
 import type { NarrationClips } from "./playback";
 import narration from "./data/narration.json";
 import { track } from "./telemetry";
+import { FeatureNote } from "./FeatureNote";
 
 const CLIPS = narration.clips as NarrationClips;
 const HAS_AUDIO = STORY.every((beat) => CLIPS[beat.id]);
@@ -73,9 +74,9 @@ function Campaign({
       <div className="campaign-copy">
         <span className="eyebrow">THE GROWTH EXPERIMENT</span>
         <h1 tabIndex={-1}>
-          Your voice agent.
+          Win the meeting.
           <br />
-          <span>A number they can text.</span>
+          <span>Let them try it first.</span>
         </h1>
         <p>
           We email qualified voice-AI builders a personalized demo number, so
@@ -127,7 +128,7 @@ function Campaign({
               <img src={BRAND.avatar} alt="" />
             </span>
             <strong>Alex</strong>
-            <small>Plot Twist Travel</small>
+            <small>AI travel assistant</small>
           </div>
           <div className="mini-thread">
             <span className="mini-blue">
@@ -165,9 +166,11 @@ function Invitation({ onContinue }: { onContinue(): void }) {
         <span className="eyebrow">
           YOU’RE THE DEVELOPER AT PLOT TWIST TRAVEL
         </span>
-        <h1 tabIndex={-1}>This lands in your inbox.</h1>
+        <h1 tabIndex={-1}>You build the assistant. We send you the demo.</h1>
         <p>
-          Your voice assistant is already live. Linq sends you a number to try.
+          You’re the developer behind Plot Twist Travel. Your voice assistant
+          already helps customers by phone. This email invites you to try it in
+          iMessage.
         </p>
       </div>
       <div className="email-client">
@@ -228,7 +231,7 @@ function Invitation({ onContinue }: { onContinue(): void }) {
                 and try it as your customer.
               </p>
               <button className="button email-cta" onClick={onContinue}>
-                Try the example <ArrowUpRight size={16} />
+                Try your customer’s experience <ArrowUpRight size={19} />
               </button>
               <p className="email-signoff">The Linq team</p>
               <span className="example-note">
@@ -245,25 +248,31 @@ function Invitation({ onContinue }: { onContinue(): void }) {
 function Handoff({ onContinue }: { onContinue(): void }) {
   return (
     <section className="handoff">
-      <span className="eyebrow">YOU RECEIVED THIS AS THE DEVELOPER</span>
-      <h1 tabIndex={-1}>Now try it as your traveler.</h1>
-      <p>
-        Your flight is canceled. You and <strong>Pickles, your dog,</strong>{" "}
-        need a way home and directions you can check again.
+      <p className="role-bridge">
+        You opened the email as Plot Twist’s developer.
+      </p>
+      <h1 tabIndex={-1}>
+        Now be the customer
+        <br />
+        who needs your assistant.
+      </h1>
+      <p className="traveler-situation">
+        Imagine you’re at the airport. Your flight just got canceled. You and{" "}
+        <strong>Pickles, your dog,</strong> need a way home tonight.
       </p>
       <div className="meet-alex">
         <Avatar />
         <span>
-          <strong>Meet Alex</strong>
-          <small>Plot Twist’s existing AI travel assistant</small>
+          <strong>Alex is your AI travel assistant.</strong>
+          <small>You’re the traveler. Alex helps you make a new plan.</small>
         </span>
       </div>
-      <button className="button plum" onClick={onContinue}>
-        First, the voice experience <Phone size={16} />
+      <button className="button plum journey-cta" onClick={onContinue}>
+        Start as the traveler <ArrowRight size={20} />
       </button>
-      <small className="handoff-note">
-        One task. First by phone, then in iMessage.
-      </small>
+      <p className="handoff-note">
+        First, hear Alex by phone. Then try the same task in iMessage.
+      </p>
     </section>
   );
 }
@@ -321,7 +330,11 @@ function VoicePhone({
             state.transcript.map((text, i) => <p key={i}>{text}</p>)
           ) : running ? (
             <>
-              <small>{state.speaker === "you" ? "YOU SAY" : "ALEX"}</small>
+              <small>
+                {state.speaker === "you"
+                  ? "YOU · THE TRAVELER"
+                  : "ALEX · AI ASSISTANT"}
+              </small>
               <p key={state.caption}>{state.caption}</p>
             </>
           ) : state.voiceStatus === "done" ? (
@@ -381,7 +394,7 @@ function VoicePhone({
           </button>
         ) : (
           <button className="button call-next" onClick={onMessages}>
-            Try the same task in iMessage <ArrowRight size={16} />
+            Now try iMessage <ArrowRight size={19} />
           </button>
         )}
       </div>
@@ -439,7 +452,7 @@ function MessagePhone({
             {identity ? "Alex" : TRIP.demoNumber}
             <ChevronRight size={9} />
           </h2>
-          <span>{identity ? "Plot Twist Travel" : "iMessage"}</span>
+          <span>{identity ? "Plot Twist · AI assistant" : "iMessage"}</span>
         </div>
         <Video className="contact-video" size={24} aria-hidden="true" />
       </div>
@@ -478,8 +491,8 @@ function MessagePhone({
         {state.messages.length === 0 && (
           <div className="empty-thread">
             <MessageCircle size={24} />
-            <p>Your customer texts the demo number.</p>
-            <small>The first message is ready below.</small>
+            <p>You’re the traveler. Text Alex for help.</p>
+            <small>Your first message is ready. Tap Send.</small>
           </div>
         )}
         {state.messages.map((message, index) => (
@@ -520,25 +533,45 @@ function MessagePhone({
                   {identity && <Check size={13} />}
                 </div>
               )}
-            {message.attachment && (
-              <button
-                className="image-attachment"
-                onClick={() => onAttachment(message.attachment!)}
-                aria-label={`Enlarge ${ATTACHMENTS[message.attachment].title}`}
-              >
-                <img
-                  src={ATTACHMENTS[message.attachment].src}
-                  alt={ATTACHMENTS[message.attachment].alt}
-                  onLoad={() => {
-                    if (follow.current && thread.current)
-                      thread.current.scrollTop = thread.current.scrollHeight;
-                  }}
-                />
-                <span>
-                  <Expand size={12} /> View image
-                </span>
-              </button>
-            )}
+            {message.attachment &&
+              (() => {
+                const attachment = message.attachment;
+                const image = (
+                  <img
+                    src={ATTACHMENTS[attachment].src}
+                    alt={ATTACHMENTS[attachment].alt}
+                    onLoad={() => {
+                      if (follow.current && thread.current)
+                        thread.current.scrollTop = thread.current.scrollHeight;
+                    }}
+                  />
+                );
+                return attachment === "map" ? (
+                  <a
+                    className="image-attachment"
+                    href="./travel-preview.html?view=map"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`Open walking route to ${TRIP.selected.gate}`}
+                  >
+                    {image}
+                    <span>
+                      <ArrowUpRight size={12} /> Open walking route
+                    </span>
+                  </a>
+                ) : (
+                  <button
+                    className="image-attachment"
+                    onClick={() => onAttachment(attachment)}
+                    aria-label={`Enlarge ${ATTACHMENTS[attachment].title}`}
+                  >
+                    {image}
+                    <span>
+                      <Expand size={12} /> View image
+                    </span>
+                  </button>
+                );
+              })()}
           </div>
         ))}
         {state.typing && (
@@ -873,12 +906,15 @@ export default function App() {
               )}
               {experience && (
                 <section className="experience">
+                  <div className="traveler-role">
+                    YOU ARE THE TRAVELER <span>·</span> ALEX IS THE AI ASSISTANT
+                  </div>
                   <div className="experience-heading">
                     <div>
                       <h1 tabIndex={-1}>
                         {state.screen === "voice"
-                          ? "Your assistant today: voice"
-                          : "Your assistant in iMessage"}
+                          ? "Call Alex for help"
+                          : "Text Alex in iMessage"}
                       </h1>
                       {state.screen === "messages" ? (
                         <span className="powered">
@@ -902,52 +938,57 @@ export default function App() {
                         aria-pressed={state.screen === "voice"}
                         onClick={() => go("voice")}
                       >
-                        Voice
+                        <Phone size={16} /> Voice
                       </button>
                       <button
                         aria-pressed={state.screen === "messages"}
                         onClick={() => go("messages")}
                       >
-                        iMessage
+                        <MessageCircle size={16} /> iMessage
                       </button>
                     </div>
                   </div>
-                  {state.screen === "voice" ? (
-                    <VoicePhone
-                      state={state}
-                      keepCaptions={keepCaptions}
-                      muted={muted}
-                      onMute={toggleMute}
-                      onStart={startVoice}
-                      onEnd={endVoice}
-                      onMessages={() => go("messages")}
-                      audioUnavailable={audioUnavailable}
-                    />
-                  ) : (
-                    <MessagePhone
-                      state={state}
-                      onSend={send}
-                      onAttachment={setDialog}
-                      onAcceptIdentity={() =>
-                        dispatch({ type: "identity-accept", run: state.run })
-                      }
-                    />
-                  )}
+                  <div className="phone-stage">
+                    {state.screen === "voice" ? (
+                      <VoicePhone
+                        state={state}
+                        keepCaptions={keepCaptions}
+                        muted={muted}
+                        onMute={toggleMute}
+                        onStart={startVoice}
+                        onEnd={endVoice}
+                        onMessages={() => go("messages")}
+                        audioUnavailable={audioUnavailable}
+                      />
+                    ) : (
+                      <MessagePhone
+                        state={state}
+                        onSend={send}
+                        onAttachment={setDialog}
+                        onAcceptIdentity={() =>
+                          dispatch({ type: "identity-accept", run: state.run })
+                        }
+                      />
+                    )}
+                    {state.screen === "messages" && (
+                      <FeatureNote messages={state.messages} />
+                    )}
+                  </div>
                   <div className="experience-next">
                     {state.screen === "voice" &&
                     state.voiceStatus !== "done" ? (
                       <button
-                        className="text-button"
+                        className="button plum next-channel"
                         onClick={() => go("messages")}
                       >
-                        Try the same task in iMessage <ArrowRight size={13} />
+                        Now try iMessage <ArrowRight size={18} />
                       </button>
                     ) : state.screen === "messages" && state.step >= 3 ? (
                       <button
                         className="button plum compact"
                         onClick={() => go("complete")}
                       >
-                        Back to your product <ArrowRight size={15} />
+                        See this for your product <ArrowRight size={18} />
                       </button>
                     ) : state.screen === "messages" ? (
                       <p>
@@ -966,16 +1007,18 @@ export default function App() {
               {state.screen === "complete" && (
                 <section className="completion">
                   <span className="eyebrow">BACK IN THE DEVELOPER’S SHOES</span>
-                  <h1 tabIndex={-1}>Could this fit your product?</h1>
+                  <h1 tabIndex={-1}>
+                    Give your voice agent a place in iMessage.
+                  </h1>
                   <div className="partnership">
                     <PlotLogo />
                     <span>×</span>
                     <LinqLogo />
                   </div>
                   <p>
-                    Your assistant. Your customer experience.
-                    <br />
-                    One more way to be there when plans change.
+                    Your customers already text. Put your assistant in the
+                    conversation, with the photos, plans, and directions they
+                    need to act.
                   </p>
                   <button
                     className="button plum"
@@ -984,7 +1027,7 @@ export default function App() {
                       setDialog("cta");
                     }}
                   >
-                    Discuss this for your product <ArrowUpRight size={16} />
+                    Build your iMessage pilot <ArrowUpRight size={19} />
                   </button>
                   <button className="text-button" onClick={reset}>
                     Restart walkthrough
@@ -1014,7 +1057,7 @@ export default function App() {
           <Modal
             title={
               dialog === "cta"
-                ? "Let’s make this useful for your customers."
+                ? "Let’s put your assistant in iMessage."
                 : dialog === "about"
                   ? "About this demo"
                   : dialog === "accessibility"
@@ -1031,15 +1074,16 @@ export default function App() {
                   <LinqLogo />
                 </div>
                 <p>
-                  Explore the customer workflow, integration needs, and whether
-                  Linq fits your product.
+                  Start with one customer workflow. Bring your existing agent;
+                  work with Linq on the messaging experience. Then test a small
+                  pilot with your customers.
                 </p>
                 <p className="disclosure">
-                  Meeting routing is not connected. This prototype does not send
-                  a meeting request.
+                  Prototype preview: a live campaign would book a pilot
+                  conversation here. This demo does not send a request.
                 </p>
                 <button className="button plum" onClick={() => setDialog(null)}>
-                  Back to the demo <Check size={15} />
+                  Got it — back to the walkthrough <Check size={16} />
                 </button>
               </>
             ) : dialog === "about" ? (
@@ -1057,9 +1101,11 @@ export default function App() {
                   messages, calls, bookings, or meeting requests are sent.
                 </p>
                 <p>
-                  Flight results and maps are original image attachments, not
-                  native booking widgets. Contact sharing and read receipts
-                  depend on platform behavior and recipient settings.
+                  Flight results and maps are screenshots of purpose-built
+                  sample travel pages, not live provider data or native booking
+                  widgets. The route opens an interactive fictional airport
+                  preview. Contact sharing and read receipts depend on platform
+                  behavior and recipient settings.
                 </p>
                 <p>
                   Voice and texting use the same facts. Real voice products may
@@ -1105,6 +1151,16 @@ export default function App() {
                   src={ATTACHMENTS[dialog].src}
                   alt={ATTACHMENTS[dialog].alt}
                 />
+                {dialog === "map" && (
+                  <a
+                    className="button plum route-link"
+                    href="./travel-preview.html?view=map"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open walking route <ArrowUpRight size={18} />
+                  </a>
+                )}
                 <p className="image-description">{ATTACHMENTS[dialog].alt}</p>
               </>
             )}

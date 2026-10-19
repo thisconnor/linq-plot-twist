@@ -1,45 +1,29 @@
-# Version 5 verification
+# Version 6 verification
 
-October 19, 2026. This release replaces the branching side-by-side demo with a short campaign explanation, example email, explicit role change, sequential voice/iMessage comparison, three composer sends, and commercial handoff.
+October 19, 2026. This revision changes the headline, role handoff, controls, Alex portrait, flight/map visuals, two short feature notes, and commercial CTA. It preserves the linear three-send story and existing male narration.
 
 ## Automated checks
 
-`npm test`: 21 tests pass. Coverage includes:
+- `npm test`: 21 tests pass. They cover canonical facts, route arithmetic, the complete three-send path, reactions, read/typing ordering, duplicate and stale-event protection, cancellation, identity sharing, PNG files and descriptions, narration cue/script alignment, WAV durations, audio-clock behavior, mute, cancellation and audio-failure fallback.
+- `npm run build`: TypeScript and Vite production build pass. Motion's ignored `use client` directives remain dependency warnings.
+- `git diff --check`: pass.
+- Screenshot provenance manifest confirms flight/map PNGs match the captured sample website source. Portrait is delivered as a 49 KB WebP.
 
-- Canonical flight options, selected flight, old/new gates, boarding time and six-minute route arithmetic.
-- All three prepared messages through completion, retained images, one acknowledgment reaction and unique message IDs.
-- Actual PNG signatures, accessible descriptions, WAV file signatures, cue order, cue/script agreement and cues inside generated audio duration.
-- Delivered/read/reaction/typing ordering, duplicate sends/replies, stale callbacks, interrupted-response rollback and reset.
-- Identity sharing/acceptance, including clearing an accepted identity when the incomplete first exchange is rolled back.
-- Actual-clock audio cue selection in the player, mute preserving position, immediate cancellation, blocked/error/watchdog fallback and caption-only cancellation.
-- Voice revisit resetting its story clock and captions.
+## Browser checks performed for this revision
 
-`npm run build`: TypeScript and production Vite build pass. Motion's ignored `use client` directives remain dependency warnings.
+- Desktop campaign, developer invitation, readable traveler handoff, voice, all three normal-speed prepared messages, and commercial ending completed in the production preview.
+- Production narration starts only after an intentional click. The actual audio clock advanced in options and gate-change WAVs, and the full call reached Call complete. Mute toggled the active audio without pausing it. Switching to iMessage left audio paused at zero and removed voice nodes.
+- Contact header begins with the illustrative number. The optional Use control changes it to Alex / Plot Twist · AI assistant. Viewer and assistant roles remain explicitly labeled above both channel views.
+- Flight website screenshot opens at full image size with the correct two flight options and accessible description.
+- The reaction note appears when the actual thumbs-up is added; its close button removes it. The map note appears when the route attachment arrives and expires automatically. Neither appears as permanent page copy.
+- The map attachment opens `/travel-preview.html?view=map` in a separate tab, preserving the completed thread. The target has matching A/B endpoints, six-minute estimate, three directions and working zoom. Zoom-in changed the map transform to scale 1.2; zoom-out returned to default.
+- Mobile developer invitation, traveler handoff, voice start, all three prepared sends and final plan exercised at 375×812. The handoff action remains visible, around 590px from the top.
+- At 375×812 and 320×568, active feature notes sit below the phone, not over its composer or messages. The smallest viewport's Send action stays visible and its prepared draft fits without text scrolling.
+- DOM geometry checked at 1440×900, 1366×768, 1280×720, 768×1024, 375×812 and 320×568: one phone, no horizontal document overflow, and the next action remains inside the viewport. Screenshot viewport settings were aligned separately for correctly proportioned mobile captures.
+- The new commercial CTA and modal are readable at 375×812. Shift+Tab remains in the modal. Escape closes it and restores focus to Build your iMessage pilot.
 
-## Actual browser checks
-
-- Full campaign, email, explicit traveler handoff, voice, iMessage and commercial ending exercised.
-- Development acceleration completes all three voice beats and all three prepared sends; production build separately completes real narration and normal-speed messages.
-- Production audio uses the bundled options, confirmation and gate-change WAVs. Playback begins only after Start voice example; all clips reach Call complete. Actual HTML audio properties confirm playback and completion.
-- Muting sets the active audio's muted state while playback continues. Switching to iMessage pauses audio and resets currentTime to zero. Only one phone remains and the voice caption node is removed.
-- Switching away during an unfinished message response cancels its timers, rolls it back to its prepared draft and allows another send. Unit tests also cover preserving earlier completed history.
-- Before accepting the identity offer, the Messages header shows the illustrative number. After Use, it shows Alex.
-- Three sends retain the flight image, new gate image and six-minute terminal route. Image enlargement opens the correct map and text description.
-- Auto-follow returns to the latest reply when the reader has not scrolled; a real user scroll can inspect history. An image-load timing issue found during QA was corrected.
-- CTA modal Shift+Tab remains inside the dialog. Escape closes it and restores focus to Discuss this for your product.
-- The compact email layout at 1280×720 keeps its CTA visible. The role handoff's primary action is also visible on a 375×812 phone.
-- Phone and next action fit within 1280×720, 1366×768, 1440×900, 768×1024, 375×812 and 320×568 viewports. In each, document width equals viewport width and phone-view document height equals viewport height. One phone is rendered.
-- Persistent captions retain the full accelerated call history. Reduced-motion emulation suppresses waveform animation; the emulation and caption preference were restored afterward.
-- Full 375×812 walkthrough completes; its message thread reaches the latest response with no document overflow. The 320×568 prepared draft fits without its own text scrolling and Send stays visible.
-
-Local production and public release checks are distinct. The release is published using the existing Pages workflow, then its version.json and public walkthrough are checked. Final public screenshots and release metadata are delivered in the review packet.
-
-## Audio files
-
-Kokoro-82M stock voice am_fenrir generated three 24 kHz PCM WAVs locally: options 19.24 seconds, confirmation 11.13 seconds, gate change 16.86 seconds. Peak absolute sample values are below 0.84 and no samples reach clipping. Captions use sentence boundaries from actual generated durations and the browser audio clock. Browser playback verification is not a human judgment of vocal quality.
+The production release is built by `npm run deploy` after committing the source. Public deployment is verified against fresh `version.json`, new assets, and the live UI; final source/deploy metadata and screenshots are included in the local review packet.
 
 ## Limits
 
-This remains a scripted interviewer simulation. No physical iPhone/native Messages behavior, Linq integration, real flight availability, ticketing, contact-card delivery or outreach has been validated. The displayed number is illustrative and has no SMS/phone link. Read/contact/typing behavior is conditional in real systems. Meeting routing stays disconnected. No paid speech service, credential, real-person clone or external script upload was used.
-
-The roughly ten-second campaign-comprehension goal still requires a fresh human reviewer; it is not claimed as achieved. Only performed checks are reported; passing code tests does not establish a usability study.
+This is a scripted interviewer simulation. Browser-rendered travel screenshots use fictional airports, flights and availability. The map opens a matching fictional route preview, not Google navigation. No physical iPhone/native Messages behavior, real Linq connection, live booking, contact-card delivery, microphone or outreach is validated. The illustrative number has no SMS/phone link. The pilot modal sends nothing. Browser playback checks do not establish subjective voice quality, and no usability study is claimed.
