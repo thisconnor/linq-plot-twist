@@ -207,7 +207,7 @@ export function Invitation({ onContinue }: { onContinue(): void }) {
               </p>
               <img
                 className="email-preview"
-                src="./demo/email-preview.png"
+                src={`./demo/email-preview.png?keyword=${TRIP.keyword.toLowerCase()}`}
                 alt="Illustrative Plot Twist message preview: a traveler asks about a canceled flight, Alex replies with two options."
               />
               <p>
