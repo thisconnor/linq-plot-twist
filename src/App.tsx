@@ -49,14 +49,14 @@ import { FeatureNote } from "./FeatureNote";
 
 const CLIPS = narration.clips as NarrationClips;
 const HAS_AUDIO = STORY.every((beat) => CLIPS[beat.id]);
-function Avatar({ hidden = false }: { hidden?: boolean }) {
+export function Avatar({ hidden = false }: { hidden?: boolean }) {
   return (
     <span className="avatar" aria-hidden="true">
       {hidden ? <UserRound size={22} /> : <img src={BRAND.avatar} alt="" />}
     </span>
   );
 }
-function StatusBar({ clock }: { clock: number }) {
+export function StatusBar({ clock }: { clock: number }) {
   return (
     <div className="phone-status" aria-hidden="true">
       <span>{timeLabel(clock)}</span>
@@ -146,7 +146,7 @@ function Campaign({
   );
 }
 
-function Invitation({ onContinue }: { onContinue(): void }) {
+export function Invitation({ onContinue }: { onContinue(): void }) {
   return (
     <section className="invitation">
       <div className="email-role-intro">
@@ -386,14 +386,16 @@ function VoicePhone({
     </div>
   );
 }
-function MessagePhone({
+export function MessagePhone({
   state,
   onSend,
   onAttachment,
+  scrollDriven = false,
 }: {
   state: DemoState;
   onSend(): void;
   onAttachment(attachment: Attachment): void;
+  scrollDriven?: boolean;
 }) {
   const thread = useRef<HTMLDivElement>(null);
   const follow = useRef(true);
@@ -435,16 +437,19 @@ function MessagePhone({
         ref={thread}
         role="log"
         aria-label="iMessage conversation"
-        aria-live="polite"
+        aria-live={scrollDriven ? "off" : "polite"}
         aria-relevant="additions"
-        tabIndex={0}
+        tabIndex={scrollDriven ? undefined : 0}
         onWheel={() => {
+          if (scrollDriven) return;
           userScrolling.current = true;
         }}
         onTouchMove={() => {
+          if (scrollDriven) return;
           userScrolling.current = true;
         }}
         onPointerDown={(event) => {
+          if (scrollDriven) return;
           if (event.target === thread.current) userScrolling.current = true;
         }}
         onScroll={() => {
@@ -466,7 +471,11 @@ function MessagePhone({
           <div className="empty-thread">
             <MessageCircle size={24} />
             <p>Start by texting “home”.</p>
-            <small>Alex will introduce himself. Tap Send.</small>
+            <small>
+              {scrollDriven
+                ? "Scroll to meet Alex."
+                : "Alex will introduce himself. Tap Send."}
+            </small>
           </div>
         )}
         {state.messages.map((message, index) => (
@@ -615,14 +624,16 @@ function MessagePhone({
     </div>
   );
 }
-function Modal({
+export function Modal({
   title,
   children,
   onClose,
+  preserveScroll = false,
 }: {
   title: string;
   children: ReactNode;
   onClose(): void;
+  preserveScroll?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
@@ -661,7 +672,7 @@ function Modal({
     return () => {
       document.body.style.overflow = overflow;
       document.removeEventListener("keydown", key);
-      previous?.focus();
+      previous?.focus({ preventScroll: preserveScroll });
     };
   }, []);
   return (

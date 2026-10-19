@@ -14,6 +14,12 @@ npm run preview
 
 Node.js 24 and npm are used for the static React/TypeScript/Vite build. Relative assets support the existing GitHub Pages repository path.
 
+## Alternate scroll walkthrough
+
+Open `/?view=scroll` for the experimental scroll-driven version. The original click-through walkthrough remains the default at `/`. The alternate pins one visual canvas while the invitation expands, becomes the customer’s phone, and reveals the same four-message story as the viewer scrolls. Scrolling upward rewinds it. Sound is optional and stops when leaving the call scene. No wheel interception or scroll snapping is used.
+
+The two versions share the scenario, reducer, message interface, attachments, narration and modal. The scroll bundle and its scoped styles are loaded only for the alternate URL. See [experiment notes and QA](docs/scroll-experiment.md).
+
 ## Walkthrough
 
 1. A focused campaign introduction, one Messages preview, and a simple three-step funnel.
@@ -45,6 +51,7 @@ Exact script: [docs/audio-script.md](docs/audio-script.md). Audio manifests are 
 - `src/Brands.tsx`: retained original Plot Twist identity and official Linq asset.
 - `src/styles.css`: native phone interfaces, viewport layout and reduced motion.
 - `src/brand.css`: Linq-aligned charcoal/lime site shell, licensed Geist typography, responsive layouts and quiet Plot Twist customer scenes.
+- `src/ScrollWalkthrough.tsx`, `src/scroll-model.ts` and `src/scroll.css`: isolated alternate presentation, deterministic scroll timeline and scoped visuals.
 - `src/telemetry.ts`: in-memory events only; no network transport.
 
 Gate/email asset generation: `scripts/render-demo-assets.mjs`, using installed Sharp through `DEMO_SHARP_MODULE`. Flight/map website source: `scripts/render-travel-preview.mjs`; browser capture steps and provenance: `docs/asset-sources.md` and `docs/asset-captures.json`. Narration reproduction: `scripts/prepare-voice-input.mjs` then `scripts/generate-narration.py` in the isolated voice environment. Audio-generation dependencies are separate from the website's dependencies.
