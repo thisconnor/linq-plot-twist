@@ -1,4 +1,4 @@
-# Plot Twist Travel — version 7
+# Plot Twist Travel — version 8
 
 An interviewer-facing simulation of a proposed Linq campaign: qualify voice-AI builders, prepare a relevant live iMessage demo for each company, then email a short personalized invitation with a visual and a number to text. The website shows Nate that experience; prospects would text a real provisioned number rather than complete this website.
 
@@ -16,7 +16,7 @@ Node.js 24 and npm are used for the static React/TypeScript/Vite build. Relative
 
 ## Walkthrough
 
-1. One-screen campaign explanation with email, number and Messages visuals.
+1. A focused campaign introduction, one Messages preview, and a simple three-step funnel.
 2. Recognizable example email, an original message-preview image, and a clearly illustrative number.
 3. Explicit developer-to-traveler handoff using Plot Twist's established identity.
 4. One phone at a time: a short call, then the same task in iMessage. Start the call intentionally; the compact channel switch cancels the inactive channel.
@@ -43,7 +43,8 @@ Exact script: [docs/audio-script.md](docs/audio-script.md). Audio manifests are 
 - `src/playback.ts`: independent message and voice controllers.
 - `src/App.tsx`: campaign, email, role handoff, single-phone interfaces, accessible modals and CTA.
 - `src/Brands.tsx`: retained original Plot Twist identity and official Linq asset.
-- `src/styles.css`: viewport-fitting desktop/mobile layout and reduced motion.
+- `src/styles.css`: native phone interfaces, viewport layout and reduced motion.
+- `src/brand.css`: Linq-aligned charcoal/lime site shell, licensed Geist typography, responsive layouts and quiet Plot Twist customer scenes.
 - `src/telemetry.ts`: in-memory events only; no network transport.
 
 Gate/email asset generation: `scripts/render-demo-assets.mjs`, using installed Sharp through `DEMO_SHARP_MODULE`. Flight/map website source: `scripts/render-travel-preview.mjs`; browser capture steps and provenance: `docs/asset-sources.md` and `docs/asset-captures.json`. Narration reproduction: `scripts/prepare-voice-input.mjs` then `scripts/generate-narration.py` in the isolated voice environment. Audio-generation dependencies are separate from the website's dependencies.
@@ -56,7 +57,7 @@ GitHub Pages serves the prebuilt `gh-pages` branch. `npm run deploy` requires a 
 
 ## Simulation boundaries
 
-No live agent, Linq CLI, number, microphone, flight service, booking, food order, meeting routing, outreach or analytics transport is connected. `+1 (202) 555-0147` is illustrative and has no `sms:` or `tel:` link. The final modal explicitly states that meeting routing is not connected. All airport imagery is fictional; no provider integration or real reservation is implied.
+No live agent, Linq CLI, number, microphone, flight service, booking, food order, meeting routing, outreach or analytics transport is connected. `+1 (202) 555-0147` is illustrative and has no `sms:` or `tel:` link. The final modal explicitly states that pilot booking is not connected. All airport imagery is fictional; no provider integration or real reservation is implied.
 
 ## References
 
@@ -67,3 +68,5 @@ No live agent, Linq CLI, number, microphone, flight service, booking, food order
 Version 6 clarified both roles, strengthens the opening and pilot CTA, enlarges channel controls, adds two brief feature notes, and replaces flight/map diagrams with browser screenshots of `public/travel-preview.html`. Its route opens a matching fictional map with working zoom. See `docs/asset-sources.md` for capture steps and the portrait prompt.
 
 Version 7 flips the campaign headline, replaces the large email intro with a compact lead-developer line and logo, and separates the home keyword/greeting from the flight request. Voice playback retains its three scenes.
+
+Version 8 removes repeated growth-experiment labels, decorative hero cards, duplicate role banners and the persistent simulation stamp. Linq-facing screens follow the official site’s charcoal, white and lime palette with monospace controls. Plot Twist retains its own customer identity. The About dialog keeps the simulation boundaries in one place. See [brand audit](docs/brand-audit.md) for source observations and design decisions.

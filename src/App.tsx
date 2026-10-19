@@ -78,94 +78,74 @@ function Campaign({
 }) {
   return (
     <section className="campaign">
-      <div className="campaign-copy">
-        <span className="eyebrow">THE GROWTH EXPERIMENT</span>
-        <h1 tabIndex={-1}>
-          Let them try it first.
-          <br />
-          <span>Win the meeting.</span>
-        </h1>
-        <p>
-          We email qualified voice-AI builders a personalized demo number, so
-          they can try a customer workflow in iMessage before we ask for a
-          meeting.
-        </p>
-        <div className="campaign-actions">
-          <button className="button primary" onClick={onExample}>
-            See the example <ArrowRight size={17} />
-          </button>
-          <button className="text-button" onClick={onSkip}>
-            Skip to the experience
-          </button>
-        </div>
-        <p className="qualification">
-          Selected profiles. Public signals. A lightweight demo built with AI
-          for each company before outreach.
-        </p>
-      </div>
-      <div
-        className="campaign-visual"
-        aria-label="Proposed campaign: email a personalized number, try the assistant in Messages, then discuss fit"
-      >
-        <div className="visual-email">
-          <div className="visual-email-top">
-            <Mail size={16} />
-            <span>FROM LINQ</span>
-          </div>
-          <strong>
-            We made this for
+      <div className="campaign-hero">
+        <div className="campaign-copy">
+          <h1 tabIndex={-1}>
+            Let them try it first.
             <br />
-            Plot Twist Travel.
-          </strong>
+            Win the meeting.
+          </h1>
           <p>
-            Text HOME. Try your assistant
-            <br />
-            as your customer.
+            We email qualified voice-AI builders a personalized demo number, so
+            they can try a customer workflow in iMessage before we ask for a
+            meeting.
           </p>
-          <span className="visual-number">{TRIP.demoNumber}</span>
-        </div>
-        <div className="visual-connector">
-          <span />
-          <ArrowRight size={16} />
-          <span />
-        </div>
-        <div className="mini-messages">
-          <div className="mini-contact">
-            <span className="mini-avatar">
-              <img src={BRAND.avatar} alt="" />
-            </span>
-            <strong>Alex</strong>
-            <small>AI travel assistant</small>
+          <p className="campaign-context">
+            AI builds a lightweight demo for each company, selected for product
+            fit and public signals.
+          </p>
+          <div className="campaign-actions">
+            <button className="button primary" onClick={onExample}>
+              See the example
+            </button>
+            <button className="button secondary" onClick={onSkip}>
+              Try the demo
+            </button>
           </div>
-          <div className="mini-thread">
-            <span className="mini-blue">
-              My flight was canceled.
-              <br />
-              Can you help?
-            </span>
-            <span className="mini-gray">Let’s get you home.</span>
-            <div className="mini-flight">
-              <span>{TRIP.selected.flight} · NONSTOP</span>
-              <strong>
-                {timeLabel(TRIP.selected.departure)} <small>PM</small>
-              </strong>
-              <span>Home tonight · {timeLabel(TRIP.selected.arrival)} PM</span>
+        </div>
+        <figure
+          className="hero-preview"
+          aria-label="Plot Twist Travel’s AI assistant sharing flight results in iMessage"
+        >
+          <StatusBar clock={TRIP.startMinutes} />
+          <div className="preview-contact">
+            <Avatar />
+            <div>
+              <strong>Alex</strong>
+              <span>Plot Twist · AI travel assistant</span>
             </div>
           </div>
-        </div>
-        <div className="visual-summary">
-          <span>1. Personalized email</span>
-          <span>2. Text the number</span>
-          <span>3. Discuss the fit</span>
-        </div>
-        <small className="visual-disclosure">
-          Example company and number. This website simulates the experience for
-          Nate.
-        </small>
+          <div className="preview-thread">
+            <p className="preview-bubble outgoing">
+              My flight was canceled. Can you help?
+            </p>
+            <p className="preview-bubble incoming">
+              Two flights home tonight. I’d take the nonstop.
+            </p>
+            <img
+              className="preview-attachment"
+              src={ATTACHMENTS.flights.src}
+              alt="Sample flight-search results shared by Alex in Messages."
+            />
+          </div>
+          <span className="preview-home" aria-hidden="true" />
+        </figure>
       </div>
+      <ol className="campaign-flow" aria-label="How the campaign works">
+        <li>
+          <span>1.</span> Build their demo
+        </li>
+        <li>
+          <span>2.</span> Email their number
+        </li>
+        <li>
+          <span>3.</span> Earn a meeting
+        </li>
+      </ol>
     </section>
   );
 }
+
 function Invitation({ onContinue }: { onContinue(): void }) {
   return (
     <section className="invitation">
@@ -239,10 +219,6 @@ function Invitation({ onContinue }: { onContinue(): void }) {
                 Try your customer’s experience <ArrowUpRight size={19} />
               </button>
               <p className="email-signoff">The Linq team</p>
-              <span className="example-note">
-                Example invitation · Illustrative number · Button opens this
-                simulation
-              </span>
             </div>
           </article>
         </div>
@@ -269,7 +245,6 @@ function Handoff({ onContinue }: { onContinue(): void }) {
         <Avatar />
         <span>
           <strong>Alex is your AI travel assistant.</strong>
-          <small>You’re the traveler. Alex helps you make a new plan.</small>
         </span>
       </div>
       <button className="button plum journey-cta" onClick={onContinue}>
@@ -357,13 +332,9 @@ function VoicePhone({
             </>
           )}
         </div>
-        <span className="audio-status">
-          {audioUnavailable
-            ? "Caption preview · narration unavailable"
-            : muted
-              ? "Sound muted · captions on"
-              : "Sound on · captions on"}
-        </span>
+        {audioUnavailable && (
+          <span className="audio-status">Audio unavailable · captions on</span>
+        )}
       </div>
       <div className="call-bottom">
         {running ? (
@@ -859,19 +830,8 @@ export default function App() {
             onClick={reset}
             aria-label="Return to introduction"
           >
-            {traveler || state.screen === "complete" ? (
-              <PlotLogo compact />
-            ) : (
-              <LinqLogo />
-            )}
+            {traveler ? <PlotLogo compact /> : <LinqLogo />}
           </button>
-          <span className="header-context">
-            {traveler
-              ? "YOU’RE THE TRAVELER"
-              : state.screen === "email" || state.screen === "complete"
-                ? "YOU’RE THE DEVELOPER"
-                : "A LINQ GROWTH EXPERIMENT"}
-          </span>
           {state.screen !== "campaign" && (
             <button className="restart" onClick={reset}>
               <RotateCcw size={13} />
@@ -908,9 +868,6 @@ export default function App() {
               )}
               {experience && (
                 <section className="experience">
-                  <div className="traveler-role">
-                    YOU ARE THE TRAVELER <span>·</span> ALEX IS THE AI ASSISTANT
-                  </div>
                   <div className="experience-heading">
                     <div>
                       <h1 tabIndex={-1}>
@@ -990,23 +947,12 @@ export default function App() {
                       >
                         See this for your product <ArrowRight size={18} />
                       </button>
-                    ) : state.screen === "messages" ? (
-                      <p>
-                        Guided walkthrough: tap <strong>Send</strong> to
-                        continue. Prepared messages are demo controls.
-                      </p>
-                    ) : (
-                      <p>
-                        Same assistant. Same facts. Now a different way to use
-                        them.
-                      </p>
-                    )}
+                    ) : null}
                   </div>
                 </section>
               )}
               {state.screen === "complete" && (
                 <section className="completion">
-                  <span className="eyebrow">BACK IN THE DEVELOPER’S SHOES</span>
                   <h1 tabIndex={-1}>
                     Give your voice agent a place in iMessage.
                   </h1>
@@ -1027,10 +973,7 @@ export default function App() {
                       setDialog("cta");
                     }}
                   >
-                    Build your iMessage pilot <ArrowUpRight size={19} />
-                  </button>
-                  <button className="text-button" onClick={reset}>
-                    Restart walkthrough
+                    Build your iMessage pilot
                   </button>
                 </section>
               )}
@@ -1038,7 +981,6 @@ export default function App() {
           </AnimatePresence>
         </main>
         <footer className="site-footer">
-          <span>Interactive simulation · Fictional travel data</span>
           <div>
             <button onClick={() => setDialog("about")}>About this demo</button>
             <button
@@ -1079,11 +1021,10 @@ export default function App() {
                   pilot with your customers.
                 </p>
                 <p className="disclosure">
-                  Prototype preview: a live campaign would book a pilot
-                  conversation here. This demo does not send a request.
+                  Pilot booking is not connected in this demo.
                 </p>
                 <button className="button plum" onClick={() => setDialog(null)}>
-                  Got it — back to the walkthrough <Check size={16} />
+                  Back to the demo
                 </button>
               </>
             ) : dialog === "about" ? (
@@ -1097,7 +1038,8 @@ export default function App() {
                 <p>
                   Plot Twist Travel, Alex, the airport and flights are
                   fictional. Alex’s narration uses a locally generated Kokoro
-                  stock voice. The displayed number is illustrative. No
+                  stock voice. Traveler replies are prepared for this
+                  walkthrough. The displayed number is illustrative. No
                   messages, calls, bookings, or meeting requests are sent.
                 </p>
                 <p>
@@ -1162,7 +1104,6 @@ export default function App() {
                     Open walking route <ArrowUpRight size={18} />
                   </a>
                 )}
-                <p className="image-description">{ATTACHMENTS[dialog].alt}</p>
               </>
             )}
           </Modal>

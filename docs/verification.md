@@ -1,3 +1,23 @@
+# Version 8 verification
+
+October 19, 2026. Scope: remove redundant labels and decorative UI; align Linq-facing screens with the official site’s charcoal, white, lime and monospace controls; preserve the Plot Twist customer identity and existing walkthrough mechanics.
+
+## Automated checks
+
+`npm test`: 22 tests pass. `npm run build`: TypeScript and production Vite build pass. Only the existing Motion dependency directive warnings remain. Geist Sans and Geist Mono Latin WOFF2 files are bundled locally; their licenses are distributed. No external font service is required.
+
+## Browser verification
+
+The production preview was exercised through the introduction, example email, readable customer handoff, voice playback, all four normal-speed prepared messages and the commercial ending. The first send remains home alone; Alex’s greeting reveals his contact automatically and queues the separate canceled-flight request. Flight, gate and route attachments remain available. The reaction and map notes still appear from their actual events, with shorter copy and automatic expiry.
+
+Actual audio playback advanced in the production preview. Mute changed the active audio’s muted flag without pausing its clock. Switching to iMessage paused and reset audio to zero. Accessibility settings still enable retained captions. The pilot modal keeps keyboard focus inside it; Escape closes it and restores focus to Build your iMessage pilot. Pilot booking remains disconnected.
+
+Responsive geometry was checked at 1440×900, 1366×768, 1280×720, 768×1024, 375×812 and 320×568. There is no horizontal document overflow. Landing actions remain above the fold at every checked size. The channel comparison displays one phone, with the next action inside the viewport. Mobile feature notes reserve space below the phone. Review caught the former 7px mobile restart label and cramped short-screen call captions; version 8 enlarges the label and omits decorative call-tool icons on short screens to leave room for readable captions.
+
+The source still uses the approved campaign explanation. Context has been consolidated into the handoff, contact identity and About dialog rather than repeated labels. No live Linq integration, phone number, booking, meeting request or outreach was added. These checks do not establish native iPhone behavior, subjective voice quality, or comprehension by a fresh human viewer.
+
+---
+
 # Version 7 verification
 
 October 19, 2026. Scope: flip the campaign headline, simplify the email role cue, separate the text keyword/welcome from the flight request, and show Alex’s contact automatically.

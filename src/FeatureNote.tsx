@@ -44,15 +44,16 @@ export function FeatureNote({ messages }: { messages: Message[] }) {
               {active === "reaction" ? "👍" : <MapPin size={25} />}
             </div>
             <div>
-              <small>WHY iMESSAGE?</small>
               <strong>
-                {active === "reaction" ? "A familiar reply." : "See the way."}
-              </strong>
-              <p>
                 {active === "reaction"
-                  ? "Reactions, built in."
-                  : `${TRIP.route.walkMinutes} min. A route you can keep.`}
-              </p>
+                  ? "A quick thumbs-up."
+                  : "Directions you can keep."}
+              </strong>
+              {active === "map" && (
+                <p>
+                  {TRIP.route.walkMinutes} min to {TRIP.selected.gate}
+                </p>
+              )}
             </div>
             <button
               aria-label="Dismiss iMessage tip"

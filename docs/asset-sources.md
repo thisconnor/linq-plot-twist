@@ -1,4 +1,4 @@
-# Version 6 asset sources and use
+# Version 8 asset sources and use
 
 Reviewed October 19, 2026.
 
@@ -9,7 +9,8 @@ Reviewed October 19, 2026.
 | Linq lockup | Official Linq homepage asset, https://res.cloudinary.com/linq/image/upload/v1775832022/website/homepage/Logo_lock_up_0-00-00-00_yya5pq.png | Contextual product attribution; no endorsement claimed |
 | Flight and map PNGs | Actual browser screenshots of `public/travel-preview.html`, generated from canonical trip data by `scripts/render-travel-preview.mjs` | Realistic sample travel website, not Google/airline screenshots, live search, or real navigation. Flight screenshot: 600×690; map: 1000×740. Original fictional indoor plan, not an unrelated airport map. |
 | Gate and email-preview PNGs | Original SVGs rendered by `scripts/render-demo-assets.mjs` | Fictional itinerary and invitation visuals; no ticket issued |
-| Manrope | Bundled Fontsource font | Open Font License, `public/licenses/manrope.txt` |
+| Geist Sans and Geist Mono | Fontsource variable packages 5.3.0, upstream https://github.com/vercel/geist-font | Open Font License, `public/licenses/geist.txt` and `public/licenses/geist-mono.txt`. Latin normal variable WOFF2 files are bundled locally; no remote font requests. |
+| Linq design reference | https://linqapp.com/, visually inspected October 19, 2026 | Charcoal canvas, white/gray type, lime capsule actions and monospace controls. The proprietary FK Display and NB International fonts were not copied or redistributed. No homepage illustration was copied. |
 | Lucide | Existing package | ISC, `public/licenses/lucide.txt` |
 | Alex narration | Local Kokoro-82M v1.0 stock voice `am_fenrir` | Model: https://huggingface.co/hexgrad/Kokoro-82M (Apache-2.0); wrapper: https://github.com/thewh1teagle/kokoro-onnx (MIT). No cloning or paid service. Notices in `public/licenses/`. |
 

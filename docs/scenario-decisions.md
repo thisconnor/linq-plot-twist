@@ -1,4 +1,4 @@
-# Scenario decisions through version 7
+# Scenario decisions through version 8
 
 The October 19 handoff supersedes the earlier branching comparison. This website demonstrates a campaign to Nate. The proposed prospect offer is a relevant live demo number, emailed with a short invitation and a visual. The website and future explainer video are separate deliverables.
 
@@ -25,7 +25,7 @@ Source: `src/data/trip.json`. Scenario export: `docs/final-scenario.json`.
 
 ## Native-looking behavior with explicit limits
 
-Prepared traveler drafts live inside the composer and Send is the next action. This is labeled once as guided simulation behavior; it is not a claim about native iMessage generating or limiting replies. Outgoing messages are blue; assistant messages are neutral. Delivered precedes Read, typing precedes each reply, and the confirmation receives one acknowledgment reaction.
+Prepared traveler drafts live inside the composer and Send is the next action. The About dialog explains that replies are guided; this is not a claim about native iMessage generating or limiting replies. Outgoing messages are blue; assistant messages are neutral. Delivered precedes Read, typing precedes each reply, and the confirmation receives one acknowledgment reaction.
 
 Alex’s name/photo appear automatically after the welcome reply in this walkthrough. The Use control is removed at the user’s request. Real contact sharing, read receipts and typing depend on platform settings and delivery behavior.
 
@@ -39,7 +39,7 @@ The call starts only after the viewer presses Start voice example. The prepared 
 
 ## Commercial ending
 
-Return explicitly to the developer role, show both logos, and offer Discuss this for your product. Retain the existing non-sending modal and routing disclosure. Restart walkthrough is secondary. No email, meeting request or live message is sent.
+Return to a Linq commercial screen, show both logos, and offer Build your iMessage pilot. Retain the existing non-sending modal and routing disclosure. Restart walkthrough is secondary. No email, meeting request or live message is sent.
 
 ## Version 6 review changes
 
@@ -56,3 +56,11 @@ The ending makes a concrete pilot proposal, with a stronger headline and action.
 The text flow has four sends: home; the separate canceled-flight request; nonstop confirmation; gate-update request. The welcome introduces Alex and reveals the contact automatically before any flight options appear. The message-step list is separate from the three voice scenes, preserving the prerecorded audio and all travel facts. Cancellation still rolls back an incomplete text step, including its contact reveal when the welcome is interrupted.
 
 The campaign headline is now “Let them try it first. Win the meeting.” The email screen uses one compact lead-developer line beside the Plot Twist logo, replacing the large headline and duplicate explanation.
+
+## Version 8 restraint and brand alignment
+
+Erell’s feedback targets excess metadata and the gap between this site and Linq’s existing website. The introduction now has one product preview and a flat, three-step funnel. Repeated growth-experiment labels, the floating email/flight decorations, duplicate role banners, repeated captions explaining the comparison, and the footer simulation stamp are removed. Essential role context stays in the readable handoff, Alex’s greeting and contact label. The full simulation explanation stays available through About this demo.
+
+Linq-facing campaign, invitation and ending screens use charcoal, white and lime with monospace action labels. Geist Sans and Geist Mono are open-licensed substitutes for the official site’s proprietary font pairing. Plot Twist’s logo, plum action and neutral customer surface preserve the user’s earlier brand-transition requirement. The native phone keeps system typography and familiar blue/gray message bubbles.
+
+The two requested feature notes remain event-triggered, shorter and visually quiet. No story facts, audio, response timing, contact behavior or route links change.

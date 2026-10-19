@@ -1,6 +1,6 @@
-# Version 7 screen copy
+# Version 8 screen copy
 
-The UI and `src/scenario.ts` remain authoritative. Travel facts and the three voice scenes are unchanged. Text now starts with a separate keyword and greeting before the customer request.
+The UI and `src/scenario.ts` remain authoritative. Travel facts and the three voice scenes are unchanged. Text starts with a separate keyword and greeting before the customer request.
 
 ## Campaign
 
@@ -8,9 +8,11 @@ Headline: **Let them try it first. Win the meeting.**
 
 We email qualified voice-AI builders a personalized demo number, so they can try a customer workflow in iMessage before we ask for a meeting.
 
-Selected profiles. Public signals. A lightweight demo built with AI for each company before outreach.
+AI builds a lightweight demo for each company, selected for product fit and public signals.
 
-Primary: See the example. Secondary: Skip to the experience.
+Primary: See the example. Secondary: Try the demo.
+
+Funnel: Build their demo; Email their number; Earn a meeting.
 
 ## Developer invitation
 
@@ -18,7 +20,7 @@ A single compact line: **You’re the lead developer at** beside the Plot Twist 
 
 The large headline and repeated explanatory paragraph are removed so the email remains the focus.
 
-The example email's main action is **Try your customer’s experience**. Its original context, HOME keyword, illustrative number and non-sending disclosure remain.
+The example email's main action is **Try your customer’s experience**. Its original context, HOME keyword and illustrative number remain. Simulation details are available through About this demo.
 
 ## Role handoff
 
@@ -30,15 +32,13 @@ Imagine you’re at the airport. Your flight just got canceled. You and **Pickle
 
 **Alex is your AI travel assistant.**
 
-You’re the traveler. Alex helps you make a new plan.
-
 Primary: **Start as the traveler**
 
 First, hear Alex by phone. Then try the same task in iMessage.
 
 ## Voice and iMessage
 
-Persistent role label: YOU ARE THE TRAVELER · ALEX IS THE AI ASSISTANT
+The repeated role banner is removed. The handoff, Alex’s welcome and his contact subtitle carry this context.
 
 Voice title: **Call Alex for help**
 
@@ -64,8 +64,8 @@ After the greeting: Alex / Plot Twist · AI assistant.
 
 Two short editorial notes appear beside the phone on desktop, triggered by the actual thread feature. Each dismisses after nine seconds or its close control:
 
-- Thumb reaction: WHY iMESSAGE? **A familiar reply.** Reactions, built in.
-- Map attachment: WHY iMESSAGE? **See the way.** 6 min. A route you can keep.
+- Thumb reaction: 👍 **A quick thumbs-up.**
+- Map attachment: map pin, **Directions you can keep.** 6 min to B18.
 
 On narrow screens, notes sit below the phone in reserved space and do not cover its messages or composer.
 
@@ -74,8 +74,6 @@ The map attachment includes **Open walking route**, which opens the fictional ro
 Final next action: **See this for your product**
 
 ## Commercial ending
-
-BACK IN THE DEVELOPER’S SHOES
 
 **Give your voice agent a place in iMessage.**
 
@@ -89,10 +87,12 @@ Modal: **Let’s put your assistant in iMessage.**
 
 Start with one customer workflow. Bring your existing agent; work with Linq on the messaging experience. Then test a small pilot with your customers.
 
-Prototype preview: a live campaign would book a pilot conversation here. This demo does not send a request.
+Pilot booking is not connected in this demo.
 
-Close: Got it — back to the walkthrough
+Close: Back to the demo
 
-## Persistent disclosure
+## Footer and context
 
-Interactive simulation · Fictional travel data
+About this demo · Accessibility
+
+The repeated growth-experiment labels and simulation stamp are removed. About this demo retains the complete simulation explanation. No message or pilot request is sent; the route and flight data remain fictional.
