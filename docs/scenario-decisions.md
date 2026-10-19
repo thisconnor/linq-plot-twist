@@ -64,3 +64,7 @@ Erell’s feedback targets excess metadata and the gap between this site and Lin
 Linq-facing campaign, invitation and ending screens use charcoal, white and lime with monospace action labels. Geist Sans and Geist Mono are open-licensed substitutes for the official site’s proprietary font pairing. Plot Twist’s logo, plum action and neutral customer surface preserve the user’s earlier brand-transition requirement. The native phone keeps system typography and familiar blue/gray message bubbles.
 
 The two requested feature notes remain event-triggered, shorter and visually quiet. No story facts, audio, response timing, contact behavior or route links change.
+
+## Entry keyword revision
+
+The entry keyword is now HELP in both presentations. A stranded traveler asking for help is a clearer starting action than texting home. The invitation, invitation image, empty-thread cue, prepared message and scroll explanation use the same canonical keyword. Alex still introduces himself before the separate canceled-flight request. No narration or travel facts change.

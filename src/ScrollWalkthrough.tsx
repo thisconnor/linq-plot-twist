@@ -72,7 +72,7 @@ const COPY = [
         the conversation.
       </>
     ),
-    body: "Text “home” to the demo number. Alex introduces himself, and his name and photo appear in the conversation.",
+    body: `Text “${TRIP.keyword.toLowerCase()}” to the demo number. Alex introduces himself, and his name and photo appear in the conversation.`,
   },
   {
     title: (

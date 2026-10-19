@@ -10,7 +10,7 @@ describe("scroll walkthrough", () => {
   it("keeps the keyword, greeting and contact ahead of the flight request", () => {
     expect(projectScrollMessages(3.75).messages).toEqual([]);
     const sent = projectScrollMessages(3.95);
-    expect(sent.messages.map((message) => message.text)).toEqual(["home"]);
+    expect(sent.messages.map((message) => message.text)).toEqual(["help"]);
     expect(sent.sharedIdentity).toBe(false);
     const greeting = projectScrollMessages(4.3);
     expect(greeting.sharedIdentity).toBe(true);

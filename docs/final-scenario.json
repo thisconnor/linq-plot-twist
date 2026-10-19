@@ -8,7 +8,7 @@
     "airport": "Harbor City Airport",
     "terminal": "Terminal 2",
     "demoNumber": "+1 (202) 555-0147",
-    "keyword": "HOME",
+    "keyword": "HELP",
     "canceledFlight": "PT204",
     "startMinutes": 1045,
     "updateMinutes": 1053,
@@ -111,7 +111,7 @@
       "id": "welcome",
       "label": "Meet Alex",
       "clock": 1045,
-      "draft": "home",
+      "draft": "help",
       "replies": [
         {
           "text": "Hi, I’m Alex, Plot Twist Travel’s AI travel assistant. What can I help you with today?"

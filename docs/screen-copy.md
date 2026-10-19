@@ -20,7 +20,7 @@ A single compact line: **You’re the lead developer at** beside the Plot Twist 
 
 The large headline and repeated explanatory paragraph are removed so the email remains the focus.
 
-The example email's main action is **Try your customer’s experience**. Its original context, HOME keyword and illustrative number remain. Simulation details are available through About this demo.
+The example email's main action is **Try your customer’s experience**. Its original context, HELP keyword and illustrative number remain. Simulation details are available through About this demo.
 
 ## Role handoff
 
@@ -48,9 +48,9 @@ Next channel: **Now try iMessage**
 
 Text title: **Text Alex in iMessage** · Powered by Linq
 
-Initial empty thread: Start by texting “home”. Alex will introduce himself. Tap Send.
+Initial empty thread: Start by texting “help”. Alex will introduce himself. Tap Send.
 
-First send: **home**
+First send: **help**
 
 Alex: **Hi, I’m Alex, Plot Twist Travel’s AI travel assistant. What can I help you with today?**
 

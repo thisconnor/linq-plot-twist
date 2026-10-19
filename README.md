@@ -26,7 +26,7 @@ The two versions share the scenario, reducer, message interface, attachments, na
 2. Recognizable example email, an original message-preview image, and a clearly illustrative number.
 3. Explicit developer-to-traveler handoff using Plot Twist's established identity.
 4. One phone at a time: a short call, then the same task in iMessage. Start the call intentionally; the compact channel switch cancels the inactive channel.
-5. Four prepared messages sent from the iMessage composer: home, customer request, nonstop confirmation, gate change and directions. There are no flight/food branches. Two brief notes highlight reactions and visual directions.
+5. Four prepared messages sent from the iMessage composer: help, customer request, nonstop confirmation, gate change and directions. There are no flight/food branches. Two brief notes highlight reactions and visual directions.
 6. Explicit return to the developer, Plot Twist × Linq partnership CTA, and non-sending prototype modal.
 
 `/` opens the campaign explanation. `/#/preview` opens the example email. Reload resets to the matching entry point. Optional persistent captions are retained in session storage. The development-only `?qa=1` accelerates caption/message timers and skips narration playback for repeated tests. It does not affect production.

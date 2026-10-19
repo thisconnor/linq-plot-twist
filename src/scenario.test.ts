@@ -61,7 +61,7 @@ describe("One consistent sample story", () => {
   });
   it("starts with the keyword, then a separate request, with one reaction and no branches", () => {
     expect(MESSAGE_STEPS).toHaveLength(4);
-    expect(MESSAGE_STEPS[0].draft).toBe("home");
+    expect(MESSAGE_STEPS[0].draft).toBe("help");
     expect(MESSAGE_STEPS[0].replies).toHaveLength(1);
     expect(MESSAGE_STEPS[0].replies[0].text).toContain("I’m Alex");
     expect(MESSAGE_STEPS[0].replies[0].attachment).toBeUndefined();
@@ -227,7 +227,7 @@ describe("Linear message state and cancellation", () => {
   });
   it("reveals the contact automatically after Alex’s greeting, never before it", () => {
     let state = reducer(initialState("messages"), { type: "send", run: 1 });
-    expect(state.messages[0].text).toBe("home");
+    expect(state.messages[0].text).toBe("help");
     expect(state.sharedIdentity).toBe(false);
     expect(reducer(state, { type: "share", run: 1 })).toBe(state);
     state = reducer(state, { type: "reply", run: 1, index: 0 });

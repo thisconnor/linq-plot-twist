@@ -470,7 +470,7 @@ export function MessagePhone({
         {state.messages.length === 0 && (
           <div className="empty-thread">
             <MessageCircle size={24} />
-            <p>Start by texting “home”.</p>
+            <p>Start by texting “{TRIP.keyword.toLowerCase()}”.</p>
             <small>
               {scrollDriven
                 ? "Scroll to meet Alex."
