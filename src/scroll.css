@@ -146,7 +146,7 @@
 .scroll-copy .button {
   margin-top: 28px;
 }
-.moment-9 .scroll-copy .scroll-ending-role {
+.scroll-ending .scroll-copy .scroll-ending-role {
   margin: 0 0 16px;
   font-size: 14px;
   line-height: 1.5;
@@ -159,7 +159,7 @@
   margin-top: 0;
   gap: 12px;
 }
-.moment-9 .scroll-copy .scroll-ending-actions > p {
+.scroll-ending .scroll-copy .scroll-ending-actions > p {
   margin: 10px 0 2px;
   font-size: 13px;
   line-height: 1.5;
@@ -179,7 +179,7 @@
 .scroll-ending-proof a:hover {
   color: #fff;
 }
-.moment-9 .scroll-copy .scroll-ending-proof {
+.scroll-ending .scroll-copy .scroll-ending-proof {
   margin-top: 24px;
   color: #999;
   font-size: 12px;
@@ -414,6 +414,81 @@
 }
 .scroll-messages .composer textarea {
   height: 62px;
+}
+.linq-invitation-phone {
+  display: flex;
+  flex-direction: column;
+  color: #202022;
+}
+.linq-invitation-contact {
+  flex-shrink: 0;
+  padding: 18px 16px 15px;
+  text-align: center;
+  border-bottom: 1px solid #ececee;
+}
+.linq-invitation-contact .linq-logo {
+  width: 68px;
+  height: auto;
+  margin: 0 auto;
+  filter: invert(1);
+}
+.linq-invitation-contact h3 {
+  margin-top: 12px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.linq-invitation-contact p {
+  margin-top: 4px;
+  color: #77777e;
+  font-size: 12px;
+}
+.linq-invitation-thread {
+  flex: 1;
+  min-height: 0;
+  padding: 20px 18px 28px;
+}
+.linq-invitation-thread .thread-time {
+  margin-bottom: 18px;
+  color: #86868d;
+  font-size: 11px;
+}
+.linq-invitation-bubble {
+  width: 100%;
+  max-width: none;
+  padding: 16px 18px 8px;
+  border-radius: 18px 18px 18px 5px;
+  background: #e9e9ed;
+  color: #202022;
+}
+.linq-invitation-bubble > p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.linq-invitation-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+  min-height: 48px;
+  margin-top: 14px;
+  padding: 12px 0 6px;
+  border-top: 1px solid #d3d3d8;
+  background: transparent;
+  color: #0071e3;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+}
+.linq-invitation-cta:hover {
+  color: #004fa0;
+}
+.scroll-story .linq-invitation-cta:focus-visible {
+  outline-color: #0071e3;
+  outline-offset: 3px;
+}
+.scroll-ending .scroll-copy h2:focus {
+  outline: none;
 }
 .scroll-partnership {
   position: absolute;
@@ -757,22 +832,22 @@
   .scroll-funnel li {
     font-size: 11px;
   }
-  .moment-9 .scroll-composition {
+  .scroll-ending .scroll-composition {
     justify-content: center;
     gap: 28px;
   }
-  .moment-9 .scroll-visual {
+  .scroll-ending .scroll-visual {
     height: 80px;
     max-height: 80px;
     flex: none;
   }
-  .moment-9 .scroll-copy h2 {
+  .scroll-ending .scroll-copy h2 {
     font-size: 37px;
   }
-  .moment-9 .scroll-copy p {
+  .scroll-ending .scroll-copy p {
     font-size: 16px;
   }
-  .moment-9 .scroll-copy .scroll-ending-role {
+  .scroll-ending .scroll-copy .scroll-ending-role {
     margin-bottom: 12px;
     font-size: 13px;
   }
@@ -783,8 +858,38 @@
     min-height: 44px;
     margin-top: 0;
   }
-  .moment-9 .scroll-copy .scroll-ending-proof {
+  .scroll-ending .scroll-copy .scroll-ending-proof {
     margin-top: 18px;
+  }
+  .linq-invitation-contact {
+    padding: 12px 14px;
+  }
+  .linq-invitation-contact .linq-logo {
+    width: 56px;
+  }
+  .linq-invitation-contact h3 {
+    margin-top: 8px;
+    font-size: 16px;
+  }
+  .linq-invitation-contact p {
+    font-size: 11px;
+  }
+  .linq-invitation-thread {
+    padding: 16px 14px 24px;
+  }
+  .linq-invitation-thread .thread-time {
+    margin-bottom: 12px;
+  }
+  .linq-invitation-bubble {
+    padding: 14px 15px 6px;
+  }
+  .linq-invitation-bubble > p {
+    font-size: 15px;
+  }
+  .linq-invitation-cta {
+    min-height: 44px;
+    margin-top: 10px;
+    font-size: 14px;
   }
 }
 @media (max-height: 680px) {
@@ -916,36 +1021,36 @@
   .scroll-funnel li {
     font-size: 10px;
   }
-  .moment-9 .scroll-copy h2 {
+  .scroll-ending .scroll-copy h2 {
     font-size: 32px;
   }
-  .moment-9 .scroll-copy p {
+  .scroll-ending .scroll-copy p {
     font-size: 14px;
   }
-  .moment-9 .scroll-composition {
+  .scroll-ending .scroll-composition {
     gap: 20px;
   }
-  .moment-9 .scroll-visual {
+  .scroll-ending .scroll-visual {
     height: 56px;
     max-height: 56px;
   }
-  .moment-9 .scroll-partnership {
+  .scroll-ending .scroll-partnership {
     gap: 16px;
   }
-  .moment-9 .scroll-partnership .plot-logo > span {
+  .scroll-ending .scroll-partnership .plot-logo > span {
     font-size: 24px;
   }
-  .moment-9 .scroll-partnership > .linq-logo {
+  .scroll-ending .scroll-partnership > .linq-logo {
     width: 68px;
   }
-  .moment-9 .scroll-copy .scroll-ending-role {
+  .scroll-ending .scroll-copy .scroll-ending-role {
     margin-bottom: 10px;
     font-size: 12px;
   }
   .scroll-ending-actions {
     margin-top: 14px;
   }
-  .moment-9 .scroll-copy .scroll-ending-actions > p {
+  .scroll-ending .scroll-copy .scroll-ending-actions > p {
     margin-top: 8px;
     font-size: 12px;
   }
@@ -953,8 +1058,24 @@
     min-height: 36px;
     font-size: 12px;
   }
-  .moment-9 .scroll-copy .scroll-ending-proof {
+  .scroll-ending .scroll-copy .scroll-ending-proof {
     margin-top: 12px;
+  }
+  .scroll-linq-invitation .scroll-copy section > p {
+    display: none;
+  }
+  .linq-invitation-contact {
+    padding-top: 7px;
+    padding-bottom: 10px;
+  }
+  .linq-invitation-contact .linq-logo {
+    width: 48px;
+  }
+  .linq-invitation-contact h3 {
+    margin-top: 6px;
+  }
+  .linq-invitation-thread {
+    padding-top: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

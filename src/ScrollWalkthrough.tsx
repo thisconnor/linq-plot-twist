@@ -7,7 +7,14 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
-import { ArrowDown, ArrowUpRight, MapPin, Pause, Play } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUpRight,
+  MapPin,
+  Pause,
+  Play,
+} from "lucide-react";
 import { Avatar, Invitation, MessagePhone, Modal, StatusBar } from "./App";
 import { LinqLogo, PlotLogo } from "./Brands";
 import { ATTACHMENTS, STORY, TRIP, timeLabel } from "./scenario";
@@ -125,6 +132,17 @@ const COPY = [
   },
 ];
 
+const LINQ_INVITATION_COPY = {
+  title: (
+    <>
+      Now, back to
+      <br />
+      your product.
+    </>
+  ),
+  body: "One last message from Linq, for Plot Twist’s team.",
+};
+
 function PreviewPhone() {
   return (
     <div className="phone message-phone scroll-preview-phone">
@@ -192,6 +210,26 @@ export default function ScrollWalkthrough() {
     }
   });
   const moment = scrollMoment(frame);
+  const [endingOpen, setEndingOpen] = useState(false);
+  const endingHeading = useRef<HTMLHeadingElement>(null);
+  const invitationButton = useRef<HTMLButtonElement>(null);
+  const wasEndingOpen = useRef(false);
+  const isEnding = moment === 9 && endingOpen;
+  const isLinqInvitation = moment === 9 && !endingOpen;
+  const copy = isLinqInvitation ? LINQ_INVITATION_COPY : COPY[moment];
+  useEffect(() => {
+    if (moment !== 9) {
+      setEndingOpen(false);
+      wasEndingOpen.current = false;
+      return;
+    }
+    if (endingOpen) {
+      endingHeading.current?.focus({ preventScroll: true });
+    } else if (wasEndingOpen.current) {
+      invitationButton.current?.focus({ preventScroll: true });
+    }
+    wasEndingOpen.current = endingOpen;
+  }, [moment, endingOpen]);
   const customer = moment >= 2 && moment <= 8;
   const state = useMemo(() => projectScrollMessages(frame), [frame]);
   const [dialog, setDialog] = useState<Attachment | "about" | null>(null);
@@ -209,7 +247,9 @@ export default function ScrollWalkthrough() {
         ? "email"
         : moment <= 3
           ? "voice"
-          : "messages";
+          : moment === 9
+            ? "linq"
+            : "messages";
   const shellWidth = useTransform(
     position,
     [0, 0.55, 1, 1.45, 2, 9],
@@ -217,9 +257,7 @@ export default function ScrollWalkthrough() {
   );
   const shellRadius = useTransform(position, [0, 1, 2], [40, 12, 40]);
   const shellBorder = useTransform(position, [0, 1, 2], [5, 1, 5]);
-  const shellY = useTransform(position, [0, 1, 2, 8.75, 9], [12, 0, 0, 0, -28]);
-  const shellOpacity = useTransform(position, [0, 8.75, 8.95], [1, 1, 0]);
-  const partnershipOpacity = useTransform(position, [8.95, 9], [0, 1]);
+  const shellY = useTransform(position, [0, 1, 2], [12, 0, 0]);
   const previewOpacity = useTransform(position, [0, 0.55, 0.95], [1, 1, 0]);
   const emailOpacity = useTransform(
     position,
@@ -274,14 +312,14 @@ export default function ScrollWalkthrough() {
     ? cue.text
     : STORY[previewBeat].narration[previewBeat === 0 ? 1 : 0];
   const activeLayer = (name: string) => ({
-    "aria-hidden": kind !== name || moment === 9,
-    inert: kind !== name || moment === 9,
+    "aria-hidden": kind !== name || isEnding,
+    inert: kind !== name || isEnding,
   });
 
   return (
     <MotionConfig reducedMotion={reduced ? "always" : "never"}>
       <div
-        className={`scroll-story ${customer ? "scroll-customer" : ""} moment-${moment} ${reduced ? "reduce-scroll-motion" : ""}`}
+        className={`scroll-story ${customer ? "scroll-customer" : ""} moment-${moment} ${isEnding ? "scroll-ending" : ""} ${isLinqInvitation ? "scroll-linq-invitation" : ""} ${reduced ? "reduce-scroll-motion" : ""}`}
       >
         <motion.div
           className="scroll-backdrop"
@@ -314,7 +352,13 @@ export default function ScrollWalkthrough() {
             <div className="scroll-composition">
               <div className="scroll-copy">
                 <AnimatePresence
-                  key={moment === 9 ? "ending" : "story"}
+                  key={
+                    isEnding
+                      ? "ending"
+                      : isLinqInvitation
+                        ? "linq-invitation"
+                        : "story"
+                  }
                   mode="wait"
                   initial={false}
                 >
@@ -324,19 +368,28 @@ export default function ScrollWalkthrough() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: reduced ? 0 : -10 }}
                     transition={{ duration: reduced ? 0 : 0.16 }}
-                    aria-label={SCROLL_MOMENTS[moment]}
+                    aria-label={
+                      isLinqInvitation
+                        ? "Linq invitation"
+                        : SCROLL_MOMENTS[moment]
+                    }
                   >
-                    {moment === 9 && (
+                    {isEnding && (
                       <p className="scroll-ending-role">
                         Back in the developer’s shoes
                       </p>
                     )}
                     {moment === 0 ? (
-                      <h1>{COPY[moment].title}</h1>
+                      <h1>{copy.title}</h1>
                     ) : (
-                      <h2>{COPY[moment].title}</h2>
+                      <h2
+                        ref={isEnding ? endingHeading : undefined}
+                        tabIndex={isEnding ? -1 : undefined}
+                      >
+                        {copy.title}
+                      </h2>
                     )}
-                    <p>{COPY[moment].body}</p>
+                    <p>{copy.body}</p>
                     {moment === 0 && (
                       <>
                         <p className="scroll-context">
@@ -393,7 +446,7 @@ export default function ScrollWalkthrough() {
                         <ArrowUpRight size={14} />
                       </a>
                     )}
-                    {moment === 9 && (
+                    {isEnding && (
                       <>
                         <div className="scroll-ending-actions">
                           <a
@@ -461,10 +514,11 @@ export default function ScrollWalkthrough() {
                         : 5
                       : shellBorder,
                     y: reduced ? 0 : shellY,
-                    opacity: reduced ? (moment === 9 ? 0 : 1) : shellOpacity,
                   }}
-                  inert={moment === 9}
-                  aria-hidden={moment === 9}
+                  animate={{ opacity: isEnding ? 0 : 1 }}
+                  transition={{ duration: reduced ? 0 : 0.2 }}
+                  inert={isEnding}
+                  aria-hidden={isEnding}
                 >
                   <motion.div
                     className="scroll-layer"
@@ -561,11 +615,14 @@ export default function ScrollWalkthrough() {
                     className="scroll-layer scroll-messages"
                     {...activeLayer("messages")}
                     style={{
-                      opacity: reduced
-                        ? kind === "messages"
-                          ? 1
-                          : 0
-                        : messagesOpacity,
+                      opacity:
+                        kind === "linq"
+                          ? 0
+                          : reduced
+                            ? kind === "messages"
+                              ? 1
+                              : 0
+                            : messagesOpacity,
                     }}
                   >
                     <MessagePhone
@@ -579,17 +636,50 @@ export default function ScrollWalkthrough() {
                       scrollDriven
                     />
                   </motion.div>
+                  <div
+                    className="scroll-layer scroll-linq-message"
+                    {...activeLayer("linq")}
+                    style={{ opacity: isLinqInvitation ? 1 : 0 }}
+                  >
+                    <div className="phone message-phone linq-invitation-phone">
+                      <StatusBar clock={TRIP.updateMinutes} />
+                      <div className="linq-invitation-contact">
+                        <LinqLogo />
+                        <h3>Linq team</h3>
+                        <p>For Plot Twist’s developer</p>
+                      </div>
+                      <div
+                        className="linq-invitation-thread"
+                        role="log"
+                        aria-label="Message from Linq to Plot Twist’s developer"
+                        aria-live={isLinqInvitation ? "polite" : "off"}
+                      >
+                        <div className="thread-time">iMessage</div>
+                        <div className="bubble incoming linq-invitation-bubble">
+                          <p>
+                            You’ve seen the traveler’s experience. Let’s map how
+                            iMessage could work alongside your voice agent.
+                          </p>
+                          <button
+                            ref={invitationButton}
+                            className="linq-invitation-cta"
+                            onClick={() => setEndingOpen(true)}
+                          >
+                            See your next step <ArrowRight size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      <span className="home-indicator" />
+                    </div>
+                  </div>
                 </motion.div>
                 <motion.div
                   className="scroll-partnership"
-                  style={{
-                    opacity: reduced
-                      ? moment === 9
-                        ? 1
-                        : 0
-                      : partnershipOpacity,
-                  }}
-                  aria-hidden={moment !== 9}
+                  animate={{ opacity: isEnding ? 1 : 0 }}
+                  initial={false}
+                  transition={{ duration: reduced ? 0 : 0.2 }}
+                  aria-hidden={!isEnding}
+                  inert={!isEnding}
                 >
                   <PlotLogo />
                   <span>×</span>
@@ -601,8 +691,12 @@ export default function ScrollWalkthrough() {
         </main>
         <footer className="scroll-footer">
           <span>
-            {moment === 9 ? (
-              <button onClick={() => seek(0)}>Back to the start</button>
+            {isEnding ? (
+              <button onClick={() => setEndingOpen(false)}>
+                Back to Linq’s message
+              </button>
+            ) : isLinqInvitation ? (
+              <button onClick={() => seek(8.5)}>Back to the traveler</button>
             ) : (
               <span aria-hidden="true">
                 <ArrowDown size={13} /> Keep scrolling
@@ -628,7 +722,8 @@ export default function ScrollWalkthrough() {
               <>
                 <p>
                   This walkthrough follows your scroll position. Scroll backward
-                  to rewind it.
+                  to rewind it. At the end, Linq’s message is addressed to the
+                  developer. Its button reveals the final invitation.
                 </p>
                 <p>
                   Plot Twist Travel, Alex, the airport and flights are
