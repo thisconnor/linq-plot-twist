@@ -116,12 +116,12 @@ const COPY = [
   {
     title: (
       <>
-        Add iMessage to
+        Bring Your Agent
         <br />
-        your voice product.
+        to iMessage
       </>
     ),
-    body: "Back in the developer’s shoes: give customers flight options, gate updates, and directions they can revisit in iMessage, alongside your existing voice agent.",
+    body: "Add texting, reactions and media to your existing voice agent, with Linq handling the messaging infrastructure.",
   },
 ];
 
@@ -194,9 +194,7 @@ export default function ScrollWalkthrough() {
   const moment = scrollMoment(frame);
   const customer = moment >= 2 && moment <= 8;
   const state = useMemo(() => projectScrollMessages(frame), [frame]);
-  const [dialog, setDialog] = useState<Attachment | "about" | "pilot" | null>(
-    null,
-  );
+  const [dialog, setDialog] = useState<Attachment | "about" | null>(null);
   const [playing, setPlaying] = useState(false);
   const [audioFailed, setAudioFailed] = useState(false);
   const [cue, setCue] = useState({
@@ -315,7 +313,11 @@ export default function ScrollWalkthrough() {
           <div className="scroll-canvas">
             <div className="scroll-composition">
               <div className="scroll-copy">
-                <AnimatePresence mode="wait" initial={false}>
+                <AnimatePresence
+                  key={moment === 9 ? "ending" : "story"}
+                  mode="wait"
+                  initial={false}
+                >
                   <motion.section
                     key={moment}
                     initial={reduced ? false : { opacity: 0, y: 14 }}
@@ -324,6 +326,11 @@ export default function ScrollWalkthrough() {
                     transition={{ duration: reduced ? 0 : 0.16 }}
                     aria-label={SCROLL_MOMENTS[moment]}
                   >
+                    {moment === 9 && (
+                      <p className="scroll-ending-role">
+                        Back in the developer’s shoes
+                      </p>
+                    )}
                     {moment === 0 ? (
                       <h1>{COPY[moment].title}</h1>
                     ) : (
@@ -387,12 +394,49 @@ export default function ScrollWalkthrough() {
                       </a>
                     )}
                     {moment === 9 && (
-                      <button
-                        className="button primary"
-                        onClick={() => setDialog("pilot")}
-                      >
-                        Meet with Linq
-                      </button>
+                      <>
+                        <div className="scroll-ending-actions">
+                          <a
+                            className="button primary"
+                            href="https://linqapp.com/s/talk-to-an-expert"
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-describedby="ending-meeting-context"
+                          >
+                            Map Your First Workflow <ArrowUpRight size={16} />
+                          </a>
+                          <p id="ending-meeting-context">
+                            Talk through your use case with Linq.
+                          </p>
+                          <a
+                            className="scroll-ending-secondary"
+                            href="https://dashboard.linqapp.com/sandbox-signup"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Explore the sandbox <ArrowUpRight size={13} />
+                          </a>
+                        </div>
+                        <p className="scroll-ending-proof">
+                          <span>Linq infrastructure</span>
+                          <span aria-hidden="true"> · </span>
+                          <a
+                            href="https://linqapp.com/s/security"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            SOC 2 Type II
+                          </a>
+                          <span aria-hidden="true"> · </span>
+                          <a
+                            href="https://linqapp.com/s/talk-to-an-expert"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            99.95% SLA
+                          </a>
+                        </p>
+                      </>
                     )}
                   </motion.section>
                 </AnimatePresence>
@@ -576,38 +620,11 @@ export default function ScrollWalkthrough() {
           <Modal
             preserveScroll
             title={
-              dialog === "pilot"
-                ? "Let’s map your first iMessage workflow."
-                : dialog === "about"
-                  ? "About this demo"
-                  : ATTACHMENTS[dialog].title
+              dialog === "about" ? "About this demo" : ATTACHMENTS[dialog].title
             }
             onClose={() => setDialog(null)}
           >
-            {dialog === "pilot" ? (
-              <>
-                <div className="partnership small">
-                  <PlotLogo />
-                  <span>×</span>
-                  <LinqLogo />
-                </div>
-                <p>
-                  Meet with Linq to map one customer workflow onto your existing
-                  voice agent. Then test the connection in the sandbox before
-                  planning a customer pilot.
-                </p>
-                <p className="disclosure">
-                  This is an illustrated next step. This demo does not book a
-                  meeting or connect to your agent.
-                </p>
-                <button
-                  className="button primary"
-                  onClick={() => setDialog(null)}
-                >
-                  Back to the demo
-                </button>
-              </>
-            ) : dialog === "about" ? (
+            {dialog === "about" ? (
               <>
                 <p>
                   This walkthrough follows your scroll position. Scroll backward
@@ -618,6 +635,11 @@ export default function ScrollWalkthrough() {
                   fictional. Traveler messages are prepared and revealed by
                   scrolling. The number is illustrative. No messages, calls,
                   bookings or meeting requests are sent.
+                </p>
+                <p>
+                  The ending links open Linq’s official meeting form, sandbox,
+                  and product information. This demo does not submit those forms
+                  or connect an agent.
                 </p>
                 <p>
                   The invitation illustrates the proposed outreach. The demo is

@@ -146,6 +146,52 @@
 .scroll-copy .button {
   margin-top: 28px;
 }
+.moment-9 .scroll-copy .scroll-ending-role {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #999;
+}
+.scroll-ending-actions {
+  margin-top: 28px;
+}
+.scroll-ending-actions .button {
+  margin-top: 0;
+  gap: 12px;
+}
+.moment-9 .scroll-copy .scroll-ending-actions > p {
+  margin: 10px 0 2px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.scroll-ending-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 0;
+  color: #b3b3b3;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.scroll-ending-secondary:hover,
+.scroll-ending-proof a:hover {
+  color: #fff;
+}
+.moment-9 .scroll-copy .scroll-ending-proof {
+  margin-top: 24px;
+  color: #999;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.scroll-ending-proof a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #555;
+  text-underline-offset: 3px;
+  padding: 3px 0;
+}
 .scroll-customer .button.plum {
   color: #fff;
 }
@@ -713,10 +759,11 @@
   }
   .moment-9 .scroll-composition {
     justify-content: center;
-    gap: 50px;
+    gap: 28px;
   }
   .moment-9 .scroll-visual {
-    max-height: 120px;
+    height: 80px;
+    max-height: 80px;
     flex: none;
   }
   .moment-9 .scroll-copy h2 {
@@ -724,6 +771,20 @@
   }
   .moment-9 .scroll-copy p {
     font-size: 16px;
+  }
+  .moment-9 .scroll-copy .scroll-ending-role {
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+  .scroll-ending-actions {
+    margin-top: 20px;
+  }
+  .scroll-ending-actions .button {
+    min-height: 44px;
+    margin-top: 0;
+  }
+  .moment-9 .scroll-copy .scroll-ending-proof {
+    margin-top: 18px;
   }
 }
 @media (max-height: 680px) {
@@ -860,6 +921,40 @@
   }
   .moment-9 .scroll-copy p {
     font-size: 14px;
+  }
+  .moment-9 .scroll-composition {
+    gap: 20px;
+  }
+  .moment-9 .scroll-visual {
+    height: 56px;
+    max-height: 56px;
+  }
+  .moment-9 .scroll-partnership {
+    gap: 16px;
+  }
+  .moment-9 .scroll-partnership .plot-logo > span {
+    font-size: 24px;
+  }
+  .moment-9 .scroll-partnership > .linq-logo {
+    width: 68px;
+  }
+  .moment-9 .scroll-copy .scroll-ending-role {
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+  .scroll-ending-actions {
+    margin-top: 14px;
+  }
+  .moment-9 .scroll-copy .scroll-ending-actions > p {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  .scroll-ending-secondary {
+    min-height: 36px;
+    font-size: 12px;
+  }
+  .moment-9 .scroll-copy .scroll-ending-proof {
+    margin-top: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
