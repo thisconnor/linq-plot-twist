@@ -394,21 +394,24 @@ export function MessagePhone({
   onSend,
   onAttachment,
   scrollDriven = false,
+  threadTail,
 }: {
   state: DemoState;
   onSend(): void;
   onAttachment(attachment: Attachment): void;
   scrollDriven?: boolean;
+  threadTail?: ReactNode;
 }) {
   const thread = useRef<HTMLDivElement>(null);
   const follow = useRef(true);
   const userScrolling = useRef(false);
   const [away, setAway] = useState(false);
+  const hasThreadTail = Boolean(threadTail);
   const lastUser = state.messages.map((m) => m.role).lastIndexOf("user");
   useEffect(() => {
     if (follow.current && thread.current)
       thread.current.scrollTop = thread.current.scrollHeight;
-  }, [state.messages, state.typing, state.sharedIdentity]);
+  }, [state.messages, state.typing, state.sharedIdentity, hasThreadTail]);
   useEffect(() => {
     const node = thread.current;
     if (!node) return;
@@ -421,7 +424,9 @@ export function MessagePhone({
   const identity = state.sharedIdentity;
   const clock = state.step >= 3 ? TRIP.updateMinutes : TRIP.startMinutes;
   return (
-    <div className="phone message-phone">
+    <div
+      className={`phone message-phone${hasThreadTail ? " has-thread-tail" : ""}`}
+    >
       <StatusBar clock={clock} />
       <div className="messages-contact">
         <ChevronLeft className="contact-back" size={26} aria-hidden="true" />
@@ -566,6 +571,7 @@ export function MessagePhone({
             <i />
           </span>
         )}
+        {threadTail}
       </div>
       {away && (
         <button

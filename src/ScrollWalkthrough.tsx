@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Avatar, Invitation, MessagePhone, Modal, StatusBar } from "./App";
 import { LinqLogo, PlotLogo } from "./Brands";
+import IntroMessagePhone from "./IntroMessagePhone";
 import { ATTACHMENTS, STORY, TRIP, timeLabel } from "./scenario";
 import type { Attachment, Beat } from "./scenario";
 import { VoicePlayback } from "./playback";
@@ -143,35 +144,6 @@ const LINQ_INVITATION_COPY = {
   body: "One last message from Linq, for Plot Twist’s team.",
 };
 
-function PreviewPhone() {
-  return (
-    <div className="phone message-phone scroll-preview-phone">
-      <StatusBar clock={TRIP.startMinutes} />
-      <div className="preview-contact">
-        <Avatar />
-        <div>
-          <strong>Alex</strong>
-          <span>Plot Twist · AI travel assistant</span>
-        </div>
-      </div>
-      <div className="preview-thread">
-        <p className="preview-bubble outgoing">
-          My flight was canceled. Can you help?
-        </p>
-        <p className="preview-bubble incoming">
-          Two flights home tonight. I’d take the nonstop.
-        </p>
-        <img
-          className="preview-attachment"
-          src={ATTACHMENTS.flights.src}
-          alt={ATTACHMENTS.flights.alt}
-        />
-      </div>
-      <span className="home-indicator" />
-    </div>
-  );
-}
-
 export default function ScrollWalkthrough() {
   const track = useRef<HTMLDivElement>(null);
   const audio = useRef<HTMLAudioElement>(null);
@@ -247,9 +219,7 @@ export default function ScrollWalkthrough() {
         ? "email"
         : moment <= 3
           ? "voice"
-          : moment === 9
-            ? "linq"
-            : "messages";
+          : "messages";
   const shellWidth = useTransform(
     position,
     [0, 0.55, 1, 1.45, 2, 9],
@@ -390,6 +360,17 @@ export default function ScrollWalkthrough() {
                       </h2>
                     )}
                     <p>{copy.body}</p>
+                    {isLinqInvitation && (
+                      <div className="scroll-click-cue" id="linq-click-cue">
+                        <span className="click-cue-desktop">
+                          Click “See your next step”
+                        </span>
+                        <span className="click-cue-mobile">
+                          Tap “See your next step”
+                        </span>
+                        <ArrowRight size={48} aria-hidden="true" />
+                      </div>
+                    )}
                     {moment === 0 && (
                       <>
                         <p className="scroll-context">
@@ -531,7 +512,7 @@ export default function ScrollWalkthrough() {
                         : previewOpacity,
                     }}
                   >
-                    <PreviewPhone />
+                    <IntroMessagePhone />
                   </motion.div>
                   <motion.div
                     className="scroll-layer scroll-email"
@@ -615,14 +596,11 @@ export default function ScrollWalkthrough() {
                     className="scroll-layer scroll-messages"
                     {...activeLayer("messages")}
                     style={{
-                      opacity:
-                        kind === "linq"
-                          ? 0
-                          : reduced
-                            ? kind === "messages"
-                              ? 1
-                              : 0
-                            : messagesOpacity,
+                      opacity: reduced
+                        ? kind === "messages"
+                          ? 1
+                          : 0
+                        : messagesOpacity,
                     }}
                   >
                     <MessagePhone
@@ -634,44 +612,34 @@ export default function ScrollWalkthrough() {
                       }
                       onAttachment={setDialog}
                       scrollDriven
+                      threadTail={
+                        isLinqInvitation ? (
+                          <section
+                            className="linq-thread-invitation"
+                            aria-label="Linq invitation for Plot Twist’s developer"
+                          >
+                            <div className="message-group assistant">
+                              <div className="linq-thread-sender">
+                                <LinqLogo />
+                                <span>Linq team · For the developer</span>
+                              </div>
+                              <div className="bubble incoming linq-invitation-bubble">
+                                <p>Ready to bring your agent to iMessage?</p>
+                                <button
+                                  ref={invitationButton}
+                                  className="linq-invitation-cta"
+                                  onClick={() => setEndingOpen(true)}
+                                  aria-describedby="linq-click-cue"
+                                >
+                                  See your next step <ArrowRight size={16} />
+                                </button>
+                              </div>
+                            </div>
+                          </section>
+                        ) : undefined
+                      }
                     />
                   </motion.div>
-                  <div
-                    className="scroll-layer scroll-linq-message"
-                    {...activeLayer("linq")}
-                    style={{ opacity: isLinqInvitation ? 1 : 0 }}
-                  >
-                    <div className="phone message-phone linq-invitation-phone">
-                      <StatusBar clock={TRIP.updateMinutes} />
-                      <div className="linq-invitation-contact">
-                        <LinqLogo />
-                        <h3>Linq team</h3>
-                        <p>For Plot Twist’s developer</p>
-                      </div>
-                      <div
-                        className="linq-invitation-thread"
-                        role="log"
-                        aria-label="Message from Linq to Plot Twist’s developer"
-                        aria-live={isLinqInvitation ? "polite" : "off"}
-                      >
-                        <div className="thread-time">iMessage</div>
-                        <div className="bubble incoming linq-invitation-bubble">
-                          <p>
-                            You’ve seen the traveler’s experience. Let’s map how
-                            iMessage could work alongside your voice agent.
-                          </p>
-                          <button
-                            ref={invitationButton}
-                            className="linq-invitation-cta"
-                            onClick={() => setEndingOpen(true)}
-                          >
-                            See your next step <ArrowRight size={16} />
-                          </button>
-                        </div>
-                      </div>
-                      <span className="home-indicator" />
-                    </div>
-                  </div>
                 </motion.div>
                 <motion.div
                   className="scroll-partnership"
