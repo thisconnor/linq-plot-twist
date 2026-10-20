@@ -117,9 +117,9 @@ const COPY = [
   {
     title: (
       <>
-        Now, back to
+        Keep your agent
         <br />
-        your product.
+        in the conversation.
       </>
     ),
     body: null,
@@ -138,8 +138,7 @@ const COPY = [
 
 export default function ScrollWalkthrough() {
   const [showPartnership] = useState(
-    () =>
-      new URLSearchParams(window.location.search).get("ending") === "graphic",
+    () => new URLSearchParams(window.location.search).get("ending") !== "plain",
   );
   const track = useRef<HTMLDivElement>(null);
   const audio = useRef<HTMLAudioElement>(null);
@@ -308,9 +307,7 @@ export default function ScrollWalkthrough() {
         <header className="scroll-header">
           <a
             href={
-              showPartnership
-                ? "./?view=scroll&ending=graphic"
-                : "./?view=scroll"
+              showPartnership ? "./?view=scroll" : "./?view=scroll&ending=plain"
             }
             aria-label="Return to scroll introduction"
           >

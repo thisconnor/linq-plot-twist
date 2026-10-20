@@ -1,6 +1,6 @@
 # Ending invitation variant
 
-Branch: `ending-agent-invitation`. Based on `bfc331b`, the preserved public version on `main`. This branch is for comparison; it must not replace the existing GitHub Pages release without the user's approval.
+Release branch: `ending-agent-invitation`. The user approved publishing this branch on October 20, 2026. The previous public source version, `bfc331b1d5536072daad1951443c9c66456be29f`, remains on `main` and is also preserved on the remote branch `backup/pre-ending-invitation-2026-10-20`.
 
 ## Focused changes
 
@@ -14,11 +14,11 @@ Add texting, reactions and media to your existing voice agent, with Linq handlin
 
 **Map Your First Workflow** is the single primary action. Supporting text identifies it as a conversation with Linq. It opens Linq's official meeting form in a separate tab. **Explore the sandbox** is a quieter secondary link. This replaces the non-sending meeting-information modal; it does not book or submit anything automatically.
 
-Alex ends the travel conversation in character. The next scroll chapter returns to the developer's perspective and appends one ordinary incoming message inside the same thread. It uses the same native bubble, font, size, and spacing as the other replies; the travel history, contact header, and composer remain in place. The heading returns to the product, and the message's sign-off identifies Linq. The redundant explanatory sentence beside the phone is removed. It says:
+Alex ends the travel conversation in character. The next scroll chapter returns to the developer's perspective and appends one ordinary incoming message inside the same thread. It uses the same native bubble, font, size, and spacing as the other replies; the travel history, contact header, and composer remain in place. The heading reads **Keep your agent in the conversation.**, and the message's sign-off identifies Linq. The redundant explanatory sentence beside the phone is removed. It says:
 
 > Ready to bring your agent to iMessage? - Linq
 
-Two preview variants share the same message and flow. The default keeps the plain text message. `?view=scroll&ending=graphic` adds a small Plot Twist Travel × Linq lockup inside that bubble, between the Linq sign-off and the blue action. The graphic reuses the existing brand marks and does not link anywhere.
+The selected default includes a small Plot Twist Travel × Linq lockup inside the message bubble, between the Linq sign-off and the blue action. The optional `?view=scroll&ending=plain` comparison keeps the same message and flow without that graphic. The graphic reuses the existing brand marks and does not link anywhere.
 
 The blue **See your next steps** button jumps to the final invitation. Continuing to scroll reaches the same ending without clicking. There is no arrow, click instruction, or locked scene. The ending's **Back to Linq's message** control scrolls back to the note. Keyboard focus moves to the destination only when one of these shortcuts is activated; ordinary scrolling does not move focus.
 
@@ -41,13 +41,17 @@ The small proof line reads **Linq infrastructure · SOC 2 Type II · 99.95% SLA*
 
 Run `npm run build`, then `npm run preview -- --port 4177`. Compare the two versions:
 
-- Plain message: `http://127.0.0.1:4177/?view=scroll#linq-invitation`
-- With the small partnership graphic: `http://127.0.0.1:4177/?view=scroll&ending=graphic#linq-invitation`
+- Selected graphic version: `http://127.0.0.1:4177/?view=scroll#linq-invitation`
+- Plain comparison: `http://127.0.0.1:4177/?view=scroll&ending=plain#linq-invitation`
 
-Scroll through Linq's message to the final invitation, or use **See your next steps** as a shortcut. End also reaches the final invitation. The public GitHub Pages deployment stays on the approved version.
+Scroll through Linq's message to the final invitation, or use **See your next steps** as a shortcut. End also reaches the final invitation. The approved graphic version is published through `npm run deploy`, which records its exact source commit in the live `version.json`.
 
 ## Validation
 
 The 27 scenario and scroll-model tests cover the existing travel sequence, deterministic rewind, and progression through the new Linq-note chapter into the final invitation without changing the completed trip. The production build checks TypeScript and Vite output.
 
 Browser review covers normal and reduced motion, desktop and narrow mobile layouts, continuous scrolling into the ending, the optional blue shortcut, return navigation, matching native bubble typography, keyboard focus, and browser errors. Both plain and graphic comparison links open directly at the message chapter after the asynchronous walkthrough loads. The small graphic was checked at 1440×900 and 320×568; the note, graphic, and 44-pixel shortcut fit inside the thread without horizontal overflow. Inactive layers remain hidden from focus and assistive technology. Temporary viewport and motion overrides are restored after review.
+
+## Restoring the previous release
+
+The named backup was pushed before publication. To restore the earlier public experience, use a clean checkout of `backup/pre-ending-invitation-2026-10-20` and run the existing `npm run deploy` script. This restores source `bfc331b1d5536072daad1951443c9c66456be29f`; verify the live `version.json` and browser afterward. The previous published asset commit was `61ef60a28ab87154f1c05d68134749bee93fa4bc` on `gh-pages`. Keeping this record does not restore the site automatically.
