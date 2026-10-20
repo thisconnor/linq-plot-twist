@@ -53,7 +53,6 @@
   color: #43333d;
 }
 .scroll-track {
-  height: 1000svh;
   position: relative;
 }
 .scroll-anchor {
@@ -416,67 +415,16 @@
 .scroll-messages .composer textarea {
   height: 62px;
 }
-.scroll-messages .has-thread-tail .composer {
-  display: none;
-}
 .linq-thread-invitation {
   flex-shrink: 0;
-  padding: 14px 0 8px;
-}
-.linq-thread-sender {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0 0 6px 4px;
-  color: #77777e;
-  font-size: 11px;
-}
-.linq-thread-sender .linq-logo {
-  width: 29px;
-  filter: invert(1);
-}
-.scroll-click-cue {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin-top: 26px;
-  color: #c4ff20;
-  font-size: 15px;
-  line-height: 1.5;
-}
-.scroll-click-cue > svg {
-  flex-shrink: 0;
-  stroke-width: 1.5;
-}
-.click-cue-mobile {
-  display: none;
-}
-.linq-invitation-bubble {
-  width: 100%;
-  max-width: none;
-  padding: 16px 18px 8px;
-  border-radius: 18px 18px 18px 5px;
-  background: #e9e9ed;
-  color: #202022;
-}
-.linq-invitation-bubble > p {
-  font-size: 16px;
-  line-height: 1.5;
 }
 .linq-invitation-cta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 12px;
-  min-height: 48px;
-  margin-top: 14px;
-  padding: 12px 0 6px;
-  border-top: 1px solid #d3d3d8;
+  display: block;
+  min-height: 44px;
+  padding: 6px 0 0;
   background: transparent;
   color: #0071e3;
-  font-size: 15px;
-  font-weight: 600;
+  font: inherit;
   text-align: left;
 }
 .linq-invitation-cta:hover {
@@ -859,33 +807,6 @@
   }
   .scroll-ending .scroll-copy .scroll-ending-proof {
     margin-top: 18px;
-  }
-  .linq-invitation-bubble {
-    padding: 14px 15px 6px;
-  }
-  .linq-invitation-bubble > p {
-    font-size: 15px;
-  }
-  .linq-invitation-cta {
-    min-height: 44px;
-    margin-top: 10px;
-    font-size: 14px;
-  }
-  .scroll-click-cue {
-    gap: 12px;
-    margin-top: 12px;
-    font-size: 12px;
-  }
-  .scroll-click-cue > svg {
-    width: 28px;
-    height: 28px;
-    transform: rotate(90deg);
-  }
-  .click-cue-desktop {
-    display: none;
-  }
-  .click-cue-mobile {
-    display: inline;
   }
 }
 @media (max-height: 680px) {

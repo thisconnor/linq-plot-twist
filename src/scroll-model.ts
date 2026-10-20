@@ -12,6 +12,7 @@ export const SCROLL_MOMENTS = [
   "confirmation",
   "gate",
   "route",
+  "linq-invitation",
   "pilot",
 ] as const;
 

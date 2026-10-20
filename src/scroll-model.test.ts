@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   nextScrollSend,
   projectScrollMessages,
+  SCROLL_MOMENTS,
   scrollMoment,
 } from "./scroll-model";
 import { MESSAGE_STEPS } from "./scenario";
@@ -47,14 +48,27 @@ describe("scroll walkthrough", () => {
     projectScrollMessages(8.7);
     expect(projectScrollMessages(5.6)).toEqual(before);
     expect(projectScrollMessages(3.8).sharedIdentity).toBe(false);
-    const complete = projectScrollMessages(9);
+    const complete = projectScrollMessages(10);
     expect(new Set(complete.messages.map((message) => message.id)).size).toBe(
       complete.messages.length,
     );
   });
+  it("lets scrolling continue through Linq's invitation to the ending without changing the completed trip", () => {
+    expect(SCROLL_MOMENTS[scrollMoment(8.7)]).toBe("route");
+    expect(SCROLL_MOMENTS[scrollMoment(8.75)]).toBe("linq-invitation");
+    expect(SCROLL_MOMENTS[scrollMoment(9.74)]).toBe("linq-invitation");
+    expect(SCROLL_MOMENTS[scrollMoment(9.75)]).toBe("pilot");
+    expect(SCROLL_MOMENTS[scrollMoment(10)]).toBe("pilot");
+
+    const completedTrip = projectScrollMessages(8.7);
+    expect(completedTrip.step).toBe(MESSAGE_STEPS.length);
+    expect(completedTrip.busy).toBe(false);
+    expect(projectScrollMessages(9)).toEqual(completedTrip);
+    expect(projectScrollMessages(10)).toEqual(completedTrip);
+  });
   it("clamps moment selection and lets the optional Send control advance the same timeline", () => {
     expect(scrollMoment(-4)).toBe(0);
-    expect(scrollMoment(50)).toBe(9);
+    expect(scrollMoment(50)).toBe(10);
     expect(scrollMoment(NaN)).toBe(0);
     expect(nextScrollSend(4.6)).toBeCloseTo(4.87);
   });
