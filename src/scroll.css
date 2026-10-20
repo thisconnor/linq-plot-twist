@@ -418,6 +418,36 @@
 .linq-thread-invitation {
   flex-shrink: 0;
 }
+.linq-message-partnership {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 10px 0 2px;
+}
+.linq-message-partnership .plot-logo {
+  gap: 4px;
+}
+.linq-message-partnership .plot-logo > svg {
+  width: 18px;
+  height: 18px;
+}
+.linq-message-partnership .plot-logo > span {
+  font-size: 14px;
+  letter-spacing: -0.7px;
+}
+.linq-message-partnership .plot-logo small {
+  font-size: 5px;
+  letter-spacing: 1.8px;
+  margin-top: 3px;
+}
+.linq-message-partnership > span:not(.plot-logo) {
+  color: #77777e;
+  font-size: 13px;
+}
+.linq-message-partnership > .linq-logo {
+  width: 44px;
+  filter: invert(1);
+}
 .linq-invitation-cta {
   display: block;
   min-height: 44px;

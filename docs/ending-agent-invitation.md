@@ -14,9 +14,11 @@ Add texting, reactions and media to your existing voice agent, with Linq handlin
 
 **Map Your First Workflow** is the single primary action. Supporting text identifies it as a conversation with Linq. It opens Linq's official meeting form in a separate tab. **Explore the sandbox** is a quieter secondary link. This replaces the non-sending meeting-information modal; it does not book or submit anything automatically.
 
-Alex ends the travel conversation in character. The next scroll chapter returns to the developer's perspective and appends one ordinary incoming message inside the same thread. It uses the same native bubble, font, size, and spacing as the other replies; the travel history, contact header, and composer remain in place. The surrounding caption identifies this as a final note from Linq for Plot Twist's team. It says:
+Alex ends the travel conversation in character. The next scroll chapter returns to the developer's perspective and appends one ordinary incoming message inside the same thread. It uses the same native bubble, font, size, and spacing as the other replies; the travel history, contact header, and composer remain in place. The heading returns to the product, and the message's sign-off identifies Linq. The redundant explanatory sentence beside the phone is removed. It says:
 
-> Ready to bring your agent to iMessage? — Linq
+> Ready to bring your agent to iMessage? - Linq
+
+Two preview variants share the same message and flow. The default keeps the plain text message. `?view=scroll&ending=graphic` adds a small Plot Twist Travel × Linq lockup inside that bubble, between the Linq sign-off and the blue action. The graphic reuses the existing brand marks and does not link anywhere.
 
 The blue **See your next steps** button jumps to the final invitation. Continuing to scroll reaches the same ending without clicking. There is no arrow, click instruction, or locked scene. The ending's **Back to Linq's message** control scrolls back to the note. Keyboard focus moves to the destination only when one of these shortcuts is activated; ordinary scrolling does not move focus.
 
@@ -37,10 +39,15 @@ The small proof line reads **Linq infrastructure · SOC 2 Type II · 99.95% SLA*
 
 ## Preview
 
-Run `npm run build`, then `npm run preview -- --port 4177`. Open `http://127.0.0.1:4177/?view=scroll`. Scroll through Linq's message to the final invitation, or use **See your next steps** as a shortcut. End also reaches the final invitation. The public GitHub Pages deployment stays on the approved version.
+Run `npm run build`, then `npm run preview -- --port 4177`. Compare the two versions:
+
+- Plain message: `http://127.0.0.1:4177/?view=scroll#linq-invitation`
+- With the small partnership graphic: `http://127.0.0.1:4177/?view=scroll&ending=graphic#linq-invitation`
+
+Scroll through Linq's message to the final invitation, or use **See your next steps** as a shortcut. End also reaches the final invitation. The public GitHub Pages deployment stays on the approved version.
 
 ## Validation
 
 The 27 scenario and scroll-model tests cover the existing travel sequence, deterministic rewind, and progression through the new Linq-note chapter into the final invitation without changing the completed trip. The production build checks TypeScript and Vite output.
 
-Browser review covers normal and reduced motion, desktop and narrow mobile layouts, continuous scrolling into the ending, the optional blue shortcut, return navigation, matching native bubble typography, keyboard focus, and browser errors. Inactive layers remain hidden from focus and assistive technology. Temporary viewport and motion overrides are restored after review.
+Browser review covers normal and reduced motion, desktop and narrow mobile layouts, continuous scrolling into the ending, the optional blue shortcut, return navigation, matching native bubble typography, keyboard focus, and browser errors. Both plain and graphic comparison links open directly at the message chapter after the asynchronous walkthrough loads. The small graphic was checked at 1440×900 and 320×568; the note, graphic, and 44-pixel shortcut fit inside the thread without horizontal overflow. Inactive layers remain hidden from focus and assistive technology. Temporary viewport and motion overrides are restored after review.

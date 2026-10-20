@@ -122,7 +122,7 @@ const COPY = [
         your product.
       </>
     ),
-    body: "One last message from Linq, for Plot Twist’s team.",
+    body: null,
   },
   {
     title: (
@@ -137,6 +137,10 @@ const COPY = [
 ];
 
 export default function ScrollWalkthrough() {
+  const [showPartnership] = useState(
+    () =>
+      new URLSearchParams(window.location.search).get("ending") === "graphic",
+  );
   const track = useRef<HTMLDivElement>(null);
   const audio = useRef<HTMLAudioElement>(null);
   const voice = useRef(
@@ -230,7 +234,7 @@ export default function ScrollWalkthrough() {
   );
   const messagesOpacity = useTransform(position, [3.45, 3.95], [0, 1]);
 
-  function seek(value: number) {
+  function seek(value: number, instant = false) {
     if (!track.current) return;
     const top = window.scrollY + track.current.getBoundingClientRect().top;
     const distance = track.current.offsetHeight - window.innerHeight;
@@ -239,9 +243,15 @@ export default function ScrollWalkthrough() {
       top:
         top +
         (Math.max(0, Math.min(lastMoment, value)) / lastMoment) * distance,
-      behavior: reduced ? "instant" : "smooth",
+      behavior: reduced || instant ? "instant" : "smooth",
     });
   }
+  useEffect(() => {
+    const chapter = SCROLL_MOMENTS.findIndex(
+      (name) => name === window.location.hash.slice(1),
+    );
+    if (chapter > 0) seek(chapter, true);
+  }, []);
   function stopVoice() {
     voice.current.cancel();
     setPlaying(false);
@@ -296,7 +306,14 @@ export default function ScrollWalkthrough() {
           <a href="#pilot">Next step</a>
         </nav>
         <header className="scroll-header">
-          <a href="./?view=scroll" aria-label="Return to scroll introduction">
+          <a
+            href={
+              showPartnership
+                ? "./?view=scroll&ending=graphic"
+                : "./?view=scroll"
+            }
+            aria-label="Return to scroll introduction"
+          >
             {customer ? <PlotLogo compact /> : <LinqLogo />}
           </a>
         </header>
@@ -355,7 +372,7 @@ export default function ScrollWalkthrough() {
                         {copy.title}
                       </h2>
                     )}
-                    <p>{copy.body}</p>
+                    {copy.body && <p>{copy.body}</p>}
                     {moment === 0 && (
                       <>
                         <p className="scroll-context">
@@ -605,7 +622,18 @@ export default function ScrollWalkthrough() {
                           >
                             <div className="message-group assistant">
                               <div className="bubble incoming">
-                                Ready to bring your agent to iMessage? — Linq
+                                Ready to bring your agent to iMessage? - Linq
+                                {showPartnership && (
+                                  <div
+                                    className="linq-message-partnership"
+                                    role="img"
+                                    aria-label="Plot Twist Travel × Linq"
+                                  >
+                                    <PlotLogo compact />
+                                    <span aria-hidden="true">×</span>
+                                    <LinqLogo />
+                                  </div>
+                                )}
                                 <button
                                   ref={invitationButton}
                                   className="linq-invitation-cta"
