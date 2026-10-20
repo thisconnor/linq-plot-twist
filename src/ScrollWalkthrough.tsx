@@ -32,7 +32,7 @@ const COPY = [
         Win the meeting.
       </>
     ),
-    body: "We email qualified voice-AI builders a personalized demo number, so they can try a customer workflow in iMessage before we ask for a meeting.",
+    body: "We email teams already building voice AI products a personalized demo number, so they can try a customer workflow in iMessage before we ask for a meeting.",
   },
   {
     title: (
@@ -42,7 +42,7 @@ const COPY = [
         Sent to their inbox.
       </>
     ),
-    body: "You’re the lead developer at Plot Twist Travel. Linq has built a small demo of your assistant in iMessage. This is the email you receive.",
+    body: "You’re the lead developer at Plot Twist Travel, which already has a voice travel assistant. Linq sends this concept demo to show what iMessage could add.",
   },
   {
     title: (
@@ -62,7 +62,7 @@ const COPY = [
         they already built.
       </>
     ),
-    body: "Alex can find a flight, recommend the nonstop, and explain a gate change. Follow the same problem into iMessage.",
+    body: "Alex can find a flight, recommend the nonstop, and explain a gate change by phone. Next, see what iMessage adds alongside the call.",
   },
   {
     title: (
@@ -116,11 +116,12 @@ const COPY = [
   {
     title: (
       <>
-        Give your voice agent
-        <br />a place in iMessage.
+        Add iMessage to
+        <br />
+        your voice product.
       </>
     ),
-    body: "Your customers already text. Put your assistant in the conversation, with the photos, plans, and directions they need to act.",
+    body: "Back in the developer’s shoes: give customers flight options, gate updates, and directions they can revisit in iMessage, alongside your existing voice agent.",
   },
 ];
 
@@ -294,7 +295,7 @@ export default function ScrollWalkthrough() {
           <a href="#invitation">Invitation</a>
           <a href="#voice">Voice example</a>
           <a href="#welcome">iMessage</a>
-          <a href="#pilot">Pilot</a>
+          <a href="#pilot">Next step</a>
         </nav>
         <header className="scroll-header">
           <a href="./?view=scroll" aria-label="Return to scroll introduction">
@@ -335,8 +336,9 @@ export default function ScrollWalkthrough() {
                     {moment === 0 && (
                       <>
                         <p className="scroll-context">
-                          AI builds a lightweight demo for each company,
-                          selected for product fit and public signals.
+                          We select companies for product fit and public
+                          signals. AI builds each lightweight demo from public
+                          information before outreach.
                         </p>
                         <a className="scroll-invitation-cue" href="#invitation">
                           Scroll to see the example <ArrowDown size={16} />
@@ -392,7 +394,7 @@ export default function ScrollWalkthrough() {
                         className="button primary"
                         onClick={() => setDialog("pilot")}
                       >
-                        Build your iMessage pilot
+                        Meet with Linq
                       </button>
                     )}
                   </motion.section>
@@ -578,7 +580,7 @@ export default function ScrollWalkthrough() {
             preserveScroll
             title={
               dialog === "pilot"
-                ? "Let’s put your assistant in iMessage."
+                ? "Let’s map your first iMessage workflow."
                 : dialog === "about"
                   ? "About this demo"
                   : ATTACHMENTS[dialog].title
@@ -593,12 +595,13 @@ export default function ScrollWalkthrough() {
                   <LinqLogo />
                 </div>
                 <p>
-                  Start with one customer workflow. Bring your existing agent;
-                  work with Linq on the messaging experience. Then test a small
-                  pilot with your customers.
+                  Meet with Linq to map one customer workflow onto your existing
+                  voice agent. Then test the connection in the sandbox before
+                  planning a customer pilot.
                 </p>
                 <p className="disclosure">
-                  Pilot booking is not connected in this demo.
+                  This is an illustrated next step. This demo does not book a
+                  meeting or connect to your agent.
                 </p>
                 <button
                   className="button primary"
@@ -610,15 +613,21 @@ export default function ScrollWalkthrough() {
             ) : dialog === "about" ? (
               <>
                 <p>
-                  This alternate walkthrough follows your scroll position.
-                  Scroll backward to rewind it. The original click-through
-                  version is still available from the header.
+                  This walkthrough follows your scroll position. Scroll backward
+                  to rewind it. The original click-through version is still
+                  available from the header.
                 </p>
                 <p>
                   Plot Twist Travel, Alex, the airport and flights are
                   fictional. Traveler messages are prepared and revealed by
                   scrolling. The number is illustrative. No messages, calls,
                   bookings or meeting requests are sent.
+                </p>
+                <p>
+                  The invitation illustrates the proposed outreach. The demo is
+                  a standalone concept, built without access to a company’s
+                  production agent. Connecting an agent would be a later sandbox
+                  step with that company’s team.
                 </p>
                 <p>
                   Alex uses locally generated Kokoro narration. Sound starts

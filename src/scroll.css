@@ -463,6 +463,9 @@
 .scroll-customer a:focus-visible {
   outline-color: #2978c4;
 }
+.scroll-story .modal-backdrop {
+  z-index: 70;
+}
 .scroll-story .modal .partnership .plot-logo {
   color: var(--ink);
 }
@@ -825,6 +828,9 @@
   .scroll-call-caption .waveform {
     display: none;
   }
+  .scroll-email .email-toolbar {
+    display: none;
+  }
   .scroll-email .email-message {
     padding: 12px 14px;
   }
@@ -840,9 +846,6 @@
     margin-bottom: 9px;
   }
   .scroll-email .email-body > p:first-child {
-    display: none;
-  }
-  .scroll-email .email-cta {
     display: none;
   }
   .moment-0 .scroll-copy h1 {

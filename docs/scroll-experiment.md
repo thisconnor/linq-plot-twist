@@ -1,15 +1,15 @@
 # Scroll walkthrough experiment
 
-October 19, 2026. This is an alternate presentation for comparison, not a replacement for version 8.
+October 19, 2026. Originally built as an alternate presentation, this is now the user's selected walkthrough. The original click-through version remains available for reference. See [final-review-decisions.md](./final-review-decisions.md) for the current audience, invitation, and CTA refinements.
 
 - Original: https://thisconnor.github.io/linq-plot-twist/
-- Experiment: https://thisconnor.github.io/linq-plot-twist/?view=scroll
+- Current walkthrough: https://thisconnor.github.io/linq-plot-twist/?view=scroll
 
 ## Experience
 
-One sticky viewport follows the viewer’s ordinary scroll. The product preview opens into the personalized email, contracts into the customer’s phone, moves from call to Messages, and ends with the Plot Twist × Linq pilot proposal. Scroll controls scene changes, message reveals, read/typing states, the contact reveal, reaction, gate card and route. The original page-to-page navigation is not required. The optional native-looking Send control advances this same timeline rather than sending anything.
+One sticky viewport follows the viewer’s ordinary scroll. The product preview opens into the personalized email, contracts into the customer’s phone, moves from call to Messages, and ends with a Plot Twist × Linq invitation to discuss one workflow before sandbox testing. Scroll controls scene changes, message reveals, read/typing states, the contact reveal, reaction, gate card and route. The original page-to-page navigation is not required. The optional native-looking Send control advances this same timeline rather than sending anything.
 
-The story has ten moments: campaign, developer invitation, traveler handoff, voice, help/greeting, flights, confirmation, gate change, route, and pilot. It retains the approved campaign paragraph, male Alex identity, Pickles context and canonical travel facts. The first text is help alone, followed by the separate flight request. The gate card arrives before the route image. Scrolling backward rebuilds the earlier state without timers or stale replies.
+The story has ten moments: campaign, developer invitation, traveler handoff, voice, help/greeting, flights, confirmation, gate change, route, and next step. It retains the growth tactic, male Alex identity, Pickles context and canonical travel facts. The first text is help alone, followed by the separate flight request. The gate card arrives before the route image. Scrolling backward rebuilds the earlier state without timers or stale replies.
 
 The voice section can be read silently or played intentionally with Listen to the call. It uses the existing Kokoro WAV files and audio-clock captions. Moving out of the voice section cancels and resets playback. Audio failure uses the existing timed-caption fallback. No audio begins from scrolling alone.
 

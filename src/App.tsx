@@ -183,7 +183,7 @@ export function Invitation({ onContinue }: { onContinue(): void }) {
           </aside>
           <article className="email-message">
             <div className="email-subject">
-              <h2>A textable version of your travel assistant</h2>
+              <h2>What if travelers could text your voice agent?</h2>
               <span>Inbox</span>
             </div>
             <div className="email-sender">
@@ -201,9 +201,12 @@ export function Invitation({ onContinue }: { onContinue(): void }) {
             <div className="email-body">
               <p>Hi Plot Twist team,</p>
               <p>
-                Your assistant already helps travelers by phone. We made a small
-                iMessage demo of a canceled-flight workflow for Plot Twist,
-                including directions a traveler can keep handy.
+                Your voice agent already helps by phone. Add flight options,
+                gate updates, and directions travelers can revisit in iMessage.
+              </p>
+              <p>
+                We built a standalone Plot Twist concept from public
+                information. It isn’t connected to your agent.
               </p>
               <img
                 className="email-preview"
@@ -216,7 +219,7 @@ export function Invitation({ onContinue }: { onContinue(): void }) {
                 and try it as your customer.
               </p>
               <button className="button email-cta" onClick={onContinue}>
-                Try your customer’s experience <ArrowUpRight size={19} />
+                Try the customer demo <ArrowUpRight size={19} />
               </button>
               <p className="email-signoff">The Linq team</p>
             </div>
