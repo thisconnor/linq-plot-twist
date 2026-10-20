@@ -301,9 +301,6 @@ export default function ScrollWalkthrough() {
           <a href="./?view=scroll" aria-label="Return to scroll introduction">
             {customer ? <PlotLogo compact /> : <LinqLogo />}
           </a>
-          <a className="scroll-original" href="./">
-            Original version <ArrowUpRight size={14} />
-          </a>
         </header>
         <audio ref={audio} preload="metadata" aria-hidden="true" />
         <main className="scroll-track" ref={track}>
@@ -614,8 +611,7 @@ export default function ScrollWalkthrough() {
               <>
                 <p>
                   This walkthrough follows your scroll position. Scroll backward
-                  to rewind it. The original click-through version is still
-                  available from the header.
+                  to rewind it.
                 </p>
                 <p>
                   Plot Twist Travel, Alex, the airport and flights are

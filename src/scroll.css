@@ -49,12 +49,6 @@
   width: 80px;
   filter: none;
 }
-.scroll-original {
-  font-size: 13px;
-  gap: 7px;
-  padding: 12px 0 12px 20px;
-  color: var(--muted) !important;
-}
 .scroll-customer .plot-logo {
   color: #43333d;
 }
@@ -526,11 +520,6 @@
   .scroll-header .plot-logo > svg {
     width: 25px;
     height: 25px;
-  }
-  .scroll-original {
-    font-size: 11px;
-    padding-left: 10px;
-    gap: 4px;
   }
   .scroll-canvas {
     padding: 76px 22px 45px;
